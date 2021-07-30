@@ -5,3 +5,4 @@ from responses.Projection import SkyProjector
 
 from helper_functions.minimization_helpers import build_controller_dict
 from helper_functions.logger import logger
+from helper_functions.data.get_rm import get_rm

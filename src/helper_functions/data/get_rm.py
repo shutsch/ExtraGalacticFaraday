@@ -5,7 +5,7 @@ from ..logger import logger, Format
 from ..misc import gal2gal
 
 
-def faraday(filter_pulsars, filter_cgps, version):
+def get_rm(filter_pulsars, filter_cgps, version):
     logger.info(
         "\n" + Format.underline + "DATA LIBRARY:" + Format.end +
         " _faraday: params : \'filter_pulsars\' {}, \'filter_cgps\' {}, \'version\' {}"
