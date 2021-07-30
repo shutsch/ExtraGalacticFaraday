@@ -26,5 +26,4 @@ def mock_extra_gal(param_dict, hyperparameters):
 
     sky = a - b/z.log1p()
 
-
     return {'sky': sky, 'components': {'a': a, 'b': b, 'z': z}, 'amplitudes': {}}
