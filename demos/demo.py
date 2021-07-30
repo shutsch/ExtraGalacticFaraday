@@ -26,17 +26,26 @@ def run_inference():
 
     sign_params = {}
 
-    egf.faraday_2020({'log_amplitude' : log_amplitude_params, })
+    models_dict = egf.build_faraday_2020({'log_amplitude' : log_amplitude_params, })
+
+    galactic_model = models_dict['sky']
 
     # set the extra-galactic model hyper-parameters and initialize the model
 
+    models_dict = egf.build_demo_extra_gal()
+    extra_galactic_model = models_dict['sky']
+
     # build the full model and connect it to the likelihood
 
+    full_model = response @ galactic_model + extra_galactic_model
 
-    full_model = response_op @ galactic_model + extra_galactic_model
+    likelihood = ift.GaussianEnergy(mean=rm_data, inverse_covariance=inverse_noise_cov) @ full_model
 
-    likelihood = ift.GaussianEnergy
+    # set run parameters and start the inference
 
+    kl_type = 'GeoMetricKL'
+    sampling_controller = ift.AbsDeltaEnergyController()
+    minimization_controller = ift.AbsDeltaEnergyController()
 
 
 

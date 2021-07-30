@@ -1,19 +1,11 @@
 import nifty7 as ift
 
 
-def mock_extra_gal(param_dict, hyperparameters):
+def build_demo_extra_gal(domain, mu_a, sigma_a, sigma_b, mu_b):
     # This is a completely cooked up extra-galactic RM model for illustrative purposes only.
     # The model is RM_egal = e**(sigma_a * \xi_a + \mu_a) - e**(sigma_b * \xi_b + \mu_b)/(ln(1 + e^z)),
-    # where the sigmas and mus are a hyper-parameters of the model, xi_a and  xi_b are the fields to be determined and
-
-    domain = param_dict['n_sources']
-
-    # getting the hyper-parameters
-
-    sigma_a = hyperparameters['sigma_a']
-    mu_a = hyperparameters['mu_a']
-    sigma_b = hyperparameters['sigma_b']
-    mu_b = hyperparameters['mu_b']
+    # where the sigmas and mus are a hyper-parameters of the model, xi_a and  xi_b are the fields to be determined and z
+    # is a number, also to be learned
 
     # defining the fields
 
