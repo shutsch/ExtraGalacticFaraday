@@ -3,7 +3,7 @@ from setuptools import setup
 setup(
     name='ExtraGalacticFaraday',
     version='0.1',
-    packages=['src', 'src.responses', 'src.model_library', 'src.model_library.galactic_models',
+    packages=['src', 'src.operators', 'src.model_library', 'src.model_library.galactic_models',
               'src.model_library.extra_galactic_models', 'src.helper_functions', 'src.helper_functions.data'],
     url='https://github.com/shutsch/ExtraGalacticFaraday',
     license='GPLv3',

@@ -1,5 +1,5 @@
 import nifty7 as ift
-import ExtraGalacticFaraday as egf
+import ExtraGalacticFaraday as EgF
 
 def run_inference():
 
@@ -10,14 +10,14 @@ def run_inference():
 
     # load_the data, define domains, covariance and projection operators
 
-    rm_data, rm_stddev, theta, phi = egf.get_rm(filter_pulsars=True, filter_cgps=True, version='0.1.8')
+    rm_data, rm_stddev, theta, phi = EgF.get_rm(filter_pulsars=True, filter_cgps=True, version='0.1.8')
 
     data_domain = ift.makeDomain(ift.UnstructuredDomain((len(rm_data),)))
 
     rm_data = ift.Field(data_domain, rm_data)
     rm_stddev = ift.Field(data_domain, rm_stddev)
 
-    response = egf.SkyProjector(theta=theta, phi=phi, domain=sky_domain, target=data_domain)
+    response = EgF.SkyProjector(theta=theta, phi=phi, domain=sky_domain, target=data_domain)
     inverse_noise_cov = ift.makeOp(rm_stddev**(-2))
 
     # set the sky model hyper-parameters and initialize the model
@@ -26,13 +26,19 @@ def run_inference():
 
     sign_params = {}
 
-    models_dict = egf.build_faraday_2020({'log_amplitude' : log_amplitude_params, })
+    models_dict = EgF.build_faraday_2020(data_domain , **{'log_amplitude' : log_amplitude_params, 'sign': sign_params})
 
     galactic_model = models_dict['sky']
 
     # set the extra-galactic model hyper-parameters and initialize the model
 
-    models_dict = egf.build_demo_extra_gal()
+    model_params = {'mu_a': 1,
+                    'sigma_a': 1,
+                    'mu_b': 1,
+                    'sigma_b': 1,
+                    }
+
+    models_dict = EgF.build_demo_extra_gal(data_domain, **model_params)
     extra_galactic_model = models_dict['sky']
 
     # build the full model and connect it to the likelihood
@@ -43,6 +49,7 @@ def run_inference():
 
     # set run parameters and start the inference
 
+    plotting_path =
     kl_type = 'GeoMetricKL'
     sampling_controller = ift.AbsDeltaEnergyController()
     minimization_controller = ift.AbsDeltaEnergyController()
