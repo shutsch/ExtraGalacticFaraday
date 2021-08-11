@@ -1,5 +1,8 @@
 from model_library.galactic_models.faraday2020 import build_faraday_2020
-from model_library.extra_galactic_models.demo_extra_gal import build_demo_extra_gal
+from model_library.extra_galactic_models.demo_extra_gal import ExtraGalDemoModel
+
+from model_library.noise_models.fixed_noise import StaticNoise
+from model_library.noise_models.simple_variable_noise import SimpleVariableNoise
 
 from operators.Projection import SkyProjector
 
