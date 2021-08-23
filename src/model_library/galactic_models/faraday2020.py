@@ -1,28 +1,34 @@
 import nifty7 as ift
 
+from ..Model import Model
 
-def build_faraday_2020(domain, log_amplitude_parameters, sign_parameters):
 
-    # Define log-amplitude field
+class Faraday2020Sky(Model):
+    def __init__(self, target_domain, log_amplitude_parameters, sign_parameters):
+        super().__init__(target_domain)
+        self._log_amplitude_parameters = log_amplitude_parameters
+        self._sign_parameters = sign_parameters
 
-    rho = ift.CorrelatedFieldMaker(prefix='log_amplitude')
-    rho.add_fluctuations(**log_amplitude_parameters['fluctuations'])
-    rho.set_amplitude_total_offset(**log_amplitude_parameters['offset'])
+    def set_model(self):
 
-    rho_model = rho.finalize()
+        rho = ift.CorrelatedFieldMaker(prefix='log_profile')
+        rho.add_fluctuations(**self._log_amplitude_parameters['fluctuations'])
+        rho.set_amplitude_total_offset(**self._log_amplitude_parameters['offset'])
 
-    # Define sign field
+        rho_model = rho.finalize()
 
-    chi = ift.CorrelatedFieldMaker(prefix='sign')
-    chi.add_fluctuations(**sign_parameters['fluctuations'])
-    chi.set_amplitude_total_offset(**sign_parameters['offset'])
+        # Define sign field
 
-    chi_model = chi.finalize()
+        chi = ift.CorrelatedFieldMaker(prefix='sign')
+        chi.add_fluctuations(**self._sign_parameters['fluctuations'])
+        chi.set_amplitude_total_offset(**self._sign_parameters['offset'])
 
-    # Build Faraday sky
-    galactic_faraday_sky = rho_model.exp()*chi_model
+        chi_model = chi.finalize()
 
-    return {'sky':  galactic_faraday_sky,
-            'components': {'log_amplitude': rho_model, 'sign': chi_model},
-            'amplitudes': {'log_amplitude': rho.amplitude, 'sign': chi.amplitude}
-            }
+        # Build Faraday sky
+        galactic_faraday_sky = rho_model.exp()*chi_model
+
+        self._model = galactic_faraday_sky,
+        self._components = {'log_profile': rho_model, 'sign': chi_model ,
+                            'log_profile_amplitude': rho.amplitude, 'sign_amplitude': chi.amplitude
+                            }

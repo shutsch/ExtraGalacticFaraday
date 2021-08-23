@@ -3,25 +3,25 @@ from ..Model import Model
 
 
 class ExtraGalDemoModel(Model):
-    def __init__(self, target_domain, **hyperparameters):
+    def __init__(self, target_domain, sigma_a, sigma_b, mu_a, mu_b):
         # This is a completely cooked up extra-galactic RM model for illustrative purposes only.
         # The model is RM_egal = e**(sigma_a * \xi_a + \mu_a) - e**(sigma_b * \xi_b + \mu_b)/(ln(1 + e^z)),
         # where the sigmas and mus are a hyper-parameters of the model,
         # xi_a and  xi_b are fields and z is a number.
 
-        super().__init__(target_domain, hyperparameters)
+        super().__init__(target_domain)
+        self.sigma_a = sigma_a
+        self.sigma_b = sigma_b
+        self.mu_a = mu_a
+        self.mu_b = mu_b
 
-    def set_model(self, hyperparameters):
-        sigma_a = hyperparameters['sigma_a']
-        sigma_b = hyperparameters['sigma_b']
-        mu_a = hyperparameters['mu_a']
-        mu_b = hyperparameters['mu_b']
+    def set_model(self):
 
         chi_a = ift.FieldAdapter(self.target_domain, 'chi_a')
         chi_b = ift.FieldAdapter(self.target_domain, 'chi_b')
 
-        a = (sigma_a * chi_a + mu_a).exp()
-        b = (sigma_b * chi_b + mu_b).exp()
+        a = (self.sigma_a * chi_a + self.mu_a).exp()
+        b = (self.sigma_b * chi_b + self.mu_b).exp()
 
         z = ift.FieldAdapter(ift.DomainTuple.scalar_domain(), 'z')
 

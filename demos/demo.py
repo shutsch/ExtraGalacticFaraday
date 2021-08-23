@@ -5,7 +5,7 @@ def run_inference():
 
     # set the HealPix resolution parameter and the sky domain
 
-    nside = 256
+    nside = 32
     sky_domain = ift.makeDomain(ift.HPSpace(nside))
 
     # set the sky model hyper-parameters and initialize the Faraday 2020 sky model
@@ -14,7 +14,7 @@ def run_inference():
 
     sign_params = {}
 
-    galactic_model = EgF.build_faraday_2020(sky_domain , **{'log_amplitude' : log_amplitude_params, 'sign': sign_params})
+    galactic_model = EgF.Faraday2020Sky(sky_domain , **{'log_amplitude' : log_amplitude_params, 'sign': sign_params})
 
     # load_the data, define domains, covariance and projection operators
 
@@ -32,46 +32,45 @@ def run_inference():
     egal_rm = ift.Field(egal_data_domain, egal_rm)
     egal_stddev = ift.Field(egal_data_domain, egal_stddev)
 
-    explicit_response = EgF.SkyProjector(theta=data['theta'][egal_indices], phi=data['phi'][egal_indices], domain=sky_domain,
-                                     target=egal_data_domain)
+    explicit_response = EgF.SkyProjector(theta=data['theta'][schnitzeler_indices], phi=data['phi'][schnitzeler_indices],
+                                         domain=sky_domain, target=egal_data_domain)
 
     egal_inverse_noise = EgF.StaticNoise(egal_data_domain, egal_stddev**2, True)
 
     # set the extra-galactic model hyper-parameters and initialize the model
 
-    model_params = {'mu_a': 1,
-                    'sigma_a': 1,
-                    'mu_b': 1,
-                    'sigma_b': 1,
-                    }
+    egal_model_params = {'mu_a': 1, 'sigma_a': 1, 'mu_b': 1, 'sigma_b': 1,
+                         }
 
-    emodel = EgF.ExtraGalDemoModel(egal_data_domain, **model_params)
+    emodel = EgF.ExtraGalDemoModel(egal_data_domain, **egal_model_params)
 
     # build the full model and connect it to the likelihood
 
-    egal_model = egal_response @ galactic_model.get_model() + emodel.get_model()
+    egal_model = explicit_response @ galactic_model.get_model() + emodel.get_model()
+    residual = ift.Adder(-egal_rm) @ egal_model
+    explicit_likelihood = ift.GaussianEnergy(inverse_covariance=egal_inverse_noise.get_model()) \
+                          @ residual
 
-    explicit_likelihood = ift.GaussianEnergy(mean=egal_model, inverse_covariance=egal_inverse_noise) @ egal_model
 
+    gal_rm = data['rm'][~schnitzeler_indices]
+    gal_stddev = data['rm_err'][~schnitzeler_indices]
 
-    egal_rm = data['rm'][egal_indices]
-    egal_stddev = data['rm_err'][egal_indices]
+    gal_data_domain = ift.makeDomain(ift.UnstructuredDomain((len(gal_rm),)))
 
-    egal_data_domain = ift.makeDomain(ift.UnstructuredDomain((len(egal_rm),)))
+    gal_rm = ift.Field(egal_data_domain, gal_rm)
+    gal_stddev = ift.Field(egal_data_domain, gal_stddev)
 
-    egal_rm = ift.Field(egal_data_domain, egal_rm)
-    egal_stddev = ift.Field(egal_data_domain, egal_stddev)
+    implicit_response = EgF.SkyProjector(theta=data['theta'][~schnitzeler_indices],
+                                         phi=data['phi'][~schnitzeler_indices],
+                                         domain=sky_domain, target=gal_data_domain)
 
-    egal_response = EgF.SkyProjector(theta=data['theta'][egal_indices], phi=data['phi'][egal_indices], domain=sky_domain,
-                                     target=egal_data_domain)
-
-    implicit_inverse_noise = EgF.StaticNoise(egal_data_domain, egal_stddev**2, True)
+    implicit_noise = EgF.SimpleVariableNoise(gal_data_domain, alpha=2.5, q='mode', noise_cov=gal_stddev**2)
 
     # build the full model and connect it to the likelihood
 
     implicit_model = implicit_response @ galactic_model.get_model()
-
-    implicit_likelihood = ift.GaussianEnergy(mean=egal_model, inverse_covariance=implicit_inverse_noise) @ egal_model
+    residual = implicit_noise.get_model().sqrt().reciprocal() @ ift.Adder(-gal_rm) @ implicit_model
+    implicit_likelihood = ift.GaussianEnergy(gal_data_domain) @ residual
 
     # combine the likelihoods
 
@@ -79,12 +78,7 @@ def run_inference():
 
     # set run parameters and start the inference
 
-    plotting_path =
-    kl_type = 'GeoMetricKL'
-    sampling_controller = ift.AbsDeltaEnergyController()
-    minimization_controller = ift.AbsDeltaEnergyController()
-
-
+    EgF.minimization(n_global=20, kl_type='GeoMetricKL', likelihood=likelihood)
 
 
 if __name__ == '__main__ ':

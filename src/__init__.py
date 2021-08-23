@@ -1,4 +1,4 @@
-from model_library.galactic_models.faraday2020 import build_faraday_2020
+from model_library.galactic_models.faraday2020 import Faraday2020Sky
 from model_library.extra_galactic_models.demo_extra_gal import ExtraGalDemoModel
 
 from model_library.noise_models.fixed_noise import StaticNoise
@@ -6,7 +6,6 @@ from model_library.noise_models.simple_variable_noise import SimpleVariableNoise
 
 from operators.Projection import SkyProjector
 
-from helper_functions.minimization_helpers import build_controller_dict
 from helper_functions.logger import logger
 from helper_functions.data.get_rm import get_rm
 from helper_functions.minimization import minimization

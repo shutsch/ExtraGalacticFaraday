@@ -6,29 +6,30 @@ from ..Model import Model
 
 class SimpleVariableNoise(Model):
 
-    def __init__(self, target_domain, hyperparameters, name=''):
-        super().__init__(target_domain, hyperparameters)
-        self.name = name
-
-    def set_model(self, hyperparameters):
-        excitations = ift.FieldAdapter(self.target_domain, 'noise_excitations_' + self.name)
-        alpha = hyperparameters['alpha']
-        q_rule = hyperparameters['q_rule']
-        noise_cov = hyperparameters['noise_cov']
+    def __init__(self, target_domain, noise_cov, alpha, q, name=''):
+        super().__init__(target_domain)
         if isinstance(noise_cov, ift.Field):
-            noise_cov = ift.makeOp(noise_cov)
+            self.noise_cov = ift.makeOp(noise_cov)
         else:
-            noise_cov = ift.makeOp(ift.Field(self.target_domain, noise_cov))
-        if q_rule == 'mean':
-            q = alpha - 1
-        elif q_rule == 'mode':
-            q = alpha + 1
-        elif q_rule == 'log_mean':
-            import scipy.special as sp
-            q = np.exp(sp.digamma(alpha))
-        else:
-            ValueError(q_rule, ' is an unknown rule for setting q')
-        from ...operators.InverseGamma import InverseGammaOperator
-        eta = InverseGammaOperator(self.target_domain, alpha, q) @ excitations
+            self.noise_cov = ift.makeOp(ift.Field(self.target_domain, noise_cov))
+        self.alpha = alpha
+        if isinstance(q, str):
+            if q == 'mean':
+                q = alpha - 1
+            elif q == 'mode':
+                q = alpha + 1
+            elif q == 'log_mean':
+                import scipy.special as sp
+                q = np.exp(sp.digamma(alpha))
+            else:
+                raise ValueError(q, ' is an unknown rule for setting q')
+        self.q = q
+        self.name = name if name == '' else '_' + name
 
-        self._model = noise_cov @ eta
+    def set_model(self):
+        excitations = ift.FieldAdapter(self.target_domain, 'noise_excitations' + self.name)
+        from ...operators.InverseGamma import InverseGammaOperator
+        eta = InverseGammaOperator(self.target_domain, self.alpha, self.q) @ excitations
+
+        self._model = self.noise_cov @ eta
+        self._components = {'eta': eta}
