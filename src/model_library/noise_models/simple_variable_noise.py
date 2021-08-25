@@ -7,7 +7,6 @@ from ..Model import Model
 class SimpleVariableNoise(Model):
 
     def __init__(self, target_domain, noise_cov, alpha, q, name=''):
-        super().__init__(target_domain)
         if isinstance(noise_cov, ift.Field):
             self.noise_cov = ift.makeOp(noise_cov)
         else:
@@ -25,6 +24,7 @@ class SimpleVariableNoise(Model):
                 raise ValueError(q, ' is an unknown rule for setting q')
         self.q = q
         self.name = name if name == '' else '_' + name
+        super().__init__(target_domain)
 
     def set_model(self):
         excitations = ift.FieldAdapter(self.target_domain, 'noise_excitations' + self.name)

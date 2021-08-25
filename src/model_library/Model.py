@@ -8,7 +8,7 @@ class Model:
         self._model = None
         self.set_model()
         if not isinstance(self._model, ift.Operator):
-            raise TypeError
+            raise TypeError('self._model is a {} instance, should be ift.Operator'.format(type(self._model)))
 
     def get_model(self):
         return self._model

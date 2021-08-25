@@ -5,6 +5,7 @@
       <excludeFolder url="file://$MODULE_DIR$/build" />
       <excludeFolder url="file://$MODULE_DIR$/dist" />
       <excludeFolder url="file://$MODULE_DIR$/ExtraGalacticFaraday.egg-info" />
+      <excludeFolder url="file://$MODULE_DIR$/data/Faraday" />
     </content>
     <orderEntry type="jdk" jdkName="Python 3.8 (env_nifty7)" jdkType="Python SDK" />
     <orderEntry type="sourceFolder" forTests="false" />

@@ -30,7 +30,7 @@ def get_rm(version, filter_pulsars, default_error_level):
     data['rm_err'][data['catalog'] == '2009ApJ...702.1230T'] *= 1.22  # Taylor et al error correction, see
     theta_gal, phi_gal = gal2gal(data['l'], data['b']) # converting to colatitude and logitude in radians
     data.update({'theta': theta_gal, 'phi': phi_gal})
-    faulty_sigmas = np.isnan(data['rm_err']) & data['rm_err'] == 0
+    faulty_sigmas = np.isnan(data['rm_err']) | (data['rm_err'] == 0)
     logger.info('DATA LOADING: load_faraday_new_master: {} nan or zero valued sigma values, '
                 'corrected to 0.5 * abs(RM)'.format(sum(faulty_sigmas)))
     data['rm_err'][faulty_sigmas] = default_error_level * abs(data['rm'][faulty_sigmas])

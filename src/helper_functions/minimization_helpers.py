@@ -15,8 +15,7 @@ def get_controller(m_dict, iteration_number, final, key):
     if not hasattr(ift, m_dict['type'] + 'Controller'):
         raise 'Unknown Energy controller required'
 
-    ic = getattr(ift, m_dict['type'] + 'Controller')(name=key + str(iteration_number),
-                                                     iteration_limit=n,
+    ic = getattr(ift, m_dict['type'] + 'Controller')(name=key, iteration_limit=n,
                                                      **m_dict['controller_params'])
 
     return ic
