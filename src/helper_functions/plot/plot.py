@@ -11,34 +11,22 @@ def energy_plotting(array_dict, path):
     if not os.path.exists(path):
         os.makedirs(path)
     for key, e in array_dict.items():
-        n = len(e) - 1
         pl.figure()
-        pl.plot(np.arange(len(e)), e, label=key + '_energy_iteration_' + str(n))
-        pl.legend()
-        pl.savefig(path + key + '_energy.png')
-        pl.close()
-    for key, e in array_dict.items():
-        pl.figure()
-        pl.plot(np.arange(len(e)), e, label=key + '_log_energy_iteration_' + str(len(e) - 1))
+        pl.plot(np.arange(len(e)), e, label=key + '_log_energy')
         pl.legend()
         pl.yscale('log')
-        pl.savefig(path + key + '_log_energy.png')
+        pl.savefig(path + key + '_log_energy_iteration_' + str(len(e) - 1) + '.png')
         pl.close()
     pl.figure()
     for key, e in array_dict.items():
         pl.plot(np.arange(len(e)), e, label=key + '_iteration_' + str(len(e) - 1))
     pl.yscale('log')
     pl.legend()
-    pl.savefig(path + 'all_log_energy')
+    pl.savefig(path + 'all_log_energy' + str(len(e) - 1) + '.png')
     pl.close()
 
 
-def plot_prior_samples_and_data(samples, mb, path, plot_pd):
-    data_plotting(mb.data, plot_pd, path)
-    prior_plotting(samples, mb, path, plot_pd)
-
-
-def plot_all(string, samples, mb, path, plot_pd):
+def plot_all(string, samples, models, maps, path, plot_pd):
     if isinstance(samples, list):
         if len(samples) == 0:
             return
@@ -64,53 +52,67 @@ def plot_all(string, samples, mb, path, plot_pd):
     scatter_plotting(scatter, '_' + string, samples, plot_pd, path)
 
 
-def scatter_plotting(s_dict, string, samples, bounds, path):
+def scatter_plotting(s_dict, plot_obj, string, path, **kwargs):
+    """
+
+    :param s_dict:
+    :param string:
+    :param plot_obj: list
+    :param path:
+    :param kwargs:
+    :return:
+    """
     path += 'scatter/'
 
     for key, (val_1, val_2) in s_dict.items():
         try:
+            fkwargs = kwargs.get(key, {})
             scatter_path = path + key + '/'
             if not os.path.exists(scatter_path):
                 os.makedirs(scatter_path)
 
             if isinstance(val_1, ift.Operator):
-                if isinstance(samples, list):
+                if isinstance(plot_obj, list):
                     sc_1 = ift.StatCalculator()
-                    for sample in samples:
+                    for sample in plot_obj:
                         sc_1.add(val_1.force(sample))
                     val_1 = sc_1.mean
                 else:
-                    val_1 = val_1.force(samples)
+                    val_1 = val_1.force(plot_obj)
 
             if isinstance(val_2, ift.Operator):
-                if isinstance(samples, list):
+                if isinstance(plot_obj, list):
                     sc_2 = ift.StatCalculator()
-                    for sample in samples:
+                    for sample in plot_obj:
                         sc_2.add(val_2.force(sample))
                     val_2 = sc_2.mean
                 else:
-                    val_2 = val_2.force(samples)
+                    val_2 = val_2.force(plot_obj)
             key_1, key_2 = key.split(':')
             val_1 = val_1.val if isinstance(val_1, ift.Field) else val_1
             val_2 = val_2.val if isinstance(val_2, ift.Field) else val_2
-            #xmax, xmin = bounds.get(key_1, (val_1.max(), val_1.min(), ))
-            xmax, xmin = (val_1.max(), val_1.min(),)
-            ymax, ymin = (val_2.max(), val_2.min(), )
+            xmax = fkwargs.get(key_1 + '_max', val_1.max())
+            xmin = fkwargs.get(key_1 + '_min', val_1.min())
+            ymax = fkwargs.get(key_2 + '_max', val_2.max())
+            ymin = fkwargs.get(key_2 + '_min', val_2.min())
 
             pl.figure()
             xxx, yyy, zzz = density_estimation(val_1, val_2, xmin, xmax, ymin, ymax, 100)
             xx = np.linspace(xmin, xmax, 10)
             yy = np.linspace(ymin, ymax, 10)
 
-            pl.contour(xxx, yyy, np.log10(zzz + 1), cmap=cm.cool, linewidths=0.9,
+            cma = _get_cmap(fkwargs.get('cmap', 'cool'))
+
+            pl.contour(xxx, yyy, np.log10(zzz + 1), cmap=cma, linewidths=0.9,
                        #levels=np.linspace(0.01, 1, 10)
                        )
-            c1 = pl.contourf(xxx, yyy, np.log10(zzz + 1), cmap=cm.cool,
+            c1 = pl.contourf(xxx, yyy, np.log10(zzz + 1), cmap=cma,
                 # levels=np.linspace(0.01, 1, 10)
                              )
             col = pl.colorbar(c1)
+            col.set_label(fkwargs.get('cbar_label', r'$\log\left(1+\mathcal{P}\right)$'))
             pl.scatter(val_1, val_2, marker=',', s=0.5, color='black')
-            pl.plot(xx, yy, '--', c='red', linewidth=0.5)
+            # pl.plot(xx, yy, '--', c='red', linewidth=0.5)
             pl.xlabel(key_1)
             pl.ylabel(key_2)
             pl.xlim([xmin, xmax, ])
@@ -121,7 +123,16 @@ def scatter_plotting(s_dict, string, samples, bounds, path):
             continue
 
 
-def hist_plotting(hist_dict, string, samples, plot_pd, path):
+def hist_plotting(hist_dict, plot_obj, string, path, **kwargs):
+    """
+
+    :param hist_dict:
+    :param plot_obj:
+    :param string:
+    :param path:
+    :param kwargs:
+    :return:
+    """
     path += 'hist/'
     if not os.path.exists(path):
         os.makedirs(path)
@@ -129,17 +140,17 @@ def hist_plotting(hist_dict, string, samples, plot_pd, path):
         hpath = path + key + '/'
         if not os.path.exists(hpath):
             os.makedirs(hpath)
-        if isinstance(samples, list):
+        if isinstance(plot_obj, list):
             sc = ift.StatCalculator()
-            for sample in samples:
+            for sample in plot_obj:
                 sc.add(hfield.force(sample))
             hval = sc.mean.val
         else:
-            hval = hfield.force(samples).val
-        if key in plot_pd:
-            hmax = plot_pd[key].get('max', None)
-            hmin = plot_pd[key].get('min', None)
-            bins = plot_pd[key].get('bins', 100)
+            hval = hfield.force(plot_obj).val
+        if key in kwargs:
+            hmax = kwargs[key].get('max', None)
+            hmin = kwargs[key].get('min', None)
+            bins = kwargs[key].get('bins', 100)
             hmax = [hmax, ] if not isinstance(hmax, list) else hmax
             hmin = [hmin, ] if not isinstance(hmin, list) else hmin
             bins = [bins, ] if not isinstance(bins, list) else bins
@@ -171,7 +182,7 @@ def plot_fields(string, samples, mean, mb, path):
 
 
 def field_plotting(field_dict, mean, path):
-    path += 'fields/'
+    path += 'sky_fields/'
     for field in field_dict:
         if not os.path.exists(path):
             os.makedirs(path)
@@ -183,21 +194,30 @@ def field_plotting(field_dict, mean, path):
             continue
 
 
-def prior_plotting(samples, mb, path, plot_pd):
+def prior_plotting(samples, amplitudes, sky_fields, hist, path, **kwargs):
+    """
+
+    :param hist:
+    :param samples:
+    :param amplitudes:
+    :param sky_fields:
+    :param path:
+    :return:
+    """
     path += 'prior/'
     if not os.path.exists(path):
         os.makedirs(path)
-    power_plotting(mb.amplitudes, mb.plotting, samples, 'prior', path)
+    power_plotting(amplitudes, sky_fields, samples, 'prior', path)
     hpath = path + 'hist/'
     if not os.path.exists(hpath):
         os.makedirs(hpath)
-    for key, hfield in mb.hist.items():
+    for key, hfield in hist.items():
         for i, sample in enumerate(samples):
             hval = hfield.force(sample).val
-            if key in plot_pd:
-                hmax = plot_pd[key].get('max', None)
-                hmin = plot_pd[key].get('min', None)
-                bins = plot_pd[key].get('bins', 100)
+            if key in kwargs:
+                hmax = kwargs[key].get('max', None)
+                hmin = kwargs[key].get('min', None)
+                bins = kwargs[key].get('bins', 100)
                 hmax = [hmax, ] if not isinstance(hmax, list) else hmax
                 hmin = [hmin, ] if not isinstance(hmin, list) else hmin
                 bins = [bins, ] if not isinstance(bins, list) else bins
@@ -224,19 +244,19 @@ def prior_plotting(samples, mb, path, plot_pd):
     spath = path + 'sky/'
     if not os.path.exists(spath):
         os.makedirs(spath)
-    for sky in mb.plotting:
+    for sky in sky_fields:
 
         plot = ift.Plot()
         sc = ift.StatCalculator()
         for sample in samples:
             sc.add(sample)
-            m = mb.plotting[sky].force(sample)
+            m = sky_fields[sky].force(sample)
             cmap = None
-            if sky in plot_pd:
-                if 'color' in plot_pd[sky]:
-                    cmap = _get_cmap(plot_pd[sky]['color'])
+            if sky in kwargs:
+                if 'color' in kwargs[sky]:
+                    cmap = _get_cmap(kwargs[sky]['color'])
             plot.add(m, cmap=cmap)
-        plot.add(mb.plotting[sky].force(sc.mean), title='mean')
+        plot.add(sky_fields[sky].force(sc.mean), title='mean')
         plot.output(name=spath + sky + "_prior.png")
 
 
@@ -308,22 +328,19 @@ def power_plotting(amplitude_model_dict, sky_model_dict, samples, string, path):
         except KeyError:
             continue
     for sky in sky_model_dict:
-        if sky[:9] == 'projected':
+        try:
+            amp_path = path + sky + '/'
+            if not os.path.exists(amp_path):
+                os.makedirs(amp_path)
+            plot = ift.Plot()
+            ht = ift.HarmonicTransformOperator(sky_model_dict[sky].target[0].get_default_codomain(),
+                                               sky_model_dict[sky].target[0])
+            plot.add(
+                [ift.power_analyze(ht.adjoint(sky_model_dict[sky].force(s))) for s in samples],
+                title="Calculated Power Spectrum, " + sky)
+            plot.output(name=amp_path + sky + string + ".png")
+        except KeyError:
             continue
-        else:
-            try:
-                amp_path = path + sky + '/'
-                if not os.path.exists(amp_path):
-                    os.makedirs(amp_path)
-                plot = ift.Plot()
-                ht = ift.HarmonicTransformOperator(sky_model_dict[sky].target[0].get_default_codomain(),
-                                                   sky_model_dict[sky].target[0])
-                plot.add(
-                    [ift.power_analyze(ht.adjoint(sky_model_dict[sky].force(s))) for s in samples],
-                    title="Power Spectrum of Signal Posterior Samples, " + sky)
-                plot.output(name=amp_path + sky + string + ".png")
-            except KeyError:
-                continue
 
 
 def sky_map_plotting(sky_model_dict, samples, string, bounds, path):
