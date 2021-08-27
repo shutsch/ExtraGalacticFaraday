@@ -5,13 +5,19 @@ from .plot.plot import sky_map_plotting, power_plotting, energy_plotting
 
 def minimization(likelihoods, kl_type, n_global, plot_path, sky_maps=None, power_spectra=None):
     """
-    :param plot_path:
-    :param likelihoods:
-    :param kl_type:
-    :param n_global:
-    :param sky_maps:
-    :param power_spectra:
-    :return:
+    :param plot_path: str
+        path where plots and results are stored.
+    :param likelihoods: list of ift.Operators
+        the likelihoods
+    :param kl_type: str
+        either 'MGVI' or
+    :param n_global: int
+        number of global iterations
+    :param sky_maps: dict of ift.Operators
+        sky map models for plotting
+    :param power_spectra: dict of ift.Operators
+        power spectrum models for plotting
+    :return: None
     """
     sample_parameters = {'n': 2,
                          'change_params': {'n_prior': 2,
@@ -80,13 +86,13 @@ def minimization(likelihoods, kl_type, n_global, plot_path, sky_maps=None, power
 
         if sky_maps is not None:
             for sky_name, sky in sky_maps.items():
-                sky_map_plotting(sky, kl.samples, sky_name, str(i - 1) if i != 0 else 'initial', plot_path)
+                sky_map_plotting(sky, [kl.position + s for s in kl.samples], sky_name, plot_path, string=str(i - 1) if i != 0 else 'initial')
                 if sky not in power_spectra:
-                    power_plotting(sky,  sky_name, str(i - 1) if i != 0 else 'initial', plot_path,
+                    power_plotting(sky, [kl.position + s for s in kl.samples], sky_name, plot_path, string=str(i - 1) if i != 0 else 'initial',
                                    from_power_model=False)
         if power_spectra is not None:
             for power_name, power in power_spectra.items():
-                power_plotting(power,  power_name, str(i - 1) if i != 0 else 'initial', plot_path,
+                power_plotting(power, [kl.position + s for s in kl.samples], power_name, plot_path, string=str(i - 1) if i != 0 else 'initial',
                                from_power_model=True)
 
         minimizer = ift.NewtonCG(controllers['Minimizer'])

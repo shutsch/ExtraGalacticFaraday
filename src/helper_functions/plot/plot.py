@@ -162,15 +162,15 @@ def power_plotting(model, samples, name, path, from_power_model, string=None):
         plo.output(name=amp_path + name + string + ".png")
 
 
-def sky_map_plotting(model, plot_obj, name, string, path, **kwargs):
+def sky_map_plotting(model, plot_obj, name, path, string=None, **kwargs):
     sky_path = path + 'sky/' + name + '/'
     if not os.path.exists(sky_path):
         os.makedirs(sky_path)
     plot = ift.Plot()
-
     if isinstance(plot_obj, list):
         sc = ift.StatCalculator()
         for sample in plot_obj:
+            print(name, type(model), type(sample), sample)
             sc.add(model.force(sample))
         m = sc.mean
     else:
