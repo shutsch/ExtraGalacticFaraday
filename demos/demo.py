@@ -3,6 +3,9 @@ import ExtraGalacticFaraday as EgF
 
 import numpy as np
 
+"""
+"""
+
 
 def run_inference():
     # set the HealPix resolution parameter and the sky domain
@@ -12,18 +15,16 @@ def run_inference():
 
     # set the sky model hyper-parameters and initialize the Faraday 2020 sky model
 
-    log_amplitude_params = {'fluctuations':
-                                {'asperity': [.1, .1], 'flexibility': [.1, .1],
-                                 'fluctuations': [3, 2], 'loglogavgslope': [-3., .75],
-                                 },
-                             'offset': {'offset_mean': 4, 'offset_std': [6, 6.]}
+    log_amplitude_params = {'fluctuations': {'asperity': [.1, .1], 'flexibility': [.1, .1],
+                                             'fluctuations': [3, 2], 'loglogavgslope': [-3., .75],
+                                             },
+                            'offset': {'offset_mean': 4, 'offset_std': [6, 6.]},
                             }
 
-    sign_params = {'fluctuations':
-                                {'asperity': [.1, .1], 'flexibility': [.1, .1],
-                                 'fluctuations': [3, 2], 'loglogavgslope': [-3., .75],
-                                 },
-                             'offset': {'offset_mean': 0, 'offset_std': [6, 6.]}
+    sign_params = {'fluctuations': {'asperity': [.1, .1], 'flexibility': [.1, .1],
+                                    'fluctuations': [3, 2], 'loglogavgslope': [-3., .75],
+                                    },
+                   'offset': {'offset_mean': 0, 'offset_std': [6, 6.]},
                    }
 
     galactic_model = EgF.Faraday2020Sky(sky_domain, **{'log_amplitude_parameters': log_amplitude_params,
@@ -84,18 +85,21 @@ def run_inference():
     residual = ift.Adder(-gal_rm) @ implicit_model
     new_dom = ift.MultiDomain.make({'icov': implicit_noise.target, 'residual': residual.target})
     n_res = ift.FieldAdapter(new_dom, 'icov')(implicit_noise.reciprocal()) + \
-            ift.FieldAdapter(new_dom, 'residual')(residual)
+        ift.FieldAdapter(new_dom, 'residual')(residual)
     implicit_likelihood = ift.VariableCovarianceGaussianEnergy(domain=gal_data_domain, residual_key='residual',
                                                                inverse_covariance_key='icov',
                                                                sampling_dtype=np.dtype(np.float64)) @ n_res
 
-    # combine the likelihoods
-
-    likelihood = implicit_likelihood + explicit_likelihood
-
     # set run parameters and start the inference
+    components = galactic_model.get_components()
+    sky_models = {'faraday_sky': galactic_model.get_model(), 'profile': components['log_profile'].exp(),
+                  'sign': components['sign']}
+    power_models = {'log_profile': components['log_profile_amplitude'], 'sign': components['sign_amplitude']}
 
-    EgF.minimization(n_global=20, kl_type='GeoMetricKL', likelihood=likelihood)
+    EgF.minimization(n_global=20, kl_type='GeoMetricKL', plot_path='./runs/demo/',
+                     likelihoods={'implicit_lilelihood': implicit_likelihood,
+                                  'explicit_likelihood': explicit_likelihood},
+                     sky_maps=sky_models, power_spectra=power_models)
 
 
 if __name__ == '__main__':

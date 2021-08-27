@@ -13,5 +13,8 @@ class Model:
     def get_model(self):
         return self._model
 
+    def get_components(self):
+        return self._components
+
     def set_model(self):
         raise NotImplementedError
