@@ -13,6 +13,18 @@ def run_inference():
     nside = 32
     sky_domain = ift.makeDomain(ift.HPSpace(nside))
 
+    # load_the data, define domains, covariance and projection operators
+
+    data = EgF.get_rm(filter_pulsars=True, version='0.1.8', default_error_level=0.5)
+
+    # filter
+    schnitzeler_indices = (data['catalog'] == '2017MNRAS.467.1776K')
+
+    #
+    egal_rm = data['rm'][schnitzeler_indices]
+    egal_stddev = data['rm_err'][schnitzeler_indices]
+
+
     # set the sky model hyper-parameters and initialize the Faraday 2020 sky model
 
     log_amplitude_params = {'fluctuations': {'asperity': [.1, .1], 'flexibility': [.1, .1],
@@ -30,16 +42,6 @@ def run_inference():
     galactic_model = EgF.Faraday2020Sky(sky_domain, **{'log_amplitude_parameters': log_amplitude_params,
                                                        'sign_parameters': sign_params})
 
-    # load_the data, define domains, covariance and projection operators
-
-    data = EgF.get_rm(filter_pulsars=True, version='0.1.8', default_error_level=0.5)
-
-    # filter
-    schnitzeler_indices = (data['catalog'] == '2017MNRAS.467.1776K')
-
-    #
-    egal_rm = data['rm'][schnitzeler_indices]
-    egal_stddev = data['rm_err'][schnitzeler_indices]
 
     egal_data_domain = ift.makeDomain(ift.UnstructuredDomain((len(egal_rm),)))
 
@@ -95,11 +97,16 @@ def run_inference():
     sky_models = {'faraday_sky': galactic_model.get_model(), 'profile': components['log_profile'].exp(),
                   'sign': components['sign']}
     power_models = {'log_profile': components['log_profile_amplitude'], 'sign': components['sign_amplitude']}
+    scatter_pairs = {'egal_results_vs_data': (egal_model, egal_rm)}
+
+    plotting_kwargs = {'faraday_sky': {'cmap': 'fm', 'cmap_stddev': 'fu'},
+                       'egal_results_vs_data': {'x_label': 'results', 'y_label': 'data'}}
 
     EgF.minimization(n_global=20, kl_type='GeoMetricKL', plot_path='./runs/demo/',
                      likelihoods={'implicit_lilelihood': implicit_likelihood,
                                   'explicit_likelihood': explicit_likelihood},
-                     sky_maps=sky_models, power_spectra=power_models)
+                     sky_maps=sky_models, power_spectra=power_models, scatter_pairs=scatter_pairs,
+                     plotting_kwargs=plotting_kwargs)
 
 
 if __name__ == '__main__':

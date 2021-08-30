@@ -1,9 +1,10 @@
 import nifty7 as ift
 from .minimization_helpers import get_controller, get_n_samples
-from .plot.plot import sky_map_plotting, power_plotting, energy_plotting
+from .plot.plot import sky_map_plotting, power_plotting, energy_plotting, scatter_plotting
 
 
-def minimization(likelihoods, kl_type, n_global, plot_path, sky_maps=None, power_spectra=None):
+def minimization(likelihoods, kl_type, n_global, plot_path, sky_maps=None, power_spectra=None, scatter_pairs=None,
+                 plotting_kwargs=None):
     """
     :param plot_path: str
         path where plots and results are stored.
@@ -17,6 +18,7 @@ def minimization(likelihoods, kl_type, n_global, plot_path, sky_maps=None, power
         sky map models for plotting
     :param power_spectra: dict of ift.Operators
         power spectrum models for plotting
+    :param scatter_pairs:
     :return: None
     """
     sample_parameters = {'n': 2,
@@ -61,6 +63,9 @@ def minimization(likelihoods, kl_type, n_global, plot_path, sky_maps=None, power
 
     }
 
+    if plotting_kwargs is None:
+        plotting_kwargs = {}
+
     controllers = {key: get_controller(controller_dict, 0, False, key)
                    for key, controller_dict in controller_parameters.items()}
 
@@ -83,17 +88,24 @@ def minimization(likelihoods, kl_type, n_global, plot_path, sky_maps=None, power
         kl = getattr(ift, kl_type)(mean=position, hamiltonian=hamiltonian, **kl_dict)
         energy_dict.update({key: energy_dict[key] + [likelihoods[key].force(kl.position).val, ] for key in likelihoods})
         energy_plotting(energy_dict, plot_path)
+        ident = str(i - 1) if i != 0 else 'initial'
 
         if sky_maps is not None:
             for sky_name, sky in sky_maps.items():
-                sky_map_plotting(sky, [kl.position + s for s in kl.samples], sky_name, plot_path, string=str(i - 1) if i != 0 else 'initial')
-                if sky not in power_spectra:
-                    power_plotting(sky, [kl.position + s for s in kl.samples], sky_name, plot_path, string=str(i - 1) if i != 0 else 'initial',
-                                   from_power_model=False)
+                sky_map_plotting(sky, [kl.position + s for s in kl.samples], sky_name, plot_path, string=ident,
+                                 **plotting_kwargs.get(sky_name, {}))
+                if sky_name not in power_spectra:
+                    power_plotting(sky, [kl.position + s for s in kl.samples], sky_name, plot_path, string=ident,
+                                   from_power_model=False, **plotting_kwargs.get(sky_name, {}))
         if power_spectra is not None:
             for power_name, power in power_spectra.items():
-                power_plotting(power, [kl.position + s for s in kl.samples], power_name, plot_path, string=str(i - 1) if i != 0 else 'initial',
-                               from_power_model=True)
+                power_plotting(power, [kl.position + s for s in kl.samples], power_name, plot_path, string=ident,
+                               from_power_model=True,  **plotting_kwargs.get(power_name, {}))
+
+        if scatter_pairs is not None:
+            for key, (sc1, sc2) in scatter_pairs.items():
+                scatter_plotting(sc1, sc2, key, plot_path, [kl.position + s for s in kl.samples], string=ident,
+                                 **plotting_kwargs.get(key, {}))
 
         minimizer = ift.NewtonCG(controllers['Minimizer'])
         kl, _ = minimizer(kl)
