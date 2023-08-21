@@ -161,4 +161,4 @@ cython_debug/
 
 #Custom files/folders	
 runs/
-
+data/Faraday/
