@@ -1,14 +1,11 @@
 import nifty7 as ift
 from ..Model import Model
 import libs as Efg
-
+import numpy as np
+import scipy as sp
 
 class ExtraGalDemoModel(Model):
     def __init__(self, target_domain, args):
-        # This is a completely cooked up extra-galactic RM model for illustrative purposes only.
-        # The model is RM_egal = e**(sigma_a * \xi_a + \mu_a) - e**(sigma_b * \xi_b + \mu_b)/(ln(1 + e^z)),
-        # where the sigmas and mus are a hyper-parameters of the model,
-        # xi_a and  xi_b are fields and z is a number.
 
         self.chi_lum = args['chi_lum']
         self.chi_red = args['chi_red']
@@ -21,7 +18,8 @@ class ExtraGalDemoModel(Model):
         super().__init__(target_domain)
 
 
-        #new formula -> Rm^2 = (L/L0)^Xlum * sigma2_int_0/(1+z)^4 + D/D0 * sigma2_env_0
+        #new formula -> Rm^2 = (L/L0)^Xlum * sigma_int_0^2/(1+z)^4 + D/D0 * sigma_env_0^2
+        #
         ## D = integral 0 to z (c/H) * ((1+z)^(4 + Xred)) dz
         ## Xlum, Xred, sigma2_int_0, sigma2_env_0 to be provided in input, looping through values, in order
         ## to calculate different Rm^2, to be applied to Gaussian. Target is eg_contr (e_model)
@@ -30,19 +28,48 @@ class ExtraGalDemoModel(Model):
         # output: rm^2, need to calculate eg_contr=G(0, rm^2) as output of function (see numpy.random.normal)
         # all outputs need to be put in some kind of array
 
+    def dist(z, chi_red):
+        L=z*0
+        for i in range (len(z)):
+            L[i]=sp.integrate.quad(lambda zi: (Efg.const['c']*(1+zi)^(4+chi_red))/(H0*math.sqrt(Wm*math.pow((1+zi),3)+Wc*math.pow((1+zi),2) +Wl)), 0, z[i])[0]
+        return L
+
     def set_model(self):
-        #all parameters are numbers, except constants
-        chi_lum = ift.FieldAdapter(ift.DomainTuple.scalar_domain(), 'chi_lum')
-        chi_red = ift.FieldAdapter(ift.DomainTuple.scalar_domain(), 'chi_red')
-        sigma_int_0 = ift.FieldAdapter(ift.DomainTuple.scalar_domain(), 'sigma_int_0')
-        sigma_env_0 = ift.FieldAdapter(ift.DomainTuple.scalar_domain(), 'sigma_env_0')
-        L = ift.FieldAdapter(self.target_domain, 'L')
-        z = ift.FieldAdapter(self.target_domain, 'z')
+        
+        #all parameters are numbers, except D0,L0 constants
+
+        chi_lum = ift.full(self.target_domain, self.chi_lum)
+        chi_red = ift.full(self.target_domain, self.chi_red)
+        sigma_int_0 = ift.full(self.target_domain, self.sigma_int_0)
+        sigma_env_0 = ift.full(self.target_domain, self.sigma_env_0)
+        L=self.L
+        z=self.z
 
         L0 = Efg.const['L0']
         D0 = Efg.const['D0']
 
+        #L/L0
+        L_div_L0 = L / L0
+        #L/L0 ^ chiLum
+        fact1 = np.power(L_div_L0, chi_lum)
+        #sigma_int_0 ^ 2
+        sig2_int0 = np.square(sigma_int_0)
+        #1+z
+        add_z = ift.Adder(ift.full(self.target_domain, z))
+        #(1+z)^4
+        add_z4 = np.power(add_z, 4)
+        #s0^2/addz4
+        fact2 = sig2_int0 / add_z4
+        #D
+        
+
+
         pass
+        # This is a completely cooked up extra-galactic RM model for illustrative purposes only.
+        # The model is RM_egal = e**(sigma_a * \xi_a + \mu_a) - e**(sigma_b * \xi_b + \mu_b)/(ln(1 + e^z)),
+        # where the sigmas and mus are a hyper-parameters of the model,
+        # xi_a and  xi_b are fields and z is a number.
+
         # chi_a = ift.FieldAdapter(self.target_domain, 'chi_a')
         # chi_b = ift.FieldAdapter(self.target_domain, 'chi_b')
 
