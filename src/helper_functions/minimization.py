@@ -1,6 +1,7 @@
 import nifty7 as ift
 from .minimization_helpers import get_controller, get_n_samples
 from .plot.plot import sky_map_plotting, power_plotting, energy_plotting, scatter_plotting
+import libs as Egf
 
 
 def minimization(likelihoods, kl_type, n_global, plot_path, sky_maps=None, power_spectra=None, scatter_pairs=None,
@@ -31,7 +32,7 @@ def minimization(likelihoods, kl_type, n_global, plot_path, sky_maps=None, power
 
     controller_parameters = {
         'Sampler':
-            {'n': 100,
+            {'n': Egf.config['controllers']['sampler']['n'],
              'type': 'AbsDeltaEnergy',
              'change_params': {'n_final': 100,
                                'increase_step': None,
@@ -41,7 +42,7 @@ def minimization(likelihoods, kl_type, n_global, plot_path, sky_maps=None, power
                                    'convergence_level': 1}
              },
         'Minimizer':
-            {'n': 25,
+            {'n': Egf.config['controllers']['minimizer']['n'],
              'type': 'AbsDeltaEnergy',
              'change_params': {'n_final': 40,
                                'increase_step': None,
@@ -51,7 +52,7 @@ def minimization(likelihoods, kl_type, n_global, plot_path, sky_maps=None, power
                                    'convergence_level': 1}
              },
         'Minimizer_Samples':
-            {'n': 25,
+            {'n': Egf.config['controllers']['minimizer_samples']['n'],
              'type': 'AbsDeltaEnergy',
              'change_params': {'n_final': 20,
                                'increase_step': True,

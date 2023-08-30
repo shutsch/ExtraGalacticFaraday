@@ -2,7 +2,6 @@ import nifty7 as ift
 import libs as Egf
 import numpy as np
 
-#DONE:
 # - fixed library requirements
 # - set colorbar range to -250;+250
 
@@ -42,22 +41,31 @@ def run_inference():
                                                        'sign_parameters': sign_params})
 
 
-    # egal_data_domain = ift.makeDomain(ift.UnstructuredDomain((len(egal_rm),)))
+    egal_data_domain = ift.makeDomain(ift.UnstructuredDomain((len(egal_rm),)))
 
-    # egal_rm = ift.Field(egal_data_domain, egal_rm)
-    # egal_stddev = ift.Field(egal_data_domain, egal_stddev)
+    egal_rm = ift.Field(egal_data_domain, egal_rm)
+    egal_stddev = ift.Field(egal_data_domain, egal_stddev)
 
-    # explicit_response = Egf.SkyProjector(theta=data['theta'][schnitzeler_indices], phi=data['phi'][schnitzeler_indices],
-    #                                      domain=sky_domain, target=egal_data_domain)
+    explicit_response = Egf.SkyProjector(theta=data['theta'][schnitzeler_indices], phi=data['phi'][schnitzeler_indices],
+                                         domain=sky_domain, target=egal_data_domain)
 
-    # egal_inverse_noise = Egf.StaticNoise(egal_data_domain, egal_stddev**2, True)
+    egal_inverse_noise = Egf.StaticNoise(egal_data_domain, egal_stddev**2, True)
 
-    # # set the extra-galactic model hyper-parameters and initialize the model
+    # set the extra-galactic model hyper-parameters and initialize the model
 
-    # egal_model_params = {'mu_a': 1, 'sigma_a': 1, 'mu_b': 1, 'sigma_b': 1,
-    #                      }
+    
+    L = data['l'][schnitzeler_indices]
+    z = data['b'][schnitzeler_indices]
+    egal_model_params = {
+        'chi_lum': 1, 
+        'chi_red': 1, 
+        'sigma_int_0': 1, 
+        'sigma_env_0': 1,
+        'L': L,
+        'z': z
+        }
 
-    # emodel = Egf.ExtraGalDemoModel(egal_data_domain, **egal_model_params)
+    emodel = Egf.ExtraGalDemoModel(egal_data_domain, egal_model_params)
     
     #TODO: new formula -> Rm^2 = (L/L0)^Xlum * sigma2_int_0/(1+z)^4 + D/D0 * sigma2_env_0
     ## D = integral 0 to z (c/H) * ((1+z)^(4 + Xred)) dz
@@ -70,10 +78,10 @@ def run_inference():
     
     # build the full model and connect it to the likelihood
 
-    # egal_model = explicit_response @ galactic_model.get_model() + emodel.get_model()
-    # residual = ift.Adder(-egal_rm) @ egal_model
-    # explicit_likelihood = ift.GaussianEnergy(inverse_covariance=egal_inverse_noise.get_model(),
-    #                                          sampling_dtype=float) @ residual
+    egal_model = explicit_response @ galactic_model.get_model() + emodel.get_model()
+    residual = ift.Adder(-egal_rm) @ egal_model
+    explicit_likelihood = ift.GaussianEnergy(inverse_covariance=egal_inverse_noise.get_model(),
+                                             sampling_dtype=float) @ residual
 
     gal_rm = data['rm'][~schnitzeler_indices]
     gal_stddev = data['rm_err'][~schnitzeler_indices]
@@ -105,8 +113,8 @@ def run_inference():
     sky_models = {'faraday_sky': galactic_model.get_model(), 'profile': components['log_profile'].exp(),
                   'sign': components['sign']}
     power_models = {'log_profile': components['log_profile_amplitude'], 'sign': components['sign_amplitude']}
-    # scatter_pairs = {'egal_results_vs_data': (egal_model, egal_rm)}
-    scatter_pairs = None
+    scatter_pairs = {'egal_results_vs_data': (egal_model, egal_rm)}
+    # scatter_pairs = None
 
     plotting_kwargs = {'faraday_sky': {'cmap': 'fm', 'cmap_stddev': 'fu', 
                                        'vmin_mean':'-250', 'vmax_mean':'250', 
@@ -114,8 +122,8 @@ def run_inference():
                        'egal_results_vs_data': {'x_label': 'results', 'y_label': 'data'}}
 
     Egf.minimization(n_global=Egf.config['params']['nglobal'], kl_type='GeoMetricKL', plot_path=Egf.config['params']['plot_path'],
-                     likelihoods={'implicit_likelihood': implicit_likelihood},
-                                #   'explicit_likelihood': explicit_likelihood},
+                     likelihoods={'implicit_likelihood': implicit_likelihood,
+                                  'explicit_likelihood': explicit_likelihood},
                      sky_maps=sky_models, power_spectra=power_models, scatter_pairs=scatter_pairs,
                      plotting_kwargs=plotting_kwargs)
 

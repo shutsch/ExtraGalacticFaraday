@@ -15,3 +15,6 @@ from src.helper_functions.plot.plot import power_plotting, scatter_plotting, sky
 import yaml
 with open('config.yaml','r') as config_file:
     config=yaml.safe_load(config_file)
+
+with open('constants.yaml','r') as constants_file:
+    const=yaml.safe_load(constants_file)

@@ -1,4 +1,5 @@
 import numpy as np
+import libs as Egf
 
 from .rmtable import read_FITS
 from ..logger import logger, Format
@@ -11,8 +12,7 @@ def get_rm(version, filter_pulsars, default_error_level):
         " _faraday: params : \'filter_pulsars\' {}, \'default_error_level\' {}, \'version\' {}"
         .format(filter_pulsars, default_error_level, version))
 
-    # cat = read_FITS('/home/andrea/src/ExtraGalacticFaraday/data/Faraday/catalog_versions/master_catalog_ver' + version + '.fits')
-    cat = read_FITS('/home/andrea/src/ExtraGalacticFaraday/data/Faraday/catalog_versions/master_catalog_ver' + version + '_new.fits')
+    cat = read_FITS(Egf.config['file_params']['fits_file_path'] + version + Egf.config['file_params']['fits_ext'])
 
     logger.info("DATA LOADING: load_faraday_new_master: Loading master catalog, "
                 "number of data points: {}".format(str(len(cat['rm']))))

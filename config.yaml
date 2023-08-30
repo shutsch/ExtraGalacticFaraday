@@ -1,4 +1,16 @@
 params:
-  nside: 32
+  nside: 256
   nglobal: 100
   plot_path: "./runs/demo/"
+
+file_params:
+  fits_file_path: "/home/andrea/src/ExtraGalacticFaraday_dev/data/Faraday/catalog_versions/master_catalog_ver"
+  fits_ext: ".fits"
+
+controllers:
+  sampler:
+    n: 100
+  minimizer:
+    n: 25
+  minimizer_samples:
+    n: 25
