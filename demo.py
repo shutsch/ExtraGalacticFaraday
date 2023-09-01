@@ -53,16 +53,16 @@ def run_inference():
 
     # set the extra-galactic model hyper-parameters and initialize the model
 
-    
+    #TODO: L luminosity, z redshift
     L = data['l'][schnitzeler_indices]
     z = data['b'][schnitzeler_indices]
     egal_model_params = {
-        'chi_lum': 1, 
-        'chi_red': 1, 
-        'sigma_int_0': 1, 
-        'sigma_env_0': 1,
+        'chi_lum': 1.0, 
+        'chi_red': 1.0, 
+        'sigma_int_0': 1.0, 
+        'sigma_env_0': 1.0,
         'L': L,
-        'z': z
+        'z': z*0.01
         }
 
     emodel = Egf.ExtraGalDemoModel(egal_data_domain, egal_model_params)

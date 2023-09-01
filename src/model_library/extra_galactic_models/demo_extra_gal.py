@@ -21,6 +21,7 @@ class ExtraGalDemoModel(Model):
         #new formula -> Rm^2 = (L/L0)^Xlum * sigma_int_0^2/(1+z)^4 + D/D0 * sigma_env_0^2
         #
         ## D = integral 0 to z (c/H) * ((1+z)^(4 + Xred)) dz
+        #
         ## Xlum, Xred, sigma2_int_0, sigma2_env_0 to be provided in input, looping through values, in order
         ## to calculate different Rm^2, to be applied to Gaussian. Target is eg_contr (e_model)
         ## L0, D0 hyperpars (fixed), c hyperpar (speedlight), H hyperpar (depends on cosmology (refer to already existing code Valentina))
@@ -28,20 +29,31 @@ class ExtraGalDemoModel(Model):
         # output: rm^2, need to calculate eg_contr=G(0, rm^2) as output of function (see numpy.random.normal)
         # all outputs need to be put in some kind of array
 
-    def dist(z, chi_red):
+    def integr(self, z, chi_red):
         L=z*0
+        h = Efg.const['Planck']['h']
+        Wm = Efg.const['Planck']['Wm']
+        Wc = Efg.const['Planck']['Wc']
+        Wl = Efg.const['Planck']['Wl']
+
+
+        H0 = 100 * h
         for i in range (len(z)):
-            L[i]=sp.integrate.quad(lambda zi: (Efg.const['c']*(1+zi)^(4+chi_red))/(H0*math.sqrt(Wm*math.pow((1+zi),3)+Wc*math.pow((1+zi),2) +Wl)), 0, z[i])[0]
+            L[i]=sp.integrate.quad(lambda zi: (Efg.const['c']*(1+zi)**(4+chi_red))/(H0*np.sqrt( Wm*np.power((1+zi),3)+Wc*np.power((1+zi),2) +Wl)), 0, z[i])[0]
         return L
 
     def set_model(self):
         
         #all parameters are numbers, except D0,L0 constants
 
-        chi_lum = ift.full(self.target_domain, self.chi_lum)
-        chi_red = ift.full(self.target_domain, self.chi_red)
-        sigma_int_0 = ift.full(self.target_domain, self.sigma_int_0)
-        sigma_env_0 = ift.full(self.target_domain, self.sigma_env_0)
+        # chi_lum = ift.full(self.target_domain, self.chi_lum)
+        # chi_red = ift.full(self.target_domain, self.chi_red)
+        # sigma_int_0 = ift.full(self.target_domain, self.sigma_int_0)
+        # sigma_env_0 = ift.full(self.target_domain, self.sigma_env_0)
+        chi_lum = self.chi_lum
+        chi_red = self.chi_red
+        sigma_int_0 = self.sigma_int_0
+        sigma_env_0 = self.sigma_env_0
         L=self.L
         z=self.z
 
@@ -50,18 +62,26 @@ class ExtraGalDemoModel(Model):
 
         #L/L0
         L_div_L0 = L / L0
-        #L/L0 ^ chiLum
+        #L/L0 ^ chi_lum
         fact1 = np.power(L_div_L0, chi_lum)
         #sigma_int_0 ^ 2
         sig2_int0 = np.square(sigma_int_0)
         #1+z
-        add_z = ift.Adder(ift.full(self.target_domain, z))
+        add_z = 1 + z
         #(1+z)^4
         add_z4 = np.power(add_z, 4)
         #s0^2/addz4
         fact2 = sig2_int0 / add_z4
         #D
+        D = self.integr(z, chi_red)
+        #D/D0
+        D_div_D0 = D / D0
+        #sigma_env_0 ^ 2
+        sig2_env0 = np.square(sigma_env_0)
+        #D/D0*sigma_env_0 ^ 2
+        fact3 = D_div_D0 * sig2_env0
         
+        sigmaRm2 = fact1 * fact2 + fact3
 
 
         pass
