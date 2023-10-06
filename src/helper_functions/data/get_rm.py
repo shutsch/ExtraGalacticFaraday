@@ -24,7 +24,7 @@ def get_rm(version, filter_pulsars, default_error_level):
         cat = cat[~(cat['type'] == 'Pulsar')]
         logger.info('DATA LOADING: load_faraday_new_master: New number of data points: {}'.format(len(cat['rm'])))
 
-    quantities = ['l', 'b', 'rm', 'rm_err', 'catalog']
+    quantities = ['l', 'b', 'rm', 'rm_err', 'catalog','z_best','stokesI']
 
     data = {q: cat[q] for q in quantities}
 

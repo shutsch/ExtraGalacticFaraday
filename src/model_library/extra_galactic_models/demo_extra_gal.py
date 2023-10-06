@@ -1,6 +1,6 @@
 import nifty7 as ift
 from ..Model import Model
-import libs as Efg
+import libs as Egf
 import numpy as np
 import scipy as sp
 
@@ -11,14 +11,28 @@ class ExtraGalDemoModel(Model):
         self.chi_red = args['chi_red']
         self.sigma_int_0 = args['sigma_int_0']
         self.sigma_env_0 = args['sigma_env_0']
-        self.L = args['L']
         self.z = args['z']
-
+        self.L = args['L']
 
         super().__init__(target_domain)
 
+    def integr(self, z, chi_red):
+        D=z*0
+        h = Egf.const['Planck']['h']
+        Wm = Egf.const['Planck']['Wm']
+        Wc = Egf.const['Planck']['Wc']
+        Wl = Egf.const['Planck']['Wl']
 
-        #new formula -> Rm^2 = (L/L0)^Xlum * sigma_int_0^2/(1+z)^4 + D/D0 * sigma_env_0^2
+
+        H0 = 100 * h
+        for i in range (len(z)):
+            D[i]=sp.integrate.quad(lambda zi: (Egf.const['c']*(1+zi)**(4+chi_red))/(H0*np.sqrt( Wm*np.power((1+zi),3)+Wc*np.power((1+zi),2) +Wl)), 0, z[i])[0]
+        return D
+
+    def set_model(self):
+
+        #new formula -> 
+        # Rm^2 = (L/L0)^Xlum * sigma_int_0^2/(1+z)^4 + D/D0 * sigma_env_0^2
         #
         ## D = integral 0 to z (c/H) * ((1+z)^(4 + Xred)) dz
         #
@@ -28,52 +42,39 @@ class ExtraGalDemoModel(Model):
         # input: values from catalog (L, z)
         # output: rm^2, need to calculate eg_contr=G(0, rm^2) as output of function (see numpy.random.normal)
         # all outputs need to be put in some kind of array
-
-    def integr(self, z, chi_red):
-        L=z*0
-        h = Efg.const['Planck']['h']
-        Wm = Efg.const['Planck']['Wm']
-        Wc = Efg.const['Planck']['Wc']
-        Wl = Efg.const['Planck']['Wl']
-
-
-        H0 = 100 * h
-        for i in range (len(z)):
-            L[i]=sp.integrate.quad(lambda zi: (Efg.const['c']*(1+zi)**(4+chi_red))/(H0*np.sqrt( Wm*np.power((1+zi),3)+Wc*np.power((1+zi),2) +Wl)), 0, z[i])[0]
-        return L
-
-    def set_model(self):
         
         #all parameters are numbers, except D0,L0 constants
 
-        # chi_lum = ift.full(self.target_domain, self.chi_lum)
-        # chi_red = ift.full(self.target_domain, self.chi_red)
-        # sigma_int_0 = ift.full(self.target_domain, self.sigma_int_0)
-        # sigma_env_0 = ift.full(self.target_domain, self.sigma_env_0)
-        chi_lum = self.chi_lum
-        chi_red = self.chi_red
-        sigma_int_0 = self.sigma_int_0
-        sigma_env_0 = self.sigma_env_0
-        L=self.L
-        z=self.z
+        #questi invece devono essere passati con il self come sopra
+        # chi_lum = ift.FieldAdapter(ift.DomainTuple.scalar_domain(), 'chi_lum')
+        chi_lum = ift.full(self.target_domain, self.chi_lum)
+        chi_red = ift.full(self.target_domain, self.chi_red)
+        sigma_int_0 = ift.full(self.target_domain, self.sigma_int_0)
+        sigma_env_0 = ift.full(self.target_domain, self.sigma_env_0)
 
-        L0 = Efg.const['L0']
-        D0 = Efg.const['D0']
+        z = ift.Field(self.target_domain, self.z)
+        L = ift.Field(self.target_domain, self.L)
+
+        L0 = ift.full(self.target_domain, Egf.const['L0'])
+        D0 = ift.full(self.target_domain, Egf.const['D0'])
+
+        # new formula -> 
+        # Rm^2 = (L/L0)^Xlum * sigma_int_0^2/(1+z)^4 + D/D0 * sigma_env_0^2
 
         #L/L0
-        L_div_L0 = L / L0
+        L_div_L0 = L * L0.reciprocal()
         #L/L0 ^ chi_lum
-        fact1 = np.power(L_div_L0, chi_lum)
+        fact1 = ift.Operator.__pow__(L_div_L0, chi_lum)
         #sigma_int_0 ^ 2
-        sig2_int0 = np.square(sigma_int_0)
+        sig2_int0 =ift.Operator.__pow__(sigma_int_0, 2)
         #1+z
-        add_z = 1 + z
+        add_z = 1 + self.z
         #(1+z)^4
         add_z4 = np.power(add_z, 4)
         #s0^2/addz4
         fact2 = sig2_int0 / add_z4
         #D
-        D = self.integr(z, chi_red)
+        D = self.integr(self.z, chi_red)
         #D/D0
         D_div_D0 = D / D0
         #sigma_env_0 ^ 2
