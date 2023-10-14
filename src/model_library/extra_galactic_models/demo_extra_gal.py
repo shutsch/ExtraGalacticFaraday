@@ -67,8 +67,11 @@ class ExtraGalDemoModel(Model):
         fact1 = ift.Operator.__pow__(L_div_L0, chi_lum)
         #sigma_int_0 ^ 2
         sig2_int0 =ift.Operator.__pow__(sigma_int_0, 2)
-        #1+z
-        add_z = 1 + self.z
+        #z+1
+        # z = ift.FieldAdapter(self.target_domain, 'z')
+        # add_one = ift.Adder(ift.Field(self.target_domain, 1.))
+        add_one = ift.full(self.target_domain, 1.)
+        add_z = add_one + z
         #(1+z)^4
         add_z4 = np.power(add_z, 4)
         #s0^2/addz4
