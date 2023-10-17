@@ -18,7 +18,7 @@ class ExtraGalDemoModel(Model):
 
     def integr(self, z, chi_red):
         D=z*0
-        h = Egf.const['Planck']['h']
+        h =  Egf.const['Planck']['h']
         Wm = Egf.const['Planck']['Wm']
         Wc = Egf.const['Planck']['Wc']
         Wl = Egf.const['Planck']['Wl']
@@ -73,20 +73,21 @@ class ExtraGalDemoModel(Model):
         add_one = ift.full(self.target_domain, 1.)
         add_z = add_one + z
         #(1+z)^4
-        add_z4 = np.power(add_z, 4)
+        add_z4 = ift.Operator.__pow__(add_z, 4)
         #s0^2/addz4
-        fact2 = sig2_int0 / add_z4
+        fact2 = sig2_int0 * add_z4.reciprocal()
         #D
-        D = self.integr(self.z, chi_red)
+        D = self.integr(self.z, self.chi_red)
         #D/D0
-        D_div_D0 = D / D0
+        D_div_D0 = D * D0.reciprocal()
         #sigma_env_0 ^ 2
-        sig2_env0 = np.square(sigma_env_0)
+        sig2_env0 = ift.Operator.__pow__(sigma_env_0,2)
         #D/D0*sigma_env_0 ^ 2
         fact3 = D_div_D0 * sig2_env0
         
         sigmaRm2 = fact1 * fact2 + fact3
 
+        self._model = sigmaRm2
 
         pass
         # This is a completely cooked up extra-galactic RM model for illustrative purposes only.
