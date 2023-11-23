@@ -4,7 +4,7 @@ params:
   plot_path: "./runs/demo/"
 
 file_params:
-  fits_file_path: "/home/andrea/src/ExtraGalacticFaraday_dev/data/Faraday/catalog_versions/master_catalog_ver"
+  fits_file_path: "data/Faraday/catalog_versions/master_catalog_ver"
   fits_ext: ".fits"
 
 controllers:
