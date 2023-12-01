@@ -47,22 +47,45 @@ class ExtraGalDemoModel(Model):
 
         #questi invece devono essere passati con il self come sopra
         # chi_lum = ift.FieldAdapter(ift.DomainTuple.scalar_domain(), 'chi_lum')
-        chi_lum = ift.full(self.target_domain, self.chi_lum)
-        chi_red = ift.full(self.target_domain, self.chi_red)
-        sigma_int_0 = ift.full(self.target_domain, self.sigma_int_0)
-        sigma_env_0 = ift.full(self.target_domain, self.sigma_env_0)
 
-        z = ift.Field(self.target_domain, self.z)
-        L = ift.Field(self.target_domain, self.L)
+        chi_lum = ift.FieldAdapter(self.target_domain, 'chi_lum')
+        chi_red = ift.FieldAdapter(self.target_domain, 'chi_red')
+        sigma_int_0 = ift.FieldAdapter(self.target_domain, 'sigma_int_0')
+        sigma_env_0 = ift.FieldAdapter(self.target_domain, 'sigma_env_0')
 
-        L0 = ift.full(self.target_domain, Egf.const['L0'])
-        D0 = ift.full(self.target_domain, Egf.const['D0'])
+        #chi_lum = ift.full(self.target_domain, self.chi_lum)
+        #chi_red = ift.full(self.target_domain, self.chi_red)
+        #sigma_int_0 = ift.full(self.target_domain, self.sigma_int_0)
+        #sigma_env_0 = ift.full(self.target_domain, self.sigma_env_0)
 
+        #z = ift.Field(self.target_domain, self.z)
+        #L = ift.Field(self.target_domain, self.L)
+
+        #L0 = ift.full(self.target_domain, Egf.const['L0'])
+        #D0 = ift.full(self.target_domain, Egf.const['D0'])
+        L0 = Egf.const['L0']
+        D0 = Egf.const['D0']
+        #L/L0
+        L_div_L0 = self.L * 1./L0
         # new formula -> 
         # Rm^2 = (L/L0)^Xlum * sigma_int_0^2/(1+z)^4 + D/D0 * sigma_env_0^2
 
-        #L/L0
-        L_div_L0 = L * L0.reciprocal()
+        #D/D0
+        D = self.integr(self.z, self.chi_red)*1.0/D0
+        
+        multiply_z = ift.makeOp(ift.Field(self.target_domain, 1./(1+self.z)**4))
+        multiply_L = ift.makeOp(ift.Field(self.target_domain, np.log(self.L*1.0/L0)))
+        f1 = ift.Field(self.target_domain, 1./(1+self.z)**4) #1/1+z^4
+        f2 = ift.Field(self.target_domain, np.log(self.L*1.0/L0)) #log(L/L0)
+        o1 = (ift.makeOp(self.target_domain, f2) @ chi_lum).exp()
+
+        multiply_Lchilum= ift.makeOp(ift.Field(self.target_domain, (multiply_L @ chi_lum).exp()))
+        # multiply_Lchilum = (multiply_L * chi_lum).exp()
+
+        # fact1 = multiply_Lchilum @ multiply_z @ sigma_int_0**2 #*(multiply_L @ chi_lum).exp()
+        #fact1 = (multiply_z @ sigma_int_0**2)*(multiply_L @ chi_lum).exp()
+        fact1 = multiply_Lchilum @ multiply_z @ sigma_int_0**2
+
         #L/L0 ^ chi_lum
         fact1 = ift.Operator.__pow__(L_div_L0, chi_lum)
         #sigma_int_0 ^ 2
@@ -76,10 +99,7 @@ class ExtraGalDemoModel(Model):
         add_z4 = ift.Operator.__pow__(add_z, 4)
         #s0^2/addz4
         fact2 = sig2_int0 * add_z4.reciprocal()
-        #D
-        D = self.integr(self.z, self.chi_red)
-        #D/D0
-        D_div_D0 = D * D0.reciprocal()
+        
         #sigma_env_0 ^ 2
         sig2_env0 = ift.Operator.__pow__(sigma_env_0,2)
         #D/D0*sigma_env_0 ^ 2

@@ -16,28 +16,42 @@ def run_inference():
     data = Egf.get_rm(filter_pulsars=True, version='custom', default_error_level=0.5)
 
     # filter
-    schnitzeler_indices = (data['catalog'] == '2017MNRAS.467.1776K')
+    #schnitzeler_indices = (data['catalog'] == '2017MNRAS.467.1776K')
     z_indices = ~np.isnan(data['z_best'])
 
     #
-    egal_rm = data['rm'][~np.isnan(data['z_best'])]
-    egal_stddev = data['rm_err'][~np.isnan(data['z_best'])]
-    egal_z = data['z_best'][~np.isnan(data['z_best'])]
-    egal_L = data['stokesI'][~np.isnan(data['z_best'])]
+    #egal_rm = data['rm'][~np.isnan(data['z_best'])]
+    #egal_stddev = data['rm_err'][~np.isnan(data['z_best'])]
+    #egal_z = data['z_best'][~np.isnan(data['z_best'])]
+    #egal_L = data['stokesI'][~np.isnan(data['z_best'])]
+
+    egal_rm = data['rm'][z_indices]
+    egal_stddev = data['rm_err'][z_indices]
+    egal_z = data['z_best'][z_indices]
+    egal_L = data['stokesI'][z_indices]
 
     # set the sky model hyper-parameters and initialize the Faraday 2020 sky model
 
-    log_amplitude_params = {'fluctuations': {'asperity': [.1, .1], 'flexibility': [.1, .1],
-                                             'fluctuations': [3, 2], 'loglogavgslope': [-3., .75],
-                                             },
-                            'offset': {'offset_mean': 4, 'offset_std': [6, 6.]},
-                            }
+    #log_amplitude_params = {'fluctuations': {'asperity': [.1, .1], 'flexibility': [.1, .1],
+     #                                        'fluctuations': [3, 2], 'loglogavgslope': [-3., .75],
+     #                                        },
+     #                       'offset': {'offset_mean': 4, 'offset_std': [6, 6.]},
+     #                       }
 
-    sign_params = {'fluctuations': {'asperity': [.1, .1], 'flexibility': [.1, .1],
-                                    'fluctuations': [3, 2], 'loglogavgslope': [-3., .75],
-                                    },
-                   'offset': {'offset_mean': 0, 'offset_std': [6, 6.]},
-                   }
+    #sign_params = {'fluctuations': {'asperity': [.1, .1], 'flexibility': [.1, .1],
+    #                                'fluctuations': [3, 2], 'loglogavgslope': [-3., .75],
+    #                                },
+    #               'offset': {'offset_mean': 0, 'offset_std': [6, 6.]},
+    #               }
+    log_amplitude_params = {'fluctuations': {'asperity': None,'flexibility': [.1, .1], 
+                          'fluctuations': [1.0, 0.5], 'loglogavgslope': [-11/3, 1.],},
+                            'offset': {'offset_mean': 5., 'offset_std': [1., 0.001]},}
+
+    sign_params = {'fluctuations': {'asperity': None, 'flexibility': [.1, .1],
+                    'fluctuations': [5.0, 4.0], 'loglogavgslope': [-11/3, 1.0], },
+                   'offset': {'offset_mean': 0, 'offset_std': [5., 4.]},}
+    
+   
 
     galactic_model = Egf.Faraday2020Sky(sky_domain, **{'log_amplitude_parameters': log_amplitude_params,
                                                        'sign_parameters': sign_params})
