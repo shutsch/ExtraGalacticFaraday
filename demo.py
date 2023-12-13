@@ -20,10 +20,8 @@ def run_inference():
     z_indices = ~np.isnan(data['z_best'])
 
     #
-    #egal_rm = data['rm'][~np.isnan(data['z_best'])]
-    #egal_stddev = data['rm_err'][~np.isnan(data['z_best'])]
-    #egal_z = data['z_best'][~np.isnan(data['z_best'])]
-    #egal_L = data['stokesI'][~np.isnan(data['z_best'])]
+    #egal_rm = data['rm'][schnitzeler_indices]
+    #egal_stddev = data['rm_err'][schnitzeler_indices]
 
     egal_rm = data['rm'][z_indices]
     egal_stddev = data['rm_err'][z_indices]
@@ -33,16 +31,18 @@ def run_inference():
     # set the sky model hyper-parameters and initialize the Faraday 2020 sky model
 
     #log_amplitude_params = {'fluctuations': {'asperity': [.1, .1], 'flexibility': [.1, .1],
-     #                                        'fluctuations': [3, 2], 'loglogavgslope': [-3., .75],
-     #                                        },
-     #                       'offset': {'offset_mean': 4, 'offset_std': [6, 6.]},
-     #                       }
+    #                                         'fluctuations': [3, 2], 'loglogavgslope': [-3., .75],
+    #                                         },
+    #                        'offset': {'offset_mean': 4, 'offset_std': [6, 6.]},
+    #                        }
 
     #sign_params = {'fluctuations': {'asperity': [.1, .1], 'flexibility': [.1, .1],
     #                                'fluctuations': [3, 2], 'loglogavgslope': [-3., .75],
     #                                },
     #               'offset': {'offset_mean': 0, 'offset_std': [6, 6.]},
     #               }
+    
+    #new parameters given by Sebastian
     log_amplitude_params = {'fluctuations': {'asperity': None,'flexibility': [.1, .1], 
                           'fluctuations': [1.0, 0.5], 'loglogavgslope': [-11/3, 1.],},
                             'offset': {'offset_mean': 5., 'offset_std': [1., 0.001]},}
@@ -61,8 +61,8 @@ def run_inference():
 
     egal_rm = ift.Field(egal_data_domain, egal_rm)
     egal_stddev = ift.Field(egal_data_domain, egal_stddev)
-    # egal_z = ift.Field(egal_data_domain, egal_z)
-    # egal_L = ift.Field(egal_data_domain, egal_L)
+    #egal_z = ift.Field(egal_data_domain, egal_z)
+    #egal_L = ift.Field(egal_data_domain, egal_L)
 
     explicit_response = Egf.SkyProjector(theta=data['theta'][z_indices], phi=data['phi'][z_indices],
                                          domain=sky_domain, target=egal_data_domain)
@@ -70,14 +70,8 @@ def run_inference():
     egal_inverse_noise = Egf.StaticNoise(egal_data_domain, egal_stddev**2, True)
 
     # set the extra-galactic model hyper-parameters and initialize the model
-    egal_model_params = {
-        'chi_lum': 2.0, 
-        'chi_red': 1.0, 
-        'sigma_int_0': 1.0, 
-        'sigma_env_0': 1.0,
-        'z': egal_z,
-        'L': egal_L,
-        }
+    egal_model_params = {'z': egal_z,'L': egal_L,
+         }
 
     emodel = Egf.ExtraGalDemoModel(egal_data_domain, egal_model_params)
     
@@ -99,7 +93,10 @@ def run_inference():
 
     gal_rm = data['rm'][~z_indices]
     gal_stddev = data['rm_err'][~z_indices]
+    #gal_rm = data['rm'][~schnitzeler_indices]
+    #gal_stddev = data['rm_err'][~schnitzeler_indices]
 
+  
     gal_data_domain = ift.makeDomain(ift.UnstructuredDomain((len(gal_rm),)))
 
     gal_rm = ift.Field(gal_data_domain, gal_rm)
@@ -108,6 +105,10 @@ def run_inference():
     implicit_response = Egf.SkyProjector(theta=data['theta'][~z_indices],
                                          phi=data['phi'][~z_indices],
                                          domain=sky_domain, target=gal_data_domain)
+
+    #implicit_response = Egf.SkyProjector(theta=data['theta'][~schnitzeler_indices],
+    #                                     phi=data['phi'][~schnitzeler_indices],
+    #                                     domain=sky_domain, target=gal_data_domain)
 
     implicit_noise = Egf.SimpleVariableNoise(gal_data_domain, alpha=2.5, q='mode', noise_cov=gal_stddev**2).get_model()
 
@@ -128,7 +129,7 @@ def run_inference():
                   'sign': components['sign']}
     power_models = {'log_profile': components['log_profile_amplitude'], 'sign': components['sign_amplitude']}
     scatter_pairs = {'egal_results_vs_data': (egal_model, egal_rm)}
-    # scatter_pairs = None
+    #scatter_pairs = None
 
     plotting_kwargs = {'faraday_sky': {'cmap': 'fm', 'cmap_stddev': 'fu', 
                                        'vmin_mean':'-250', 'vmax_mean':'250', 

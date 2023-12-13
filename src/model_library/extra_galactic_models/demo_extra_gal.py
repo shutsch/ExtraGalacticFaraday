@@ -7,10 +7,10 @@ import scipy as sp
 class ExtraGalDemoModel(Model):
     def __init__(self, target_domain, args):
 
-        self.chi_lum = args['chi_lum']
-        self.chi_red = args['chi_red']
-        self.sigma_int_0 = args['sigma_int_0']
-        self.sigma_env_0 = args['sigma_env_0']
+        # self.chi_lum = args['chi_lum']
+        # self.chi_red = args['chi_red']
+        # self.sigma_int_0 = args['sigma_int_0']
+        # self.sigma_env_0 = args['sigma_env_0']
         self.z = args['z']
         self.L = args['L']
 
@@ -25,7 +25,9 @@ class ExtraGalDemoModel(Model):
 
 
         H0 = 100 * h
+
         for i in range (len(z)):
+            
             D[i]=sp.integrate.quad(lambda zi: (Egf.const['c']*(1+zi)**(4+chi_red))/(H0*np.sqrt( Wm*np.power((1+zi),3)+Wc*np.power((1+zi),2) +Wl)), 0, z[i])[0]
         return D
 
@@ -61,18 +63,35 @@ class ExtraGalDemoModel(Model):
 
       
         
+
+        #norm = (ift.Field(self.target_domain,np.log(self.L*1.0/L0)*chi_lum)).exp()
+        #norm = ift.makeOp(ift.Field(self.target_domain, np.exp(np.log(self.L*1.0/L0)*chi_lum)))
+        #norm = ift.exponentiate(chi_lum,self.L*1.0/L0)
+        #norm_ad=ift.FieldAdapter(self.target_domain, 'norm')
+        #fact1 = (multiply_z @ sigma_int_0**2) *norm_ad
+        #fact1 = norm @ multiply_z @ sigma_int_0**2
+
         multiply_z = ift.makeOp(ift.Field(self.target_domain, 1./(1+self.z)**4))
-        norm = (ift.Field(self.target_domain,np.log(self.L*1.0/L0)*chi_lum)).exp()
-        norm_ad=ift.FieldAdapter(self.target_domain, 'norm')
-        fact1 = (multiply_z @ sigma_int_0**2) *norm_ad
+
+        multiply_L = ift.makeOp(ift.Field(self.target_domain, np.log(self.L/L0)))
+
+        norm=(multiply_L @ chi_lum).exp()
+
+        term= multiply_z @ sigma_int_0**2
+       
+        fact1 = norm * term
+
+        #D = self.integr(self.z, chi_red)
+
+        #multiply_D = ift.makeOp(ift.Field(self.target_domain, D/D0))
         
-        D = self.integr(self.z, self.chi_red)
-        multiply_D = ift.makeOp(ift.Field(self.target_domain, D/D0))
-        fact2 = multiply_D @ sigma_env_0**2
-        
+        #fact2 = multiply_D @ sigma_env_0**2
+
 
         
-        sigmaRm2 = fact1 + fact2 
+        #sigmaRm2 = fact1 #+ fact2 
+
+        sigmaRm2 = sigma_env_0**2
 
         self._model = sigmaRm2
 
