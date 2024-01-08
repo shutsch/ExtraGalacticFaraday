@@ -16,20 +16,24 @@ class ExtraGalDemoModel(Model):
 
         super().__init__(target_domain)
 
-    def integr(self, z, chi_red):
-        D=z*0
-        h =  Egf.const['Planck']['h']
-        Wm = Egf.const['Planck']['Wm']
-        Wc = Egf.const['Planck']['Wc']
-        Wl = Egf.const['Planck']['Wl']
+    #def integr(self, z, chi_red):
+    #    D=z*0
+    #    h =  Egf.const['Planck']['h']
+    #    Wm = Egf.const['Planck']['Wm']
+    #    Wc = Egf.const['Planck']['Wc']
+    #    Wl = Egf.const['Planck']['Wl']
 
 
-        H0 = 100 * h
+    #    H0 = 100 * h
 
-        for i in range (len(z)):
-            
-            D[i]=sp.integrate.quad(lambda zi: (Egf.const['c']*(1+zi)**(4+chi_red))/(H0*np.sqrt( Wm*np.power((1+zi),3)+Wc*np.power((1+zi),2) +Wl)), 0, z[i])[0]
-        return D
+    #    for i in range (len(z)):
+
+    #        add_4 = ift.Adder(ift.full(self.target_domain, 4))
+    #        multiply_1pz = ift.makeOp(ift.Field(self.target_domain, np.log(self.z)))
+    #        fact3 = multiply_1pz @ add_4 @ chi_red
+    #        D=ift.IntegrationOperator(self.target_domain,z) 
+    #        D[i]=sp.integrate.quad(lambda zi: (Egf.const['c']*(1+zi)**(4+chi_red))/(H0*np.sqrt( Wm*np.power((1+zi),3)+Wc*np.power((1+zi),2) +Wl)), 0, z[i])[0]
+    #    return D
 
     def set_model(self):
 
@@ -62,14 +66,7 @@ class ExtraGalDemoModel(Model):
         # Rm^2 = (L/L0)^Xlum * sigma_int_0^2/(1+z)^4 + D/D0 * sigma_env_0^2
 
       
-        
 
-        #norm = (ift.Field(self.target_domain,np.log(self.L*1.0/L0)*chi_lum)).exp()
-        #norm = ift.makeOp(ift.Field(self.target_domain, np.exp(np.log(self.L*1.0/L0)*chi_lum)))
-        #norm = ift.exponentiate(chi_lum,self.L*1.0/L0)
-        #norm_ad=ift.FieldAdapter(self.target_domain, 'norm')
-        #fact1 = (multiply_z @ sigma_int_0**2) *norm_ad
-        #fact1 = norm @ multiply_z @ sigma_int_0**2
 
         multiply_z = ift.makeOp(ift.Field(self.target_domain, 1./(1+self.z)**4))
 
@@ -81,17 +78,50 @@ class ExtraGalDemoModel(Model):
        
         fact1 = norm * term
 
-        #D = self.integr(self.z, chi_red)
+   
 
-        #multiply_D = ift.makeOp(ift.Field(self.target_domain, D/D0))
+        h =  Egf.const['Planck']['h']
+        Wm = Egf.const['Planck']['Wm']
+        Wc = Egf.const['Planck']['Wc']
+        Wl = Egf.const['Planck']['Wl']
+        H0 = 100 * h
         
-        #fact2 = multiply_D @ sigma_env_0**2
 
 
+        #add_4 = ift.Adder(ift.full(self.target_domain, 4))
+        #multiply_1pz = ift.makeOp(ift.Field(self.target_domain, np.log(self.z)))
+        #fact3 = (multiply_1pz @ add_4 @ chi_red).exp()
+        #fact4 = ift.makeOp(ift.Field(self.target_domain, (Egf.const['c']/(H0*(Wm*(1+self.z)**3+Wc*(1+self.z)**2 +Wl)**0.5)*1/D0)))
+        #fact5 = fact4 @ fact3
+        #fact6 = (fact5 * sigma_env_0**2).integrate()
         
-        #sigmaRm2 = fact1 #+ fact2 
+        nz = 100  # number of redhist bins
+        normalized_z_domain = ift.RGSpace(100, 1.) # that's the redshift domain. The distance between pixels is set to one, as we will manually mutiply with the real z distance later, since it is not the same for each LoS.
+        
+        full_domain = ift.DomainTuple.make((self.target_domain[0], normalized_z_domain,))
+        integrator = ift.ContractionOperator(full_domain, spaces=1) # this is the integration operator, mapping the full domain on the target_domain via a sum
+        expander = integrator.adjoint # the adjoint of this operator projects a field in the target_domain onto the full_domain
+        
+        # constructing the z_grid field
+        z_grid = np.empty(full_domain.shape) 
+        for i, z in enumerate(self.z):
+            z_grid[i] = np.linspace(1, 1 + z, nz) 
+        z_grid = ift.Field(full_domain, z_grid)
+     
+        # now we proceed as before, just that the operators are defined on the full combined domain
+        add_4 = ift.Adder(ift.full(full_domain, 4))
+        multiply_1pz = ift.makeOp(z_grid.log())
+        fact3 = (multiply_1pz @ add_4 @ expander @ chi_red).exp()  # expander maps chi_red on the full domain
+        fact4 = ift.makeOp((3./(H0*(Wm*z_grid**3+Wc*z_grid**2 +Wl)**0.5)*1/D0))
+        
+        fact5 = fact4 @ fact3
 
-        sigmaRm2 = sigma_env_0**2
+        z_weights = ift.makeOp(ift.Field(self.target_domain, self.z / nz)) # these are the z_weights to rescale the integral accordingly
+        fact6 = z_weights @ integrator @ (fact5 * (expander@sigma_env_0**2))
+        
+        
+        sigmaRm2 = fact1 + fact6
+
 
         self._model = sigmaRm2
 
