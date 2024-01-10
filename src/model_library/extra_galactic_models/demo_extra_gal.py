@@ -55,8 +55,8 @@ class ExtraGalDemoModel(Model):
 
         chi_lum = ift.FieldAdapter(self.target_domain, 'chi_lum')
         chi_red = ift.FieldAdapter(self.target_domain, 'chi_red')
-        sigma_int_0 = ift.FieldAdapter(self.target_domain, 'sigma_int_0')
-        sigma_env_0 = ift.FieldAdapter(self.target_domain, 'sigma_env_0')
+        chi_int_0 = ift.FieldAdapter(self.target_domain, 'chi_int_0')
+        chi_env_0 = ift.FieldAdapter(self.target_domain, 'chi_env_0')
 
 
         L0 = Egf.const['L0']
@@ -74,7 +74,8 @@ class ExtraGalDemoModel(Model):
 
         norm=(multiply_L @ chi_lum).exp()
 
-        term= multiply_z @ sigma_int_0**2
+        #term= multiply_z @ sigma_int_0**2
+        term= multiply_z @ chi_int_0.exp()
        
         fact1 = norm * term
 
@@ -117,13 +118,15 @@ class ExtraGalDemoModel(Model):
         fact5 = fact4 @ fact3
 
         z_weights = ift.makeOp(ift.Field(self.target_domain, self.z / nz)) # these are the z_weights to rescale the integral accordingly
-        fact6 = z_weights @ integrator @ (fact5 * (expander@sigma_env_0**2))
-        
+        #fact6 = z_weights @ integrator @ (fact5 * (expander@sigma_env_0**2))
+        fact6 = z_weights @ integrator @ (fact5 * (expander @ chi_env_0.exp()))
+
         
         sigmaRm2 = fact1 + fact6
 
 
         self._model = sigmaRm2
+        self._components.update({'chi_lum': chi_lum, 'chi_red': chi_red, 'chi_int_0': chi_int_0, 'chi_env_0': chi_env_0, })
 
         pass
         # This is a completely cooked up extra-galactic RM model for illustrative purposes only.

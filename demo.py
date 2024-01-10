@@ -72,7 +72,9 @@ def run_inference():
     # set the extra-galactic model hyper-parameters and initialize the model
     egal_model_params = {'z': egal_z,'L': egal_L,
          }
-
+    #egal_model_params = {'z': egal_z,'L': egal_L, 'chi_env_0': ift.NormalPrior(-10.0,10.0),
+    #     }
+    
     emodel = Egf.ExtraGalDemoModel(egal_data_domain, egal_model_params)
     
     #TODO: new formula -> Rm^2 = (L/L0)^Xlum * sigma2_int_0/(1+z)^4 + D/D0 * sigma2_env_0
@@ -86,7 +88,9 @@ def run_inference():
     
     # build the full model and connect it to the likelihood
 
+    #norm = ift.random.normal(0,np.sqrt(emodel.get_model()))
     egal_model = explicit_response @ galactic_model.get_model() + emodel.get_model()
+    #egal_model = explicit_response @ galactic_model.get_model() + emodel.get_model()
     residual = ift.Adder(-egal_rm) @ egal_model
     explicit_likelihood = ift.GaussianEnergy(inverse_covariance=egal_inverse_noise.get_model(),
                                              sampling_dtype=float) @ residual
@@ -125,16 +129,24 @@ def run_inference():
 
     # set run parameters and start the inference
     components = galactic_model.get_components()
+    ecomponents = emodel.get_components()
+
     sky_models = {'faraday_sky': galactic_model.get_model(), 'profile': components['log_profile'].exp(),
                   'sign': components['sign']}
     power_models = {'log_profile': components['log_profile_amplitude'], 'sign': components['sign_amplitude']}
-    scatter_pairs = {'egal_results_vs_data': (egal_model, egal_rm)}
+    #scatter_pairs = {'egal_results_vs_data': (egal_model, egal_rm)}
     #scatter_pairs = None
+    scatter_pairs = {'intrinsic': (ecomponents['chi_lum'], ecomponents['chi_int_0'].exp()),'environmental': (ecomponents['chi_red'], ecomponents['chi_env_0'].exp())}
 
+    #plotting_kwargs = {'faraday_sky': {'cmap': 'fm', 'cmap_stddev': 'fu', 
+    #                                   'vmin_mean':'-250', 'vmax_mean':'250', 
+    #                                   'vmin_std':'-250', 'vmax_std':'250'},
+    #                   'egal_results_vs_data': {'x_label': 'results', 'y_label': 'data'}}
     plotting_kwargs = {'faraday_sky': {'cmap': 'fm', 'cmap_stddev': 'fu', 
                                        'vmin_mean':'-250', 'vmax_mean':'250', 
                                        'vmin_std':'-250', 'vmax_std':'250'},
-                       'egal_results_vs_data': {'x_label': 'results', 'y_label': 'data'}}
+                       'intrinsic': {'x_label': 'chi_lum', 'y_label': 'sigma_int_0'},
+                       'environmental': {'x_label': 'chi_red', 'y_label': 'sigma_env_0'}}
 
     Egf.minimization(n_global=Egf.config['params']['nglobal'], kl_type='GeoMetricKL', plot_path=Egf.config['params']['plot_path'],
                      likelihoods={'implicit_likelihood': implicit_likelihood,
