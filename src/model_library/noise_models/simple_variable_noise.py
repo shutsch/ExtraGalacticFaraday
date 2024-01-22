@@ -1,4 +1,4 @@
-import nifty7 as ift
+import nifty8 as ift
 import numpy as np
 
 from ..Model import Model

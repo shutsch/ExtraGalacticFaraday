@@ -1,4 +1,4 @@
-import nifty7 as ift
+import nifty8 as ift
 import libs as Egf
 import numpy as np
 
@@ -148,7 +148,7 @@ def run_inference():
                        'intrinsic': {'x_label': 'chi_lum', 'y_label': 'sigma_int_0'},
                        'environmental': {'x_label': 'chi_red', 'y_label': 'sigma_env_0'}}
 
-    Egf.minimization(n_global=Egf.config['params']['nglobal'], kl_type='GeoMetricKL', plot_path=Egf.config['params']['plot_path'],
+    Egf.minimization(n_global=Egf.config['params']['nglobal'], kl_type='SampledKLEnergy', plot_path=Egf.config['params']['plot_path'],
                      likelihoods={'implicit_likelihood': implicit_likelihood,
                                   'explicit_likelihood': explicit_likelihood},
                      sky_maps=sky_models, power_spectra=power_models, scatter_pairs=scatter_pairs,

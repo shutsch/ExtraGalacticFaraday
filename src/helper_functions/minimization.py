@@ -1,4 +1,4 @@
-import nifty7 as ift
+import nifty8 as ift
 from .minimization_helpers import get_controller, get_n_samples
 from .plot.plot import sky_map_plotting, power_plotting, energy_plotting, scatter_plotting
 import libs as Egf
@@ -84,10 +84,10 @@ def minimization(likelihoods, kl_type, n_global, plot_path, sky_maps=None, power
     energy_dict = {key: list() for key in likelihoods}
 
     for i in range(n_global):
-        if kl_type == 'GeoMetricKL':
-            kl_dict.update({'minimizer_samp': ift.NewtonCG(controllers['Minimizer_Samples'])})
+        if kl_type == 'SampledKLEnergy':
+            kl_dict.update({'minimizer_sampling': ift.NewtonCG(controllers['Minimizer_Samples'])})
         #VERY HEAVY OPERATION
-        kl = getattr(ift, kl_type)(mean=position, hamiltonian=hamiltonian, **kl_dict)
+        kl = getattr(ift, kl_type)(position=position, hamiltonian=hamiltonian, **kl_dict)
         energy_dict.update({key: energy_dict[key] + [likelihoods[key].force(kl.position).val, ] for key in likelihoods})
         energy_plotting(energy_dict, plot_path)
         ident = str(i - 1) if i != 0 else 'initial'
