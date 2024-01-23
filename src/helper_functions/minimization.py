@@ -34,7 +34,7 @@ def minimization(likelihoods, kl_type, n_global, plot_path, sky_maps=None, power
         'Sampler':
             {'n': Egf.config['controllers']['sampler']['n'],
              'type': 'AbsDeltaEnergy',
-             'change_params': {'n_final': 100,
+             'change_params': {'n_final': 10,
                                'increase_step': None,
                                'increase_rate': None
                                },
@@ -86,7 +86,6 @@ def minimization(likelihoods, kl_type, n_global, plot_path, sky_maps=None, power
     for i in range(n_global):
         if kl_type == 'SampledKLEnergy':
             kl_dict.update({'minimizer_sampling': ift.NewtonCG(controllers['Minimizer_Samples'])})
-        #VERY HEAVY OPERATION
         kl = getattr(ift, kl_type)(position=position, hamiltonian=hamiltonian, **kl_dict)
         energy_dict.update({key: energy_dict[key] + [likelihoods[key].force(kl.position).val, ] for key in likelihoods})
         energy_plotting(energy_dict, plot_path)

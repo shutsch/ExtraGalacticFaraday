@@ -68,9 +68,9 @@ class ExtraGalDemoModel(Model):
       
 
 
-        multiply_z = ift.makeOp(ift.Field(self.target_domain, 1./(1+self.z)**4))
+        multiply_z = ift.makeOp(ift.Field(self.target_domain, 1./(1+self.z)**4),sampling_dtype=float)
 
-        multiply_L = ift.makeOp(ift.Field(self.target_domain, np.log(self.L/L0)))
+        multiply_L = ift.makeOp(ift.Field(self.target_domain, np.log(self.L/L0)),sampling_dtype=float)
 
         norm=(multiply_L @ chi_lum).exp()
 
@@ -111,13 +111,13 @@ class ExtraGalDemoModel(Model):
      
         # now we proceed as before, just that the operators are defined on the full combined domain
         add_4 = ift.Adder(ift.full(full_domain, 4))
-        multiply_1pz = ift.makeOp(z_grid.log())
+        multiply_1pz = ift.makeOp(z_grid.log(), sampling_dtype=float)
         fact3 = (multiply_1pz @ add_4 @ expander @ chi_red).exp()  # expander maps chi_red on the full domain
-        fact4 = ift.makeOp((3./(H0*(Wm*z_grid**3+Wc*z_grid**2 +Wl)**0.5)*1/D0))
+        fact4 = ift.makeOp((3./(H0*(Wm*z_grid**3+Wc*z_grid**2 +Wl)**0.5)*1/D0),sampling_dtype=float)
         
         fact5 = fact4 @ fact3
 
-        z_weights = ift.makeOp(ift.Field(self.target_domain, self.z / nz)) # these are the z_weights to rescale the integral accordingly
+        z_weights = ift.makeOp(ift.Field(self.target_domain, self.z / nz),sampling_dtype=float) # these are the z_weights to rescale the integral accordingly
         #fact6 = z_weights @ integrator @ (fact5 * (expander@sigma_env_0**2))
         fact6 = z_weights @ integrator @ (fact5 * (expander @ chi_env_0.exp()))
 
