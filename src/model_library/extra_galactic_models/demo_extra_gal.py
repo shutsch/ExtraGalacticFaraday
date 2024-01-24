@@ -1,4 +1,4 @@
-import nifty7 as ift
+import nifty8 as ift
 from ..Model import Model
 
 
@@ -22,8 +22,8 @@ class ExtraGalDemoModel(Model):
         add_mu_a = ift.Adder(ift.full(self.target_domain, self.mu_a))
         add_mu_b = ift.Adder(ift.full(self.target_domain, self.mu_b))
 
-        multiply_sigma_a = ift.makeOp(ift.full(self.target_domain, self.sigma_a))
-        multiply_sigma_b = ift.makeOp(ift.full(self.target_domain, self.sigma_b))
+        multiply_sigma_a = ift.makeOp(ift.full(self.target_domain, self.sigma_a), sampling_dtype=float)
+        multiply_sigma_b = ift.makeOp(ift.full(self.target_domain, self.sigma_b), sampling_dtype=float)
 
         a = (add_mu_a @ multiply_sigma_a @ chi_a).exp()
         b = (add_mu_b @ multiply_sigma_b @ chi_b).exp()

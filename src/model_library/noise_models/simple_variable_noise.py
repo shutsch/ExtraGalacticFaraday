@@ -1,4 +1,4 @@
-import nifty7 as ift
+import nifty8 as ift
 import numpy as np
 
 from ..Model import Model
@@ -8,9 +8,9 @@ class SimpleVariableNoise(Model):
 
     def __init__(self, target_domain, noise_cov, alpha, q, name=''):
         if isinstance(noise_cov, ift.Field):
-            self.noise_cov = ift.makeOp(noise_cov)
+            self.noise_cov = ift.makeOp(noise_cov, sampling_dtype=float)
         else:
-            self.noise_cov = ift.makeOp(ift.Field(self.target_domain, noise_cov))
+            self.noise_cov = ift.makeOp(ift.Field(self.target_domain, noise_cov), sampling_dtype=float)
         self.alpha = alpha
         if isinstance(q, str):
             if q == 'mean':

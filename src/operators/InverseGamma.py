@@ -1,5 +1,5 @@
 import numpy as np
-import nifty7 as ift
+import nifty8 as ift
 from scipy.stats import invgamma, norm
 from scipy.special import gammaincinv, gammainccinv
 
@@ -74,7 +74,7 @@ class InverseGammaOperator(ift.Operator):
                 # Derivative of linear interpolation
                 der = self._deriv[d, fi] * res
 
-                jac = ift.makeOp(ift.Field(self._domain, der))
+                jac = ift.makeOp(ift.Field(self._domain, der), sampling_dtype=float)
                 jac = jac(x.jac)
                 return x.new(points, jac)
         else:
@@ -90,7 +90,7 @@ class InverseGammaOperator(ift.Operator):
                 # Derivative of linear interpolation
                 der = self._deriv[fi] * res
 
-                jac = ift.makeOp(ift.Field(self._domain, der))
+                jac = ift.makeOp(ift.Field(self._domain, der), sampling_dtype=float)
                 jac = jac(x.jac)
                 return x.new(points, jac)
 

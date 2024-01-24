@@ -1,4 +1,4 @@
-import nifty7 as ift
+import nifty8 as ift
 import ExtraGalacticFaraday as EgF
 
 import numpy as np
@@ -15,7 +15,7 @@ def run_inference():
 
     # load_the data, define domains, covariance and projection operators
 
-    data = EgF.get_rm(filter_pulsars=True, version='0.1.8', default_error_level=0.5)
+    data = EgF.get_rm(filter_pulsars=True, version='custom', default_error_level=0.5)
 
     # filter
     schnitzeler_indices = (data['catalog'] == '2017MNRAS.467.1776K')
@@ -102,7 +102,7 @@ def run_inference():
     plotting_kwargs = {'faraday_sky': {'cmap': 'fm', 'cmap_stddev': 'fu'},
                        'egal_results_vs_data': {'x_label': 'results', 'y_label': 'data'}}
 
-    EgF.minimization(n_global=20, kl_type='GeoMetricKL', plot_path='./runs/demo/',
+    EgF.minimization(n_global=20, kl_type='SampledKLEnergy', plot_path='./runs/demo/',
                      likelihoods={'implicit_lilelihood': implicit_likelihood,
                                   'explicit_likelihood': explicit_likelihood},
                      sky_maps=sky_models, power_spectra=power_models, scatter_pairs=scatter_pairs,

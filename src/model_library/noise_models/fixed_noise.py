@@ -1,4 +1,4 @@
-import nifty7 as ift
+import nifty8 as ift
 
 from ..Model import Model
 
@@ -14,5 +14,5 @@ class StaticNoise(Model):
 
     def set_model(self):
         if self.inverse:
-            self._model = ift.makeOp(self.noise_cov**(-1))
-        self._model = ift.makeOp(self.noise_cov)
+            self._model = ift.makeOp(self.noise_cov**(-1), sampling_dtype=float)
+        self._model = ift.makeOp(self.noise_cov, sampling_dtype=float)
