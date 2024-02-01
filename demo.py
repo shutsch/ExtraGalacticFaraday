@@ -89,6 +89,13 @@ def run_inference():
     # build the full model and connect it to the likelihood
 
     #norm = ift.random.normal(0,np.sqrt(emodel.get_model()))
+    
+    sigmaRm2 = emodel.get_model()
+    rdm_pos = ift.from_random(sigmaRm2.domain)
+    sample = sigmaRm2(rdm_pos)
+    # points to plot here
+    # ift.single_plot(sample)
+    
     egal_model = explicit_response @ galactic_model.get_model() + emodel.get_model()
     #egal_model = explicit_response @ galactic_model.get_model() + emodel.get_model()
     residual = ift.Adder(-egal_rm) @ egal_model
