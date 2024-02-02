@@ -2,7 +2,7 @@ import nifty8 as ift
 from .minimization_helpers import get_controller, get_n_samples
 from .plot.plot import sky_map_plotting, power_plotting, energy_plotting, scatter_plotting
 import libs as Egf
-
+import numpy as np
 
 def minimization(likelihoods, kl_type, n_global, plot_path, sky_maps=None, power_spectra=None, scatter_pairs=None,
                  plotting_kwargs=None):
@@ -81,6 +81,24 @@ def minimization(likelihoods, kl_type, n_global, plot_path, sky_maps=None, power
 
     position = ift.from_random(hamiltonian.domain)
 
+    #p_d = position.to_dict() 
+    #chiint0_field = p_d['chi_int_0'] 
+    #chienv0_field = p_d['chi_env_0'] 
+    #chilum_field = p_d['chi_lum'] 
+    #chired_field = p_d['chi_red'] 
+    #p_d['chi_int_0'] = ift.full(chiint0_field.domain, ift.from_random(domain= ift.DomainTuple.scalar_domain(),random_type='uniform', low=-10,high=10).val.item()) 
+    #p_d['chi_env_0'] = ift.full(chienv0_field.domain, ift.from_random(domain= ift.DomainTuple.scalar_domain(),random_type='uniform', low=-10,high=10).val.item()) 
+    #p_d['chi_lum'] = ift.full(chilum_field.domain, ift.from_random(domain= ift.DomainTuple.scalar_domain(),random_type='normal', mean=0., std= 1.0).val.item()) 
+    #p_d['chi_red'] = ift.full(chired_field.domain, ift.from_random(domain= ift.DomainTuple.scalar_domain(),random_type='normal', mean=0., std= 1.0).val.item()) 
+    #position = position.from_dict(p_d)
+
+    #p_d = position.to_dict() 
+    #chiint0_field = p_d['chi_int_0'] 
+    #chienv0_field = p_d['chi_env_0'] 
+    #p_d['chi_int_0'] = ift.from_random(domain= chiint0_field.domain,std=2).val.item() 
+    #p_d['chi_env_0'] = ift.from_random(domain= chienv0_field.domain,std=2).val.item() 
+    #position = position.from_dict(p_d)
+
     energy_dict = {key: list() for key in likelihoods}
 
     for i in range(n_global):
@@ -93,19 +111,19 @@ def minimization(likelihoods, kl_type, n_global, plot_path, sky_maps=None, power
 
         if sky_maps is not None:
             for sky_name, sky in sky_maps.items():
-                sky_map_plotting(sky, [kl.position + s for s in kl.samples], sky_name, plot_path, string=ident,
+                sky_map_plotting(sky, [kl.position + s for s in kl.samples.iterator()], sky_name, plot_path, string=ident,
                                  **plotting_kwargs.get(sky_name, {}))
                 if sky_name not in power_spectra:
-                    power_plotting(sky, [kl.position + s for s in kl.samples], sky_name, plot_path, string=ident,
+                    power_plotting(sky, [kl.position + s for s in kl.samples.iterator()], sky_name, plot_path, string=ident,
                                    from_power_model=False, **plotting_kwargs.get(sky_name, {}))
         if power_spectra is not None:
             for power_name, power in power_spectra.items():
-                power_plotting(power, [kl.position + s for s in kl.samples], power_name, plot_path, string=ident,
+                power_plotting(power, [kl.position + s for s in kl.samples.iterator()], power_name, plot_path, string=ident,
                                from_power_model=True,  **plotting_kwargs.get(power_name, {}))
 
         if scatter_pairs is not None:
             for key, (sc1, sc2) in scatter_pairs.items():
-                scatter_plotting(sc1, sc2, key, plot_path, [kl.position + s for s in kl.samples], string=ident,
+                scatter_plotting(sc1, sc2, key, plot_path, [kl.position + s for s in kl.samples.iterator()], string=ident,
                                  **plotting_kwargs.get(key, {}))
 
         minimizer = ift.NewtonCG(controllers['Minimizer'])
@@ -115,3 +133,4 @@ def minimization(likelihoods, kl_type, n_global, plot_path, sky_maps=None, power
                        for key, controller_dict in controller_parameters.items()}
 
         position = kl.position
+        print('position', position.val)

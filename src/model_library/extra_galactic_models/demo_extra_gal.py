@@ -63,7 +63,7 @@ class ExtraGalDemoModel(Model):
         D0 = Egf.const['D0']
   
         # new formula -> 
-        # Rm^2 = (L/L0)^Xlum * sigma_int_0^2/(1+z)^4 + D/D0 * sigma_env_0^2
+        # sigmaRm^2 = (L/L0)^Xlum * sigma_int_0^2/(1+z)^4 + D/D0 * sigma_env_0^2
 
       
 
@@ -96,7 +96,7 @@ class ExtraGalDemoModel(Model):
         #fact5 = fact4 @ fact3
         #fact6 = (fact5 * sigma_env_0**2).integrate()
         
-        nz = 100  # number of redhist bins
+        nz = 100  # number of redshift bins
         normalized_z_domain = ift.RGSpace(100, 1.) # that's the redshift domain. The distance between pixels is set to one, as we will manually mutiply with the real z distance later, since it is not the same for each LoS.
         
         full_domain = ift.DomainTuple.make((self.target_domain[0], normalized_z_domain,))
@@ -124,8 +124,12 @@ class ExtraGalDemoModel(Model):
         
         sigmaRm2 = fact1 + fact6
 
+        # sigmaRm = sigmaRm2.sqrt()
+        # rdm_pos=ift.from_random(sigmaRm.domain)
+        # rm=sigmaRm(rdm_pos)
 
         self._model = sigmaRm2
+        #self._components.update({'chi_lum': chi_lum, 'chi_red': chi_red, 'sigma_int_0': chi_int_0.exp(), 'sigma_env_0': chi_env_0.exp(), })
         self._components.update({'chi_lum': chi_lum, 'chi_red': chi_red, 'chi_int_0': chi_int_0, 'chi_env_0': chi_env_0, })
 
         pass

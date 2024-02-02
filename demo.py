@@ -67,10 +67,13 @@ def run_inference():
     explicit_response = Egf.SkyProjector(theta=data['theta'][z_indices], phi=data['phi'][z_indices],
                                          domain=sky_domain, target=egal_data_domain)
 
+    #explicit_egal_response = Egf.SkyProjector(theta=data['theta'][z_indices], phi=data['phi'][z_indices],
+    #                                     domain=sky_domain, target=egal_data_domain)
+
     egal_inverse_noise = Egf.StaticNoise(egal_data_domain, egal_stddev**2, True)
 
     # set the extra-galactic model hyper-parameters and initialize the model
-    egal_model_params = {'z': egal_z,'L': egal_L,
+    egal_model_params = {'z': egal_z,'L': egal_L, 
          }
     #egal_model_params = {'z': egal_z,'L': egal_L, 'chi_env_0': ift.NormalPrior(-10.0,10.0),
     #     }
@@ -90,7 +93,6 @@ def run_inference():
 
     #norm = ift.random.normal(0,np.sqrt(emodel.get_model()))
     egal_model = explicit_response @ galactic_model.get_model() + emodel.get_model()
-    #egal_model = explicit_response @ galactic_model.get_model() + emodel.get_model()
     residual = ift.Adder(-egal_rm) @ egal_model
     explicit_likelihood = ift.GaussianEnergy(inverse_covariance=egal_inverse_noise.get_model(),
                                              sampling_dtype=float) @ residual
@@ -136,7 +138,8 @@ def run_inference():
     power_models = {'log_profile': components['log_profile_amplitude'], 'sign': components['sign_amplitude']}
     #scatter_pairs = {'egal_results_vs_data': (egal_model, egal_rm)}
     #scatter_pairs = None
-    scatter_pairs = {'intrinsic': (ecomponents['chi_lum'], ecomponents['chi_int_0'].exp()),'environmental': (ecomponents['chi_red'], ecomponents['chi_env_0'].exp())}
+#    scatter_pairs = {'intrinsic': (ecomponents['chi_lum'], ecomponents['sigma_int_0']),'environmental': (ecomponents['chi_red'], ecomponents['sigma_env_0'])}
+    scatter_pairs = {'intrinsic': (ecomponents['chi_lum'], ecomponents['chi_int_0']),'environmental': (ecomponents['chi_red'], ecomponents['chi_env_0'])}
 
     #plotting_kwargs = {'faraday_sky': {'cmap': 'fm', 'cmap_stddev': 'fu', 
     #                                   'vmin_mean':'-250', 'vmax_mean':'250', 
