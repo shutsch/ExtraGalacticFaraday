@@ -124,15 +124,11 @@ class ExtraGalDemoModel(Model):
         
         sigmaRm2 = fact1 + fact6
 
-        # sigmaRm = sigmaRm2.sqrt()
-        # rdm_pos=ift.from_random(sigmaRm.domain)
-        # rm=sigmaRm(rdm_pos)
 
         self._model = sigmaRm2
         #self._components.update({'chi_lum': chi_lum, 'chi_red': chi_red, 'sigma_int_0': chi_int_0.exp(), 'sigma_env_0': chi_env_0.exp(), })
         self._components.update({'chi_lum': chi_lum, 'chi_red': chi_red, 'chi_int_0': chi_int_0, 'chi_env_0': chi_env_0, })
 
-        pass
         # This is a completely cooked up extra-galactic RM model for illustrative purposes only.
         # The model is RM_egal = e**(sigma_a * \xi_a + \mu_a) - e**(sigma_b * \xi_b + \mu_b)/(ln(1 + e^z)),
         # where the sigmas and mus are a hyper-parameters of the model,
