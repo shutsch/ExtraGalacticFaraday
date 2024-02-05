@@ -7,6 +7,9 @@ import numpy as np
 
 
 def run_inference():
+    
+
+
     # set the HealPix resolution parameter and the sky domain
 
     sky_domain = ift.makeDomain(ift.HPSpace(Egf.config['params']['nside']))
@@ -70,7 +73,7 @@ def run_inference():
     #explicit_egal_response = Egf.SkyProjector(theta=data['theta'][z_indices], phi=data['phi'][z_indices],
     #                                     domain=sky_domain, target=egal_data_domain)
 
-    egal_inverse_noise = Egf.StaticNoise(egal_data_domain, egal_stddev**2, True)
+    egal_inverse_noise = Egf.StaticNoise(egal_data_domain, egal_stddev**2+emodel.get_model(), True)
 
     # set the extra-galactic model hyper-parameters and initialize the model
     egal_model_params = {'z': egal_z,'L': egal_L, 
@@ -93,15 +96,19 @@ def run_inference():
 
     #norm = ift.random.normal(0,np.sqrt(emodel.get_model()))
     
-    sigmaRm2 = emodel.get_model()
-    rdm_pos = ift.from_random(sigmaRm2.domain)
-    sample = sigmaRm2(rdm_pos)
+    #sigmaRm2 = emodel.get_model()
+    #rdm_pos = ift.from_random(sigmaRm2.domain)
+    #sample = sigmaRm2(rdm_pos)
     # points to plot here
     # ift.single_plot(sample)
     
-    egal_model = explicit_response @ galactic_model.get_model() + emodel.get_model()
+    
+    egal_model = explicit_response @ galactic_model.get_model()
+    #egal_model = explicit_response @ galactic_model.get_model() + emodel.get_model()
     residual = ift.Adder(-egal_rm) @ egal_model
-    explicit_likelihood = ift.GaussianEnergy(inverse_covariance=egal_inverse_noise.get_model(),
+    #explicit_likelihood = ift.GaussianEnergy(inverse_covariance=egal_inverse_noise.get_model(),
+    #                                         sampling_dtype=float) @ residual
+    explicit_likelihood = ift.VariableCovarianceGaussianEnergy(inverse_covariance=egal_inverse_noise.get_model(),
                                              sampling_dtype=float) @ residual
 
     gal_rm = data['rm'][~z_indices]
@@ -146,7 +153,7 @@ def run_inference():
     #scatter_pairs = {'egal_results_vs_data': (egal_model, egal_rm)}
     #scatter_pairs = None
 #    scatter_pairs = {'intrinsic': (ecomponents['chi_lum'], ecomponents['sigma_int_0']),'environmental': (ecomponents['chi_red'], ecomponents['sigma_env_0'])}
-    scatter_pairs = {'intrinsic': (ecomponents['chi_lum'], ecomponents['chi_int_0']),'environmental': (ecomponents['chi_red'], ecomponents['chi_env_0'])}
+    scatter_pairs = {'intrinsic': (ecomponents['chi_lum'], ecomponents['sigma_int_0']),'environmental': (ecomponents['chi_red'], ecomponents['sigma_env_0'])}
 
     #plotting_kwargs = {'faraday_sky': {'cmap': 'fm', 'cmap_stddev': 'fu', 
     #                                   'vmin_mean':'-250', 'vmax_mean':'250', 

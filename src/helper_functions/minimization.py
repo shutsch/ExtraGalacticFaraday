@@ -4,6 +4,8 @@ from .plot.plot import sky_map_plotting, power_plotting, energy_plotting, scatte
 import libs as Egf
 import numpy as np
 
+
+
 def minimization(likelihoods, kl_type, n_global, plot_path, sky_maps=None, power_spectra=None, scatter_pairs=None,
                  plotting_kwargs=None):
     """
@@ -101,6 +103,7 @@ def minimization(likelihoods, kl_type, n_global, plot_path, sky_maps=None, power
 
     energy_dict = {key: list() for key in likelihoods}
 
+    
     for i in range(n_global):
         if kl_type == 'SampledKLEnergy':
             kl_dict.update({'minimizer_sampling': ift.NewtonCG(controllers['Minimizer_Samples'])})
@@ -132,5 +135,10 @@ def minimization(likelihoods, kl_type, n_global, plot_path, sky_maps=None, power
         controllers = {key: get_controller(controller_dict, i, final, key)
                        for key, controller_dict in controller_parameters.items()}
 
+        f=open('output_chi.txt', 'w')
+        f.write(position.val['chi_lum'].__str__() + position.val['chi_red'].__str__() + position.val['chi_int_0'].__str__() + position.val['chi_env_0'].__str__())
+        f.close()
         position = kl.position
-        print('position', position.val)
+
+    
+    
