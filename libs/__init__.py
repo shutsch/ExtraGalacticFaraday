@@ -3,6 +3,7 @@ from src.model_library.extra_galactic_models.demo_extra_gal import ExtraGalDemoM
 
 from src.model_library.noise_models.fixed_noise import StaticNoise
 from src.model_library.noise_models.simple_variable_noise import SimpleVariableNoise
+from src.model_library.noise_models.egal_adding_noise import EgalAddingNoise
 
 from src.operators.Projection import SkyProjector
 

@@ -68,8 +68,12 @@ def run_inference():
     #below will include again only the noise. 
     
 
+    noise_params = {
+        'egal_var': egal_stddev**2,
+        'emodel': emodel.get_model()
+    }
 
-    egal_inverse_noise = Egf.StaticNoise(egal_data_domain, egal_stddev**2+emodel.get_components()['sigmaRm2'], True)
+    egal_inverse_noise = Egf.EgalAddingNoise(egal_data_domain, noise_params).get_model()
 
 
     
