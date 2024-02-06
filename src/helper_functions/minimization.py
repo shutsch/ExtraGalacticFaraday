@@ -128,6 +128,24 @@ def minimization(likelihoods, kl_type, n_global, plot_path, sky_maps=None, power
 
     position = ift.from_random(hamiltonian.domain)
 
+    #p_d = position.to_dict() 
+    #chiint0_field = p_d['chi_int_0'] 
+    #chienv0_field = p_d['chi_env_0'] 
+    #chilum_field = p_d['chi_lum'] 
+    #chired_field = p_d['chi_red'] 
+    #p_d['chi_int_0'] = ift.full(chiint0_field.domain, ift.from_random(domain= ift.DomainTuple.scalar_domain(),random_type='uniform', low=-10,high=10).val.item()) 
+    #p_d['chi_env_0'] = ift.full(chienv0_field.domain, ift.from_random(domain= ift.DomainTuple.scalar_domain(),random_type='uniform', low=-10,high=10).val.item()) 
+    #p_d['chi_lum'] = ift.full(chilum_field.domain, ift.from_random(domain= ift.DomainTuple.scalar_domain(),random_type='normal', mean=0., std= 1.0).val.item()) 
+    #p_d['chi_red'] = ift.full(chired_field.domain, ift.from_random(domain= ift.DomainTuple.scalar_domain(),random_type='normal', mean=0., std= 1.0).val.item()) 
+    #position = position.from_dict(p_d)
+
+    #p_d = position.to_dict() 
+    #chiint0_field = p_d['chi_int_0'] 
+    #chienv0_field = p_d['chi_env_0'] 
+    #p_d['chi_int_0'] = ift.from_random(domain= chiint0_field.domain,std=2).val.item() 
+    #p_d['chi_env_0'] = ift.from_random(domain= chienv0_field.domain,std=2).val.item() 
+    #position = position.from_dict(p_d)
+
     energy_dict = {key: list() for key in likelihoods}
 
     op_output = {}

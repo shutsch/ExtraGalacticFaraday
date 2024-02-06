@@ -6,6 +6,7 @@ import matplotlib.pyplot as pl
 from matplotlib import cm
 
 
+
 def energy_plotting(array_dict, path):
     path += 'energy/'
     if not os.path.exists(path):
@@ -83,9 +84,12 @@ def scatter_plotting(model_1, model_2, name, path, plot_obj=None, string=None, *
     pl.ylabel(kwargs.get('y_label', None))
     pl.xlim([xmin, xmax, ])
     pl.ylim([ymin, ymax, ])
+    p=open('output_plt.txt', 'w')
     pl.savefig(scatter_path + name + '_' + string + '.png', format='png', dpi=800)
     pl.close()
-
+    
+    p.write('val_1'+str(val_1)+'val_2'+str(val_2))
+    p.close()
 
 def power_plotting(model, samples, name, path, from_power_model, string=None, **kwargs):
     if string is None:
@@ -170,3 +174,4 @@ def _density_estimation(m1, m2, xmin, xmax, ymin, ymax, nbins):
     kernel = gaussian_kde(values)
     z = np.reshape(kernel(positions).T, x.shape)
     return x, y, z
+

@@ -7,6 +7,9 @@ import numpy as np
 
 
 def run_inference():
+    
+
+
     # set the HealPix resolution parameter and the sky domain
 
     sky_domain = ift.makeDomain(ift.HPSpace(Egf.config['params']['nside']))
@@ -29,19 +32,6 @@ def run_inference():
     egal_L = data['stokesI'][z_indices]
 
     # set the sky model hyper-parameters and initialize the Faraday 2020 sky model
-
-    #log_amplitude_params = {'fluctuations': {'asperity': [.1, .1], 'flexibility': [.1, .1],
-    #                                         'fluctuations': [3, 2], 'loglogavgslope': [-3., .75],
-    #                                         },
-    #                        'offset': {'offset_mean': 4, 'offset_std': [6, 6.]},
-    #                        }
-
-    #sign_params = {'fluctuations': {'asperity': [.1, .1], 'flexibility': [.1, .1],
-    #                                'fluctuations': [3, 2], 'loglogavgslope': [-3., .75],
-    #                                },
-    #               'offset': {'offset_mean': 0, 'offset_std': [6, 6.]},
-    #               }
-    
     #new parameters given by Sebastian
     log_amplitude_params = {'fluctuations': {'asperity': None,'flexibility': [.1, .1], 
                           'fluctuations': [1.0, 0.5], 'loglogavgslope': [-11/3, 1.],},
@@ -61,51 +51,54 @@ def run_inference():
 
     egal_rm = ift.Field(egal_data_domain, egal_rm)
     egal_stddev = ift.Field(egal_data_domain, egal_stddev)
-    #egal_z = ift.Field(egal_data_domain, egal_z)
-    #egal_L = ift.Field(egal_data_domain, egal_L)
-
-    explicit_response = Egf.SkyProjector(theta=data['theta'][z_indices], phi=data['phi'][z_indices],
-                                         domain=sky_domain, target=egal_data_domain)
-
-    egal_inverse_noise = Egf.StaticNoise(egal_data_domain, egal_stddev**2, True)
-
-    # set the extra-galactic model hyper-parameters and initialize the model
-    egal_model_params = {'z': egal_z,'L': egal_L,
-         }
-    #egal_model_params = {'z': egal_z,'L': egal_L, 'chi_env_0': ift.NormalPrior(-10.0,10.0),
-    #     }
     
-    emodel = Egf.ExtraGalDemoModel(egal_data_domain, egal_model_params)
+
     
-    #TODO: new formula -> Rm^2 = (L/L0)^Xlum * sigma2_int_0/(1+z)^4 + D/D0 * sigma2_env_0
-    ## D = integral 0 to z (c/H) * ((1+z)^(4 + Xred)) dz
-    ## Xlum, Xred, sigma2_int_0, sigma2_env_0 to be provided in input, looping through values, in order
-    ## to calculate different Rm^2, to be applied to Gaussian. Target is eg_contr (e_model)
-    ## L0, D0 hyperpars (fixed), c hyperpar (speedlight), H hyperpar (depends on cosmology (refer to already existing code Valentina))
-    # input: values from catalog (L, z)
-    # output: rm^2, need to calculate eg_contr=G(0, rm^2) as output of function (see numpy.random.normal)
-    # all outputs need to be put in some kind of array
-    
+
     # build the full model and connect it to the likelihood
+    # set the extra-galactic model hyper-parameters and initialize the model
+    egal_model_params = {'z': egal_z,'L': egal_L, 
+         }
+      
+    emodel = Egf.ExtraGalDemoModel(egal_data_domain, egal_model_params)
 
-    #norm = ift.random.normal(0,np.sqrt(emodel.get_model()))
+    #if we are not interested in the RM but only in its sigma we can consider the eg sigma as a noise and sum the two here. 
+    #we include it here but not in the Variable Noise below because the variable noise include the eta factors and applies only to
+    #the Tayolor catalog. Here we are considering the LOFAR catalog. When we will include the correlated eg component, the line 
+    #below will include again only the noise. 
     
-    sigmaRm2 = emodel.get_model()
-    rdm_pos = ift.from_random(sigmaRm2.domain)
-    sample = sigmaRm2(rdm_pos)
-    # points to plot here
-    # ift.single_plot(sample)
+
+
+    egal_inverse_noise = Egf.StaticNoise(egal_data_domain, egal_stddev**2+emodel.get_components()['sigmaRm2'], True)
+
+
     
-    egal_model = explicit_response @ galactic_model.get_model() + emodel.get_model()
+    explicit_response = Egf.SkyProjector(theta=data['theta'][z_indices], phi=data['phi'][z_indices],
+                                         domain=sky_domain, target=egal_data_domain) 
+
+      
+    #if we are not interested in the RM but only in its sigma we do not need to include the Rm in the following line
+    egal_model = explicit_response @ galactic_model.get_model()
     #egal_model = explicit_response @ galactic_model.get_model() + emodel.get_model()
     residual = ift.Adder(-egal_rm) @ egal_model
-    explicit_likelihood = ift.GaussianEnergy(inverse_covariance=egal_inverse_noise.get_model(),
-                                             sampling_dtype=float) @ residual
+    #we need to use the VariableCovarianceGaussianEnerg instead than the GaussianEnergy because the variance (that now
+    #includes the eg part that now we are fitting) is varying, is not anymore a costant. When we will include the 
+    #correlated eg component we will need to use again the GaussianEnergy. 
+    new_dom = ift.MultiDomain.make({'icov': egal_inverse_noise.target, 'residual': residual.target})
+    n_res = ift.FieldAdapter(new_dom, 'icov')(egal_inverse_noise.reciprocal()) + \
+        ift.FieldAdapter(new_dom, 'residual')(residual)
+    explicit_likelihood = ift.VariableCovarianceGaussianEnergy(domain=egal_data_domain, residual_key='residual',
+                                                               inverse_covariance_key='icov',
+                                                               sampling_dtype=np.dtype(np.float64)) @ n_res
+    
+    #explicit_likelihood = ift.VariableCovarianceGaussianEnergy(inverse_covariance=egal_inverse_noise.get_model()+emodel.get_model(),
+    #                                         sampling_dtype=float) @ residual
+    #explicit_likelihood = ift.GaussianEnergy(inverse_covariance=egal_inverse_noise.get_model(),
+    #                                         sampling_dtype=float) @ residual
+
 
     gal_rm = data['rm'][~z_indices]
     gal_stddev = data['rm_err'][~z_indices]
-    #gal_rm = data['rm'][~schnitzeler_indices]
-    #gal_stddev = data['rm_err'][~schnitzeler_indices]
 
   
     gal_data_domain = ift.makeDomain(ift.UnstructuredDomain((len(gal_rm),)))
@@ -117,9 +110,6 @@ def run_inference():
                                          phi=data['phi'][~z_indices],
                                          domain=sky_domain, target=gal_data_domain)
 
-    #implicit_response = Egf.SkyProjector(theta=data['theta'][~schnitzeler_indices],
-    #                                     phi=data['phi'][~schnitzeler_indices],
-    #                                     domain=sky_domain, target=gal_data_domain)
 
     implicit_noise = Egf.SimpleVariableNoise(gal_data_domain, alpha=2.5, q='mode', noise_cov=gal_stddev**2).get_model()
 
@@ -143,7 +133,10 @@ def run_inference():
     power_models = {'log_profile': components['log_profile_amplitude'], 'sign': components['sign_amplitude']}
     #scatter_pairs = {'egal_results_vs_data': (egal_model, egal_rm)}
     #scatter_pairs = None
-    scatter_pairs = {'intrinsic': (ecomponents['chi_lum'], ecomponents['chi_int_0'].exp()),'environmental': (ecomponents['chi_red'], ecomponents['chi_env_0'].exp())}
+    #scatter_pairs = {'intrinsic': (ecomponents['chi_lum'], ecomponents['sigma_int_0']),'environmental': (ecomponents['chi_red'], ecomponents['sigma_env_0'])}
+    
+    #the value that we plot are indeed the values in the position field 
+    scatter_pairs = {'intrinsic': (ecomponents['chi_lum'], ecomponents['sigma_int_0']),'environmental': (ecomponents['chi_red'], ecomponents['sigma_env_0'])}
 
     #plotting_kwargs = {'faraday_sky': {'cmap': 'fm', 'cmap_stddev': 'fu', 
     #                                   'vmin_mean':'-250', 'vmax_mean':'250', 
