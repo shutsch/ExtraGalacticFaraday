@@ -3,6 +3,38 @@ from .minimization_helpers import get_controller, get_n_samples
 from .plot.plot import sky_map_plotting, power_plotting, energy_plotting, scatter_plotting
 import libs as Egf
 
+_localParams = []
+_controllerParameters = {}
+
+def plot_cb(latest_sample_list, i):
+    ident = str(i - 1) if i != 0 else 'initial'
+    latest_mean = latest_sample_list.average()
+
+    if _localParams['sky_maps'] is not None:
+        for sky_name, sky in _localParams['sky_maps'].items():
+            sky_map_plotting(sky, [latest_mean + s for s in latest_sample_list.iterator()], sky_name, _localParams['plot_path'], string=ident,
+                                **_localParams['plotting_kwargs'].get(sky_name, {}))
+            if sky_name not in _localParams['power_spectra']:
+                power_plotting(sky, [latest_mean + s for s in latest_sample_list.iterator()], sky_name, _localParams['plot_path'], string=ident,
+                                from_power_model=False, **_localParams['plotting_kwargs'].get(sky_name, {}))
+    if _localParams['power_spectra'] is not None:
+        for power_name, power in _localParams['power_spectra'].items():
+            power_plotting(power, [latest_mean + s for s in latest_sample_list.iterator()], power_name, _localParams['plot_path'], string=ident,
+                            from_power_model=True,  **_localParams['plotting_kwargs'].get(power_name, {}))
+
+    if _localParams['scatter_pairs'] is not None:
+        for key, (sc1, sc2) in _localParams['scatter_pairs'].items():
+            scatter_plotting(sc1, sc2, key, _localParams['plot_path'], [latest_mean + s for s in latest_sample_list.iterator()], string=ident,
+                                **_localParams['plotting_kwargs'].get(key, {}))
+
+    # minimizer = ift.NewtonCG(controllers['Minimizer'])
+    # kl, _ = minimizer(kl)
+    # final = True if i == _localParams['n_global'] - 1 else False
+    # controllers = {key: get_controller(controller_dict, i, final, key)
+    #                 for key, controller_dict in _controllerParameters.items()}
+
+    # position = latest_mean
+
 
 def minimization(likelihoods, kl_type, n_global, plot_path, sky_maps=None, power_spectra=None, scatter_pairs=None,
                  plotting_kwargs=None):
@@ -22,6 +54,18 @@ def minimization(likelihoods, kl_type, n_global, plot_path, sky_maps=None, power
     :param scatter_pairs:
     :return: None
     """
+
+    global _localParams
+    _localParams = {
+        'sky_maps':sky_maps,
+        'n_global':n_global,
+        'power_spectra':power_spectra,
+        'scatter_pairs':scatter_pairs,
+        'plotting_kwargs':plotting_kwargs,
+        'plot_path': plot_path
+
+    }
+
     sample_parameters = {'n': 2,
                          'change_params': {'n_prior': 2,
                                            'n_final': 20,
@@ -34,7 +78,7 @@ def minimization(likelihoods, kl_type, n_global, plot_path, sky_maps=None, power
         'Sampler':
             {'n': Egf.config['controllers']['sampler']['n'],
              'type': 'AbsDeltaEnergy',
-             'change_params': {'n_final': 10,
+             'change_params': {'n_final': 20,
                                'increase_step': None,
                                'increase_rate': None
                                },
@@ -64,6 +108,9 @@ def minimization(likelihoods, kl_type, n_global, plot_path, sky_maps=None, power
 
     }
 
+    global _controllerParameters
+    _controllerParameters = controller_parameters
+
     if plotting_kwargs is None:
         plotting_kwargs = {}
 
@@ -83,35 +130,18 @@ def minimization(likelihoods, kl_type, n_global, plot_path, sky_maps=None, power
 
     energy_dict = {key: list() for key in likelihoods}
 
-    for i in range(n_global):
-        if kl_type == 'SampledKLEnergy':
-            kl_dict.update({'minimizer_sampling': ift.NewtonCG(controllers['Minimizer_Samples'])})
-        kl = getattr(ift, kl_type)(position=position, hamiltonian=hamiltonian, **kl_dict)
-        energy_dict.update({key: energy_dict[key] + [likelihoods[key].force(kl.position).val, ] for key in likelihoods})
-        energy_plotting(energy_dict, plot_path)
-        ident = str(i - 1) if i != 0 else 'initial'
+    op_output = {}
+    sample_list, mean = ift.optimize_kl(
+        likelihood_energy=likelihood,
+        total_iterations=n_global,
+        n_samples=get_n_samples(sample_parameters, 0, False),
+        kl_minimizer=ift.NewtonCG(controllers['Minimizer_Samples']),
+        sampling_iteration_controller=controllers['Sampler'],
+        nonlinear_sampling_minimizer=None,
+        export_operator_outputs=op_output,
+        initial_position=position,
+        return_final_position=True,
+        inspect_callback=plot_cb
+        #dry_run=False
+        )
 
-        if sky_maps is not None:
-            for sky_name, sky in sky_maps.items():
-                sky_map_plotting(sky, [kl.position + s for s in kl.samples.iterator()], sky_name, plot_path, string=ident,
-                                 **plotting_kwargs.get(sky_name, {}))
-                if sky_name not in power_spectra:
-                    power_plotting(sky, [kl.position + s for s in kl.samples.iterator()], sky_name, plot_path, string=ident,
-                                   from_power_model=False, **plotting_kwargs.get(sky_name, {}))
-        if power_spectra is not None:
-            for power_name, power in power_spectra.items():
-                power_plotting(power, [kl.position + s for s in kl.samples.iterator()], power_name, plot_path, string=ident,
-                               from_power_model=True,  **plotting_kwargs.get(power_name, {}))
-
-        if scatter_pairs is not None:
-            for key, (sc1, sc2) in scatter_pairs.items():
-                scatter_plotting(sc1, sc2, key, plot_path, [kl.position + s for s in kl.samples.iterator()], string=ident,
-                                 **plotting_kwargs.get(key, {}))
-
-        minimizer = ift.NewtonCG(controllers['Minimizer'])
-        kl, _ = minimizer(kl)
-        final = True if i == n_global - 1 else False
-        controllers = {key: get_controller(controller_dict, i, final, key)
-                       for key, controller_dict in controller_parameters.items()}
-
-        position = kl.position
