@@ -162,4 +162,11 @@ cython_debug/
 #Custom files/folders	
 runs/
 data/Faraday/
+
+
+
+
+output_chi.txt
+output_plt.txt
+
 *.fits
