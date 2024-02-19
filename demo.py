@@ -26,10 +26,10 @@ def run_inference():
     #egal_rm = data['rm'][schnitzeler_indices]
     #egal_stddev = data['rm_err'][schnitzeler_indices]
 
-    egal_rm = data['rm'][z_indices]
-    egal_stddev = data['rm_err'][z_indices]
-    egal_z = data['z_best'][z_indices]
-    egal_L = data['stokesI'][z_indices]
+    egal_rm = np.array(data['rm'][z_indices])
+    egal_stddev = np.array(data['rm_err'][z_indices])
+    egal_z = np.array(data['z_best'][z_indices])
+    egal_L = np.array(data['stokesI'][z_indices])
 
     # set the sky model hyper-parameters and initialize the Faraday 2020 sky model
     #new parameters given by Sebastian
@@ -101,8 +101,8 @@ def run_inference():
     #                                         sampling_dtype=float) @ residual
 
 
-    gal_rm = data['rm'][~z_indices]
-    gal_stddev = data['rm_err'][~z_indices]
+    gal_rm = np.array(data['rm'][~z_indices])
+    gal_stddev = np.array(data['rm_err'][~z_indices])
 
   
     gal_data_domain = ift.makeDomain(ift.UnstructuredDomain((len(gal_rm),)))
