@@ -36,7 +36,7 @@ class ExtraGalDemoModel(Model):
         cosmo = FlatLambdaCDM(H0=H0, Om0=Wm)  
         L0 = float(Egf.const['L0'])
         D0 = Egf.const['D0']
-        Dl=cosmo.luminosity_distance(self.z)
+        Dl=cosmo.luminosity_distance(self.z).value
 
 
         multiply_z = ift.makeOp(ift.Field(self.target_domain, 1./(1+self.z)**4),sampling_dtype=float)
