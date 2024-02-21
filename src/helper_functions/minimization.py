@@ -7,9 +7,14 @@ _localParams = []
 _controllerParameters = {}
 
 def plot_cb(latest_sample_list, i):
-    ident = str(i - 1) if i != 0 else 'initial'
     latest_mean = latest_sample_list.average()
-
+    
+    energy_dict = {key: list() for key in _localParams['likelihoods']}
+    energy_dict.update({key: energy_dict[key] + [_localParams['likelihoods'][key].force(latest_mean).val, ] for key in _localParams['likelihoods']})
+    
+    energy_plotting(energy_dict, _localParams['plot_path'])
+    ident = str(i - 1) if i != 0 else 'initial'
+    
     if _localParams['sky_maps'] is not None:
         for sky_name, sky in _localParams['sky_maps'].items():
             sky_map_plotting(sky, [latest_mean + s for s in latest_sample_list.iterator()], sky_name, _localParams['plot_path'], string=ident,
@@ -62,7 +67,8 @@ def minimization(likelihoods, kl_type, n_global, plot_path, sky_maps=None, power
         'power_spectra':power_spectra,
         'scatter_pairs':scatter_pairs,
         'plotting_kwargs':plotting_kwargs,
-        'plot_path': plot_path
+        'plot_path': plot_path,
+        'likelihoods': likelihoods
 
     }
 
@@ -146,7 +152,6 @@ def minimization(likelihoods, kl_type, n_global, plot_path, sky_maps=None, power
     #p_d['chi_env_0'] = ift.from_random(domain= chienv0_field.domain,std=2).val.item() 
     #position = position.from_dict(p_d)
 
-    energy_dict = {key: list() for key in likelihoods}
 
     op_output = {}
     sample_list, mean = ift.optimize_kl(

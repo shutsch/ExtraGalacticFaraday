@@ -163,9 +163,6 @@ cython_debug/
 runs/
 data/Faraday/
 
-
-
-
 output_chi.txt
 output_plt.txt
 
