@@ -37,12 +37,13 @@ class ExtraGalDemoModel(Model):
         L0 = float(Egf.const['L0'])
         D0 = Egf.const['D0']
         Dl=cosmo.luminosity_distance(self.z).value
+        factor = 1e-26*(3.0857*1e22)**2
 
 
         multiply_z = ift.makeOp(ift.Field(self.target_domain, 1./(1+self.z)**4),sampling_dtype=float)
 
         #multiply_L = ift.makeOp(ift.Field(self.target_domain, np.log(self.L/L0)),sampling_dtype=float)
-        multiply_L = ift.makeOp(ift.Field(self.target_domain, np.log(self.L*4*m.pi*Dl**2/L0)),sampling_dtype=float)
+        multiply_L = ift.makeOp(ift.Field(self.target_domain, np.log(self.L*4*m.pi*Dl**2*factor/L0)),sampling_dtype=float)
 
         norm=(multiply_L @ chi_lum).exp()
 

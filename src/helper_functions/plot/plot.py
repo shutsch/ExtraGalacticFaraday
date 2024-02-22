@@ -4,6 +4,8 @@ import nifty8 as ift
 from .nifty_cmaps import ncmap
 import matplotlib.pyplot as pl
 from matplotlib import cm
+import matplotlib
+matplotlib.use('Agg') 
 
 
 

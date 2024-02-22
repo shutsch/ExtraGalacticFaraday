@@ -1,5 +1,5 @@
 L0: 1.0e27 #in order to have the luminosity in units of W/Hz
-D0: 1000. #i.e., D in units of Gpc
+D0: 5000. #i.e., D in units of Gpc
 c: 299792458.0 #m/s
 
 Planck:
