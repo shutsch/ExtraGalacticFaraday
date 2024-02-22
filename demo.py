@@ -162,4 +162,7 @@ def run_inference():
 if __name__ == '__main__':
     # print a RuntimeWarning  in case of underflows
     np.seterr(under='warn') 
+    # set seed
+    seed = 1000
+    ift.random.push_sseq_from_seed(seed)
     run_inference()
