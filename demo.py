@@ -160,4 +160,6 @@ def run_inference():
 
 
 if __name__ == '__main__':
+    # print a RuntimeWarning  in case of underflows
+    np.seterr(under='warn') 
     run_inference()
