@@ -1,5 +1,5 @@
 import numpy as np
-import nifty8 as ift
+import nifty7 as ift
 
 
 def get_controller(m_dict, iteration_number, final, key):

@@ -1,10 +1,11 @@
-import nifty7 as ift
+import nifty8 as ift
 from ..Model import Model
 import libs as Egf
 import numpy as np
 import scipy as sp
 from astropy.cosmology import FlatLambdaCDM
 import math as m
+from ...operators.InverseGamma import InverseGammaOperator
 
 class ExtraGalDemoModel(Model):
     def __init__(self, target_domain, args):
@@ -20,10 +21,16 @@ class ExtraGalDemoModel(Model):
         #new formula -> 
         # sigmaRm^2 = (L/L0)^Xlum * sigma_int_0^2/(1+z)^4 + D/D0 * sigma_env_0^2
       
+        #chi_lum = InverseGammaOperator(self.target_domain, 3, 0.1) @ ift.FieldAdapter(self.target_domain, 'chi_lum')
+        #chi_red = InverseGammaOperator(self.target_domain, 3, 0.1) @ ift.FieldAdapter(self.target_domain, 'chi_red')
+        #chi_int_0 = InverseGammaOperator(self.target_domain, 3, 0.1) @ ift.FieldAdapter(self.target_domain, 'chi_int_0')
+        #chi_env_0 = InverseGammaOperator(self.target_domain, 3, 0.1) @ ift.FieldAdapter(self.target_domain, 'chi_env_0')
+      
         chi_lum = ift.FieldAdapter(self.target_domain, 'chi_lum')
         chi_red = ift.FieldAdapter(self.target_domain, 'chi_red')
         chi_int_0 = ift.FieldAdapter(self.target_domain, 'chi_int_0')
         chi_env_0 = ift.FieldAdapter(self.target_domain, 'chi_env_0')
+
 
    
         light_speed =  Egf.const['c']
@@ -36,7 +43,7 @@ class ExtraGalDemoModel(Model):
         cosmo = FlatLambdaCDM(H0=H0, Om0=Wm)  
         L0 = float(Egf.const['L0'])
         D0 = Egf.const['D0']
-        Dl=cosmo.luminosity_distance(self.z).value
+        Dl=np.array(cosmo.luminosity_distance(self.z).value)
         factor = 1e-26*(3.0857*1e22)**2
 
 

@@ -1,6 +1,6 @@
 import os
 import numpy as np
-import nifty8 as ift
+import nifty7 as ift
 from .nifty_cmaps import ncmap
 import matplotlib.pyplot as pl
 from matplotlib import cm

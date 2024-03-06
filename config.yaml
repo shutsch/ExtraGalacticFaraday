@@ -1,5 +1,5 @@
 params:
-  nside: 256
+  nside: 128 #256
   nglobal: 20
   plot_path: "./runs/demo/"
 
@@ -9,7 +9,7 @@ file_params:
 
 controllers:
   sampler:
-    n: 100
+    n: 10 #100
   minimizer:
     n: 25
   minimizer_samples:
