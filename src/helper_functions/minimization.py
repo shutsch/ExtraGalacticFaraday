@@ -17,19 +17,19 @@ def plot_cb(latest_sample_list, i):
     
     if _localParams['sky_maps'] is not None:
         for sky_name, sky in _localParams['sky_maps'].items():
-            sky_map_plotting(sky, [latest_mean + s for s in latest_sample_list.iterator()], sky_name, _localParams['plot_path'], string=ident,
+            sky_map_plotting(sky, [s for s in latest_sample_list.iterator()], sky_name, _localParams['plot_path'], string=ident,
                                 **_localParams['plotting_kwargs'].get(sky_name, {}))
             if sky_name not in _localParams['power_spectra']:
-                power_plotting(sky, [latest_mean + s for s in latest_sample_list.iterator()], sky_name, _localParams['plot_path'], string=ident,
+                power_plotting(sky, [s for s in latest_sample_list.iterator()], sky_name, _localParams['plot_path'], string=ident,
                                 from_power_model=False, **_localParams['plotting_kwargs'].get(sky_name, {}))
     if _localParams['power_spectra'] is not None:
         for power_name, power in _localParams['power_spectra'].items():
-            power_plotting(power, [latest_mean + s for s in latest_sample_list.iterator()], power_name, _localParams['plot_path'], string=ident,
+            power_plotting(power, [s for s in latest_sample_list.iterator()], power_name, _localParams['plot_path'], string=ident,
                             from_power_model=True,  **_localParams['plotting_kwargs'].get(power_name, {}))
 
     if _localParams['scatter_pairs'] is not None:
         for key, (sc1, sc2) in _localParams['scatter_pairs'].items():
-            scatter_plotting(sc1, sc2, key, _localParams['plot_path'], [latest_mean + s for s in latest_sample_list.iterator()], string=ident,
+            scatter_plotting(sc1, sc2, key, _localParams['plot_path'], [s for s in latest_sample_list.iterator()], string=ident,
                                 **_localParams['plotting_kwargs'].get(key, {}))
 
     # minimizer = ift.NewtonCG(controllers['Minimizer'])
@@ -84,7 +84,7 @@ def minimization(likelihoods, kl_type, n_global, plot_path, sky_maps=None, power
         'Sampler':
             {'n': Egf.config['controllers']['sampler']['n'],
              'type': 'AbsDeltaEnergy',
-             'change_params': {'n_final': 20,
+             'change_params': {'n_final': 500,
                                'increase_step': None,
                                'increase_rate': None
                                },
@@ -104,9 +104,9 @@ def minimization(likelihoods, kl_type, n_global, plot_path, sky_maps=None, power
         'Minimizer_Samples':
             {'n': Egf.config['controllers']['minimizer_samples']['n'],
              'type': 'AbsDeltaEnergy',
-             'change_params': {'n_final': 20,
-                               'increase_step': True,
-                               'increase_rate': True
+             'change_params': {'n_final': 80,
+                               'increase_step': None,
+                               'increase_rate': None
                                },
              'controller_params': {'deltaE': 1.0e-07,
                                    'convergence_level': 1}
@@ -123,16 +123,12 @@ def minimization(likelihoods, kl_type, n_global, plot_path, sky_maps=None, power
     controllers = {key: get_controller(controller_dict, 0, False, key)
                    for key, controller_dict in controller_parameters.items()}
 
-    # build the Hamiltonian
+    # build the  likelihood
     likelihood = ift.utilities.my_sum(likelihoods.values())
 
-    hamiltonian = ift.StandardHamiltonian(likelihood, controllers['Sampler'])
+    # draw position
 
-    # build the minimization functional
-
-    kl_dict = {'n_samples': get_n_samples(sample_parameters, 0, False), 'mirror_samples': True}
-
-    position = ift.from_random(hamiltonian.domain)
+    position = 0.1*ift.from_random(likelihood.domain)
 
     #p_d = position.to_dict() 
     #chiint0_field = p_d['chi_int_0'] 
@@ -158,7 +154,7 @@ def minimization(likelihoods, kl_type, n_global, plot_path, sky_maps=None, power
         likelihood_energy=likelihood,
         total_iterations=n_global,
         n_samples=get_n_samples(sample_parameters, 0, False),
-        kl_minimizer=ift.NewtonCG(controllers['Minimizer_Samples']),
+        kl_minimizer=ift.NewtonCG(controllers['Minimizer']),
         sampling_iteration_controller=controllers['Sampler'],
         nonlinear_sampling_minimizer=None,
         export_operator_outputs=op_output,
