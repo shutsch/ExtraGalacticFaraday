@@ -5,6 +5,7 @@ import numpy as np
 import scipy as sp
 from astropy.cosmology import FlatLambdaCDM
 import math as m
+from ...operators.InverseGamma import InverseGammaOperator
 
 class ExtraGalDemoModel(Model):
     def __init__(self, target_domain, args):
@@ -19,6 +20,8 @@ class ExtraGalDemoModel(Model):
 
         #new formula -> 
         # sigmaRm^2 = (L/L0)^Xlum * sigma_int_0^2/(1+z)^4 + D/D0 * sigma_env_0^2
+
+        #chi_lum = InverseGammaOperator(self.target_domain, self.alpha, self.q) @ ift.FieldAdapter(self.target_domain, 'chi_lum')
       
         chi_lum = ift.FieldAdapter(self.target_domain, 'chi_lum')
         chi_red = ift.FieldAdapter(self.target_domain, 'chi_red')

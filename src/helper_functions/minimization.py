@@ -99,7 +99,7 @@ def minimization(likelihoods, kl_type, n_global, plot_path, sky_maps=None, power
                                'increase_rate': None
                                },
              'controller_params': {'deltaE': 1.0e-07,
-                                   'convergence_level': 1}
+                                   'convergence_level': 1} #maybe at 2
              },
         'Minimizer_Samples':
             {'n': Egf.config['controllers']['minimizer_samples']['n'],
@@ -161,6 +161,7 @@ def minimization(likelihoods, kl_type, n_global, plot_path, sky_maps=None, power
         initial_position=position,
         return_final_position=True,
         inspect_callback=plot_cb
+        output_directory='runs/demo/'
         #dry_run=False
         )
 
