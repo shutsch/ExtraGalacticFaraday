@@ -160,8 +160,8 @@ def minimization(likelihoods, kl_type, n_global, plot_path, sky_maps=None, power
         export_operator_outputs=op_output,
         initial_position=position,
         return_final_position=True,
-        inspect_callback=plot_cb
-        output_directory='runs/demo/'
+        inspect_callback=plot_cb,
+        output_directory='./runs/demo/'
         #dry_run=False
         )
 
