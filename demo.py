@@ -28,8 +28,11 @@ def run_inference():
 
     egal_rm = np.array(data['rm'][z_indices])
     egal_stddev = np.array(data['rm_err'][z_indices])
-    egal_z = np.array(data['z_best'][z_indices])
-    egal_L = np.array(data['stokesI'][z_indices])
+    L = np.load('L_lss.npy')
+    N_los = 5949
+
+    #egal_z = np.array(data['z_best'][z_indices])
+    #egal_L = np.array(data['stokesI'][z_indices])
 
     # set the sky model hyper-parameters and initialize the Faraday 2020 sky model
     #new parameters given by Sebastian
@@ -57,7 +60,7 @@ def run_inference():
 
     # build the full model and connect it to the likelihood
     # set the extra-galactic model hyper-parameters and initialize the model
-    egal_model_params = {'z': egal_z,'L': egal_L, 
+    egal_model_params = {'N_los': N_los,'L': L, 
          }
       
     emodel = Egf.ExtraGalDemoModel(egal_data_domain, egal_model_params)
@@ -140,7 +143,7 @@ def run_inference():
     #scatter_pairs = {'intrinsic': (ecomponents['chi_lum'], ecomponents['sigma_int_0']),'environmental': (ecomponents['chi_red'], ecomponents['sigma_env_0'])}
     
     #the value that we plot are indeed the values in the position field 
-    scatter_pairs = {'intrinsic': (ecomponents['chi_lum'], ecomponents['sigma_int_0']),'environmental': (ecomponents['chi_red'], ecomponents['sigma_env_0'])}
+    scatter_pairs = {'cg_vs_int': (ecomponents['sigma_cg^2'], ecomponents['sigma_int_0^2']),'f_vs_v': (ecomponents['sigma_f^2'], ecomponents['sigma_v^2']),'v_vs_s': (ecomponents['sigma_v^2'], ecomponents['sigma_s^2'])}
 
     #plotting_kwargs = {'faraday_sky': {'cmap': 'fm', 'cmap_stddev': 'fu', 
     #                                   'vmin_mean':'-250', 'vmax_mean':'250', 
@@ -149,8 +152,9 @@ def run_inference():
     plotting_kwargs = {'faraday_sky': {'cmap': 'fm', 'cmap_stddev': 'fu', 
                                        'vmin_mean':'-250', 'vmax_mean':'250', 
                                        'vmin_std':'-250', 'vmax_std':'250'},
-                       'intrinsic': {'x_label': 'chi_lum', 'y_label': 'sigma_int_0'},
-                       'environmental': {'x_label': 'chi_red', 'y_label': 'sigma_env_0'}}
+                       'cg_vs_int': {'x_label': 'sigma_cg^2', 'y_label': 'sigma_int^2'},
+                       'f_vs_v': {'x_label': 'sigma_f^2', 'y_label': 'sigma_v^2'},
+                       'v_vs_s': {'x_label': 'sigma_v^2', 'y_label': 'sigma_s^2'}}
 
     Egf.minimization(n_global=Egf.config['params']['nglobal'], kl_type='SampledKLEnergy', plot_path=Egf.config['params']['plot_path'],
                      likelihoods={'implicit_likelihood': implicit_likelihood,
