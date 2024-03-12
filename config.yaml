@@ -7,10 +7,34 @@ file_params:
   fits_file_path: "data/Faraday/catalog_versions/master_catalog_ver"
   fits_ext: ".fits"
 
+sample_params:
+  n: 2
+  n_prior: 2
+  n_final: 20
+  increase_step: 10
+  increase_rate: 1.7
+
 controllers:
   sampler:
     n: 100
+    n_final: 500
+    increase_step: "None"
+    increase_rate: "None"
+    deltaE: 1.0e-07
+    convergence_level: 1
+  
   minimizer:
     n: 25
+    n_final: 40
+    increase_step: "None"
+    increase_rate: "None"
+    deltaE: 1.0e-07
+    convergence_level: 1 #sometimes better 2
+
   minimizer_samples:
     n: 25
+    n_final: 80
+    increase_step: "None"
+    increase_rate: "None"
+    deltaE: 1.0e-07
+    convergence_level: 1

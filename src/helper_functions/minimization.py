@@ -72,11 +72,11 @@ def minimization(likelihoods, kl_type, n_global, plot_path, sky_maps=None, power
 
     }
 
-    sample_parameters = {'n': 2,
-                         'change_params': {'n_prior': 2,
-                                           'n_final': 20,
-                                           'increase_step': 10,
-                                           'increase_rate': 1.7
+    sample_parameters = {'n': Egf.config['sample_params']['n'],
+                         'change_params': {'n_prior': Egf.config['sample_params']['n_prior'],
+                                           'n_final': Egf.config['sample_params']['n_final'],
+                                           'increase_step': Egf.config['sample_params']['increase_step'],
+                                           'increase_rate': Egf.config['sample_params']['increase_rate']
                                            }
                          }
 
@@ -84,32 +84,32 @@ def minimization(likelihoods, kl_type, n_global, plot_path, sky_maps=None, power
         'Sampler':
             {'n': Egf.config['controllers']['sampler']['n'],
              'type': 'AbsDeltaEnergy',
-             'change_params': {'n_final': 500,
-                               'increase_step': None,
-                               'increase_rate': None
+             'change_params': {'n_final': Egf.config['controllers']['sampler']['n_final'],
+                               'increase_step': Egf.config['controllers']['sampler']['increase_step'],
+                               'increase_rate': Egf.config['controllers']['sampler']['increase_rate']
                                },
-             'controller_params': {'deltaE': 1.0e-07,
-                                   'convergence_level': 1}
+             'controller_params': {'deltaE': Egf.config['controllers']['sampler']['deltaE'],
+                                   'convergence_level': Egf.config['controllers']['sampler']['convergence_level']}
              },
         'Minimizer':
             {'n': Egf.config['controllers']['minimizer']['n'],
              'type': 'AbsDeltaEnergy',
-             'change_params': {'n_final': 40,
-                               'increase_step': None,
-                               'increase_rate': None
+             'change_params': {'n_final': Egf.config['controllers']['minimizer']['n_final'],
+                               'increase_step': Egf.config['controllers']['minimizer']['increase_step'],
+                               'increase_rate': Egf.config['controllers']['minimizer']['increase_rate']
                                },
-             'controller_params': {'deltaE': 1.0e-07,
-                                   'convergence_level': 1} #maybe at 2
+             'controller_params': {'deltaE': Egf.config['controllers']['minimizer']['deltaE'],
+                                   'convergence_level': Egf.config['controllers']['minimizer']['convergence_level']} #maybe at 2
              },
         'Minimizer_Samples':
             {'n': Egf.config['controllers']['minimizer_samples']['n'],
              'type': 'AbsDeltaEnergy',
-             'change_params': {'n_final': 80,
-                               'increase_step': None,
-                               'increase_rate': None
+             'change_params': {'n_final': Egf.config['controllers']['minimizer_samples']['n_final'],
+                               'increase_step': Egf.config['controllers']['minimizer_samples']['increase_step'],
+                               'increase_rate': Egf.config['controllers']['minimizer_samples']['increase_rate']
                                },
-             'controller_params': {'deltaE': 1.0e-07,
-                                   'convergence_level': 1}
+             'controller_params': {'deltaE': Egf.config['controllers']['minimizer_samples']['deltaE'],
+                                   'convergence_level': Egf.config['controllers']['minimizer_samples']['convergence_level']}
              },
 
     }
@@ -161,7 +161,7 @@ def minimization(likelihoods, kl_type, n_global, plot_path, sky_maps=None, power
         initial_position=position,
         return_final_position=True,
         inspect_callback=plot_cb,
-        output_directory='./runs/demo/'
+        output_directory='./runs/demo/results/'
         #dry_run=False
         )
 
