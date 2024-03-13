@@ -12,6 +12,8 @@ class ExtraGalDemoModel(Model):
 
         self.z = args['z']
         self.L = args['L']
+        self.alpha = args['alpha']
+        self.q = args['q']
 
         super().__init__(target_domain)
 
@@ -20,13 +22,12 @@ class ExtraGalDemoModel(Model):
 
         #new formula -> 
         # sigmaRm^2 = (L/L0)^Xlum * sigma_int_0^2/(1+z)^4 + D/D0 * sigma_env_0^2
+        # in this branch we use an inverse gamma prior for the parameters
 
-        #chi_lum = InverseGammaOperator(self.target_domain, self.alpha, self.q) @ ift.FieldAdapter(self.target_domain, 'chi_lum')
-      
-        chi_lum = ift.FieldAdapter(self.target_domain, 'chi_lum')
-        chi_red = ift.FieldAdapter(self.target_domain, 'chi_red')
-        chi_int_0 = ift.FieldAdapter(self.target_domain, 'chi_int_0')
-        chi_env_0 = ift.FieldAdapter(self.target_domain, 'chi_env_0')
+        chi_lum = InverseGammaOperator(self.target_domain, self.alpha, self.q) @ ift.FieldAdapter(self.target_domain, 'chi_lum')
+        chi_red = InverseGammaOperator(self.target_domain, self.alpha, self.q) @ ift.FieldAdapter(self.target_domain, 'chi_red')
+        sigma_int_02 = InverseGammaOperator(self.target_domain, self.alpha, self.q) @ ift.FieldAdapter(self.target_domain, 'sigma_int_02')
+        sigma_env_02 = InverseGammaOperator(self.target_domain, self.alpha, self.q) @ ift.FieldAdapter(self.target_domain, 'sigma_env_02')
 
    
         light_speed =  Egf.const['c']
@@ -50,7 +51,7 @@ class ExtraGalDemoModel(Model):
 
         norm=(multiply_L @ chi_lum).exp()
 
-        term= multiply_z @ chi_int_0.exp()
+        term= multiply_z @ sigma_int_02
        
         fact1 = norm * term
 
@@ -80,7 +81,7 @@ class ExtraGalDemoModel(Model):
         fact5 = fact4 @ fact3
 
         z_weights = ift.makeOp(ift.Field(self.target_domain, self.z / nz),sampling_dtype=float) # these are the z_weights to rescale the integral accordingly
-        fact6 = z_weights @ integrator @ (fact5 * (expander @ chi_env_0.exp()))
+        fact6 = z_weights @ integrator @ (fact5 * (expander @ sigma_env_02))
 
         
         sigmaRm2 = fact1 + fact6
@@ -93,6 +94,6 @@ class ExtraGalDemoModel(Model):
         
       
         self._model = sigmaRm2
-        self._components.update({'chi_lum': chi_lum, 'chi_red': chi_red, 'chi_int_0': chi_int_0, 'chi_env_0': chi_env_0,'sigma_int_0': chi_int_0.exp(), 'sigma_env_0': chi_env_0.exp(), })
+        self._components.update({'chi_lum': chi_lum, 'chi_red': chi_red, 'sigma_int_02': sigma_int_02, 'sigma_env_02': sigma_env_02, })
 
 

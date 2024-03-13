@@ -57,7 +57,7 @@ def run_inference():
 
     # build the full model and connect it to the likelihood
     # set the extra-galactic model hyper-parameters and initialize the model
-    egal_model_params = {'z': egal_z,'L': egal_L, 
+    egal_model_params = {'z': egal_z,'L': egal_L, 'alpha': 1.0, 'q': 0.01
          }
       
     emodel = Egf.ExtraGalDemoModel(egal_data_domain, egal_model_params)
@@ -140,7 +140,7 @@ def run_inference():
     #scatter_pairs = {'intrinsic': (ecomponents['chi_lum'], ecomponents['sigma_int_0']),'environmental': (ecomponents['chi_red'], ecomponents['sigma_env_0'])}
     
     #the value that we plot are indeed the values in the position field 
-    scatter_pairs = {'intrinsic': (ecomponents['chi_lum'], ecomponents['sigma_int_0']),'environmental': (ecomponents['chi_red'], ecomponents['sigma_env_0'])}
+    scatter_pairs = {'intrinsic': (ecomponents['chi_lum'], ecomponents['sigma_int_02']),'environmental': (ecomponents['chi_red'], ecomponents['sigma_env_02'])}
 
     #plotting_kwargs = {'faraday_sky': {'cmap': 'fm', 'cmap_stddev': 'fu', 
     #                                   'vmin_mean':'-250', 'vmax_mean':'250', 
