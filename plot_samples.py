@@ -152,11 +152,31 @@ def run_inference():
                        'intrinsic': {'x_label': 'chi_lum', 'y_label': 'sigma_int_0'},
                        'environmental': {'x_label': 'chi_red', 'y_label': 'sigma_env_0'}}
 
-    Egf.minimization(n_global=Egf.config['params']['nglobal'], kl_type='SampledKLEnergy', plot_path=Egf.config['params']['plot_path'],
-                     likelihoods={'implicit_likelihood': implicit_likelihood,
-                                  'explicit_likelihood': explicit_likelihood},
-                     sky_maps=sky_models, power_spectra=power_models, scatter_pairs=scatter_pairs,
-                     plotting_kwargs=plotting_kwargs)
+
+    samples = ift.ResidualSampleList.load('/raid/ERG/DEFROST_MOCK/DEFROST_MOCK_GAL/ExtraGalacticFaraday/runs/demo/results/pickle/iteration_19')
+    m, s = samples.sample_stat(sky_models['faraday_sky'])
+    fsamples = [s for s in samples.iterator(op=sky_models['faraday_sky'])]
+    print(fsamples)
+    #plo = ift.Plot()
+    #plo.add(fsamples[1],  cmap=getattr(ncmap, 'fm')(), vmin=-250.0, vmax=250.0)
+    #plo.output(name='faraday_sky.png')
+
+    gal_rm_mock=implicit_response(m)
+    gal_rm_noise_mock=implicit_response(s)
+
+
+    gal_residual=(gal_rm - gal_rm_mock)**2/(gal_stddev**2 + gal_rm_noise_mock**2)
+
+    print('Residual mean', gal_residual.val.mean())
+    print('Residual std', gal_residual.val.std())
+
+    #plo = ift.Plot()
+    #plo.add(gal_residual)
+    #plo.output(name='residual_faraday_sky.png')
+    plt.plot(gal_residual.val, 'k.')
+    plt.ylim(-20, 20)
+    plt.ylabel('Galactic Residual')
+    plt.savefig('residual_faraday_sky_gal_mock.png')
 
 
 if __name__ == '__main__':
