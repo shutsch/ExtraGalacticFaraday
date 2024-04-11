@@ -9,8 +9,8 @@ file_params:
 
 controllers:
   sampler:
-    n: 100
+    n: 500
   minimizer:
     n: 25
   minimizer_samples:
-    n: 25
+    n: 80

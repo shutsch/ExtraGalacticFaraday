@@ -12,6 +12,7 @@ from src.helper_functions.data.get_rm import get_rm
 from src.helper_functions.minimization import minimization
 from src.helper_functions.plot.nifty_cmaps import ncmap
 from src.helper_functions.plot.plot import power_plotting, scatter_plotting, sky_map_plotting, energy_plotting
+from src.helper_functions.plot.plotting_prior import plot_prior
 
 import yaml
 with open('config.yaml','r') as config_file:

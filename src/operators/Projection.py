@@ -3,7 +3,7 @@ import numpy as np
 import healpy as hp
 
 class SkyProjector(ift.LinearOperator):
-    def __init__(self, domain, target, theta, phi, abs_latitude_cut=None):
+    def __init__(self, domain, theta, phi, abs_latitude_cut=None):
         self._domain = ift.makeDomain(domain)
         if abs_latitude_cut is not None:
             self.lat_cut_high = (abs_latitude_cut + 90) / 90 * np.pi
@@ -11,9 +11,8 @@ class SkyProjector(ift.LinearOperator):
             indices = (theta < self.lat_cut_high) & (theta > self.lat_cut_low)
             theta = theta[indices]
             phi = phi[indices]
-            self._target = ift.makeDomain(ift.UnstructuredDomain((len(theta),)))
-        else:
-            self._target = ift.makeDomain(target)
+        self._target = ift.makeDomain(ift.UnstructuredDomain((len(theta),)))
+        
         self._pixels = self.calc_pixels(self._domain[0].nside, self._target[0].shape[0],
                                         theta, phi).astype(int)
 
@@ -25,9 +24,7 @@ class SkyProjector(ift.LinearOperator):
     def _adjoint_times(self, x):
         ns = self.domain[0].nside
         pmap = np.zeros(12 * ns ** 2)
-        for i in range(len(self._pixels)):
-            pmap[self._pixels[i]] += x.val[i]
-        # pmap[self._pixels] += x.val
+        np.add.at(pmap, self._pixels, x.val)
         return ift.Field(self.domain, pmap)
 
     def counts(self, zero_to_one=True):

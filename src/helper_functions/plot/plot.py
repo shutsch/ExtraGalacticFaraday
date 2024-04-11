@@ -127,7 +127,7 @@ def power_plotting(model, samples, name, path, from_power_model, string=None, **
         plo.output(name=amp_path + name + '_' + string + ".png")
 
 
-def sky_map_plotting(model, plot_obj, name, path, string=None, **kwargs):
+def sky_map_plotting(model, plot_obj, name, path, plot_samples=False, string=None, **kwargs):
     if string is None:
         string = ''
     sky_path = path + 'sky/' + name + '/'
@@ -144,28 +144,45 @@ def sky_map_plotting(model, plot_obj, name, path, string=None, **kwargs):
     if 'cmap' in kwargs:
         try:
             kwargs['cmap'] = getattr(ncmap, kwargs['cmap'])()
-            kwargs['vmin']= kwargs['vmin_mean']
-            kwargs['vmax']= kwargs['vmax_mean']
         except AttributeError:
             kwargs['cmap'] = getattr(cm, kwargs['cmap'])
+        kwargs['vmin'] = kwargs.get('vmin_mean', None)
+        kwargs['vmax'] = kwargs.get('vmax_mean', None)
 
     plot.add(m, title="mean", **kwargs)
     if len(plot_obj) > 1:
         if 'cmap_stddev' in kwargs:
+            kwargs['vmin'] = kwargs.get('vmin_std', None)
+            kwargs['vmax'] = kwargs.get('vmax_std', None)
             try:
                 kwargs['cmap'] = getattr(ncmap, kwargs['cmap_stddev'])()
-                kwargs['vmin']= kwargs['vmin_std']
-                kwargs['vmax']= kwargs['vmax_std']
+
             except AttributeError:
                 kwargs['cmap'] = getattr(cm, kwargs['cmap_stddev'])
         plot.add(ift.sqrt(sc.var), **kwargs, title='std')
+        
+    if plot_samples:
+        if len(plot_obj) == 1:
+            print("Warning: individual samples plot requested but no samples provided" )
+        else:
+            kwargs['vmin'] = kwargs.get('vmin_mean', None)
+            kwargs['vmax'] = kwargs.get('vmax_mean', None)
+            for i, s in enumerate(plot_obj):
+                plot.add(model.force(s), **kwargs, title=i)
+        
     if len(plot_obj) == 1:
         nx = 1
         ny = len(plot._plots)
     else:
-        nx = 2
-        ny = int(len(plot._plots) / 2)
-    plot.output(nx=nx, ny=ny, xsize=2 * 12, ysize=ny * 12, name=sky_path + name + '_' + string + ".png")
+        if plot_samples:
+            n = 2 + len(plot_obj)
+            nx = int(np.ceil(np.sqrt(n)))
+            ny = int(np.ceil(np.sqrt(n)))
+        else:
+            
+            nx = 2
+            ny = int(len(plot._plots) / 2)
+    plot.output(nx=nx, ny=ny, xsize=nx * 12, ysize=ny * 12, name=sky_path + name + '_' + string + ".png")
 
 
 def _density_estimation(m1, m2, xmin, xmax, ymin, ymax, nbins):

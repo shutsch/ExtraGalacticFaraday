@@ -24,7 +24,10 @@ def get_rm(version, filter_pulsars, default_error_level):
         cat = cat[~(cat['type'] == 'Pulsar')]
         logger.info('DATA LOADING: load_faraday_new_master: New number of data points: {}'.format(len(cat['rm'])))
 
-    quantities = ['l', 'b', 'rm', 'rm_err', 'catalog','z_best','stokesI']
+    if version == "custom":
+        quantities = ['l', 'b', 'rm', 'rm_err', 'catalog', 'z_best', 'stokesI']
+    else:
+        quantities = ['l', 'b', 'rm', 'rm_err', 'catalog']
 
     data = {q: cat[q] for q in quantities}
 
@@ -32,8 +35,10 @@ def get_rm(version, filter_pulsars, default_error_level):
     theta_gal, phi_gal = gal2gal(data['l'], data['b']) # converting to colatitude and logitude in radians
     data.update({'theta': theta_gal, 'phi': phi_gal})
     faulty_sigmas = np.isnan(data['rm_err']) | (data['rm_err'] == 0)
+    data['rm_err'][np.isnan(data['rm_err'])] = 0.5 * abs(data['rm'][np.isnan(data['rm_err'])])
+    data['rm_err'][data['rm_err'] == 0] = 0.5 * abs(data['rm'][data['rm_err'] == 0])
     logger.info('DATA LOADING: load_faraday_new_master: {} nan or zero valued sigma values, '
                 'corrected to 0.5 * abs(RM)'.format(sum(faulty_sigmas)))
-    data['rm_err'][faulty_sigmas] = default_error_level * abs(data['rm'][faulty_sigmas])
+    #data['rm_err'][faulty_sigmas] = default_error_level * abs(data['rm'][faulty_sigmas])
     logger.info('DATA LOADING: load_faraday_new_master: Final number of data points: {}\n'.format(len(data['rm'])))
     return data
