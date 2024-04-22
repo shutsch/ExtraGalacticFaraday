@@ -9,6 +9,7 @@ from src.operators.Projection import SkyProjector
 
 from src.helper_functions.logger import logger
 from src.helper_functions.data.get_rm import get_rm
+from src.helper_functions.data.get_ymw import load_ymw_sky
 from src.helper_functions.minimization import minimization
 from src.helper_functions.plot.nifty_cmaps import ncmap
 from src.helper_functions.plot.plot import power_plotting, scatter_plotting, sky_map_plotting, energy_plotting
