@@ -13,7 +13,7 @@ def plot_cb(latest_sample_list, i):
     energy_dict.update({key: energy_dict[key] + [_localParams['likelihoods'][key].force(latest_mean).val, ] for key in _localParams['likelihoods']})
     
     energy_plotting(energy_dict, _localParams['plot_path'])
-    ident = str(i - 1) if i != 0 else 'initial'
+    ident = str(i)
     
     if _localParams['sky_maps'] is not None:
         for sky_name, sky in _localParams['sky_maps'].items():
