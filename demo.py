@@ -33,13 +33,19 @@ def run_inference():
 
     # set the sky model hyper-parameters and initialize the Faraday 2020 sky model
     #new parameters given by Sebastian
-    log_amplitude_params = {'fluctuations': {'asperity': None,'flexibility': [.1, .1], 
-                          'fluctuations': [1.0, 0.5], 'loglogavgslope': [-11/3, 1.],},
-                            'offset': {'offset_mean': 5., 'offset_std': [1., 0.001]},}
+    log_amplitude_params = {'fluctuations': {'asperity': None, 
+                                             'flexibility': [1., 1.],  
+                                             'fluctuations': [1.0, 0.5], 
+                                             'loglogavgslope': [-11./3, 2.],},
+                          'offset': {'offset_mean': 4., 
+                                     'offset_std': [1., 1.]},}
 
-    sign_params = {'fluctuations': {'asperity': None, 'flexibility': [.1, .1],
-                    'fluctuations': [5.0, 4.0], 'loglogavgslope': [-11/3, 1.0], },
-                   'offset': {'offset_mean': 0, 'offset_std': [5., 4.]},}
+    sign_params = {'fluctuations': {'asperity': None, 
+                                    'flexibility': [1., 1.], 
+                                    'fluctuations': [5.0, 4.0], 
+                                    'loglogavgslope': [-11./3, 2.], },
+                   'offset': {'offset_mean': 0, 
+                              'offset_std': [5., 4.]},}
     
    
 
@@ -115,7 +121,17 @@ def run_inference():
                                          domain=sky_domain, target=gal_data_domain)
 
 
-    implicit_noise = Egf.SimpleVariableNoise(gal_data_domain, alpha=2.5, q='mode', noise_cov=gal_stddev**2).get_model()
+    alpha = 2.5
+
+    # Possible all sky variation of alpha, requires pygedm package 
+    
+    #log_ymw = np.log(Egf.load_ymw_sky('./data/', nside=Egf.config['params']['nside'], model='ymw16', mode='mc'))
+    #log_ymw /= log_ymw.min()
+    #log_ymw *= 5
+    #alpha = implicit_response(ift.Field(ift.makeDomain(implicit_response.domain), log_ymw)).val
+
+
+    implicit_noise = Egf.SimpleVariableNoise(gal_data_domain, alpha=alpha, q='mode', noise_cov=gal_stddev**2).get_model()
 
     # build the full model and connect it to the likelihood
 
