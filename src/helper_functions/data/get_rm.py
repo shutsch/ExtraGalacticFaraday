@@ -32,8 +32,19 @@ def get_rm(version, filter_pulsars, default_error_level):
     data['rm_err'][data['catalog'] == '2009ApJ...702.1230T'] *= 1.22  # Taylor et al error correction, see
     theta_gal, phi_gal = gal2gal(data['l'], data['b']) # converting to colatitude and logitude in radians
     data.update({'theta': theta_gal, 'phi': phi_gal})
-    data['rm_err'][np.isnan(data['rm_err'])] = 0.5 * abs(data['rm'][np.isnan(data['rm_err'])])
-    data['rm_err'][data['rm_err'] == 0] = 0.5 * abs(data['rm'][data['rm_err'] == 0])
+    f = np.isnan(data['rm_err'])
+    logger.info('DATA LOADING: load_faraday_new_master: {} nan  valued sigma values, '
+                'corrected to 0.5 * abs(RM)'.format(sum(f)))
+    data['rm_err'][f] = 0.5 * abs(data['rm'][f])
+    f = data['rm_err'] == 0
+    logger.info('DATA LOADING: load_faraday_new_master: {} zero  valued sigma values, '
+                'corrected to 0.5 * abs(RM)'.format(sum(f)))
+    data['rm_err'][f] = 0.5 * abs(data['rm'][f])
+    
+    if sum(data['rm_err'] == 0) != 0:
+            f = data['rm_err'] == 0
+            logger.info('DATA LOADING: load_faraday_new_master: {} data points with both zero valued RMs and sigma values, removing'.format(sum(f)))
+            data = {q: data[q][f] for q in quantities}
     #logger.info('DATA LOADING: load_faraday_new_master: {} nan or zero valued sigma values, '
     #            'corrected to 0.5 * abs(RM)'.format(sum(faulty_sigmas)))
     #data['rm_err'][faulty_sigmas] = default_error_level * abs(data['rm'][faulty_sigmas])
