@@ -22,7 +22,9 @@ class ExtraGalDemoModel(Model):
         # sigmaRm^2 = (L/L0)^Xlum * sigma_int_0^2/(1+z)^4 + D/D0 * sigma_env_0^2
 
         #chi_lum = InverseGammaOperator(self.target_domain, self.alpha, self.q) @ ift.FieldAdapter(self.target_domain, 'chi_lum')
-      
+             
+
+
         chi_lum = ift.FieldAdapter(self.target_domain, 'chi_lum')
         chi_red = ift.FieldAdapter(self.target_domain, 'chi_red')
         chi_int_0 = ift.FieldAdapter(self.target_domain, 'chi_int_0')
