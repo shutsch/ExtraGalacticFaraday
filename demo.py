@@ -49,6 +49,12 @@ def run_inference():
     
    
 
+    #param_vale =  {'intrinsic': {'chi_int_0': [0., 1.], 
+    #                                'chi_lum': [0.0, 1.0], 
+    #                                },
+    #               'environmental': {'chi_env_0': [0.0, 1.0],
+    #                          'chi_red': [0., 1.]},}
+
     galactic_model = Egf.Faraday2020Sky(sky_domain, **{'log_amplitude_parameters': log_amplitude_params,
                                                        'sign_parameters': sign_params})
 
@@ -63,7 +69,7 @@ def run_inference():
 
     # build the full model and connect it to the likelihood
     # set the extra-galactic model hyper-parameters and initialize the model
-    egal_model_params = {'z': egal_z,'L': egal_L, 
+    egal_model_params = {'z': egal_z,'L': egal_L, #'param_vale': param_vale,
          }
       
     emodel = Egf.ExtraGalDemoModel(egal_data_domain, egal_model_params)
@@ -156,7 +162,7 @@ def run_inference():
     #scatter_pairs = {'intrinsic': (ecomponents['chi_lum'], ecomponents['sigma_int_0']),'environmental': (ecomponents['chi_red'], ecomponents['sigma_env_0'])}
     
     #the value that we plot are indeed the values in the position field 
-    scatter_pairs = {'intrinsic': (ecomponents['chi_lum'], ecomponents['sigma_int_0']),'environmental': (ecomponents['chi_red'], ecomponents['sigma_env_0'])}
+    scatter_pairs = {'intrinsic': (ecomponents['chi_lum'], ecomponents['chi_int_0']),'environmental': (ecomponents['chi_red'], ecomponents['chi_env_0'])}
 
     #plotting_kwargs = {'faraday_sky': {'cmap': 'fm', 'cmap_stddev': 'fu', 
     #                                   'vmin_mean':'-250', 'vmax_mean':'250', 

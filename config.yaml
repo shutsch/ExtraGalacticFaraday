@@ -16,8 +16,8 @@ sample_params:
 
 controllers:
   sampler:
-    n: 1000
-    n_final: 1000
+    n: 500
+    n_final: 500
     increase_step: "None"
     increase_rate: "None"
     deltaE: 1.0e-07
