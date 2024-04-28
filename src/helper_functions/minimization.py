@@ -6,6 +6,7 @@ import libs as Egf
 _localParams = []
 _controllerParameters = {}
 
+
 def plot_cb(latest_sample_list, i):
     latest_mean = latest_sample_list.average()
     
@@ -151,12 +152,26 @@ def minimization(likelihoods, kl_type, n_global, plot_path, sky_maps=None, power
     #p_d['chi_env_0'] = ift.from_random(domain= chienv0_field.domain,std=2).val.item() 
     #position = position.from_dict(p_d)
 
+    # n_samples = lambda iiter: 10 if iiter < 5 else 20
 
+    n_samples = lambda i: get_n_samples(sample_parameters, i, False)
+
+    constants = lambda i: ['chi_lum', 'chi_int_0', 'chi_red', 'chi_env_0'] if i<10 \
+        else (['log_profile', 'sign', 'log_profile_amplitude', 'sign_amplitude'] if 10<=i<=80 \
+            else [])
+
+    point_estimates = lambda i: ['chi_lum', 'chi_int_0', 'chi_red', 'chi_env_0'] if i<10 \
+        else (['log_profile', 'sign', 'log_profile_amplitude', 'sign_amplitude'] if 10<=i<=80 \
+            else [])
+    
     op_output = {}
     sample_list, mean = ift.optimize_kl(
         likelihood_energy=likelihood,
         total_iterations=n_global,
-        n_samples=get_n_samples(sample_parameters, 0, False),
+        constants=constants,
+        point_estimates=point_estimates,
+        #n_samples=get_n_samples(sample_parameters, 0, False),
+        n_samples = n_samples,
         kl_minimizer=ift.NewtonCG(controllers['Minimizer']),
         sampling_iteration_controller=controllers['Sampler'],
         nonlinear_sampling_minimizer=None,

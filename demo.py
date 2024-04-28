@@ -16,7 +16,7 @@ def run_inference():
 
     # load_the data, define domains, covariance and projection operators
 
-    data = Egf.get_rm(filter_pulsars=True, version='custom', default_error_level=0.5)
+    data = Egf.get_rm(filter_pulsars=True, version='custom_sim', default_error_level=0.5)
 
     # filter
     #schnitzeler_indices = (data['catalog'] == '2017MNRAS.467.1776K')
@@ -49,11 +49,6 @@ def run_inference():
     
    
 
-    #param_vale =  {'intrinsic': {'chi_int_0': [0., 1.], 
-    #                                'chi_lum': [0.0, 1.0], 
-    #                                },
-    #               'environmental': {'chi_env_0': [0.0, 1.0],
-    #                          'chi_red': [0., 1.]},}
 
     galactic_model = Egf.Faraday2020Sky(sky_domain, **{'log_amplitude_parameters': log_amplitude_params,
                                                        'sign_parameters': sign_params})
@@ -69,7 +64,7 @@ def run_inference():
 
     # build the full model and connect it to the likelihood
     # set the extra-galactic model hyper-parameters and initialize the model
-    egal_model_params = {'z': egal_z,'L': egal_L, #'param_vale': param_vale,
+    egal_model_params = {'z': egal_z,'L': egal_L, 
          }
       
     emodel = Egf.ExtraGalDemoModel(egal_data_domain, egal_model_params)
@@ -177,7 +172,7 @@ def run_inference():
     Egf.minimization(n_global=Egf.config['params']['nglobal'], kl_type='SampledKLEnergy', plot_path=Egf.config['params']['plot_path'],
                      likelihoods={'implicit_likelihood': implicit_likelihood,
                                   'explicit_likelihood': explicit_likelihood},
-                     sky_maps=sky_models, power_spectra=power_models, scatter_pairs=scatter_pairs,
+                     sky_maps=sky_models, power_spectra=power_models, scatter_pairs=None,
                      plotting_kwargs=plotting_kwargs)
 
 
