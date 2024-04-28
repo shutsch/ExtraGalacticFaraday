@@ -154,7 +154,7 @@ def minimization(likelihoods, kl_type, n_global, plot_path, sky_maps=None, power
 
     # n_samples = lambda iiter: 10 if iiter < 5 else 20
 
-    n_samples = lambda i: get_n_samples(sample_parameters, i, False)
+    n_samples = lambda i: get_n_samples(sample_parameters, 0, False) if i<99 else 100
 
     constants = lambda i: ['chi_lum', 'chi_int_0', 'chi_red', 'chi_env_0'] if i<10 \
         else (['log_profile', 'sign', 'log_profile_amplitude', 'sign_amplitude'] if 10<=i<=80 \

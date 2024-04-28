@@ -8,9 +8,9 @@ file_params:
   fits_ext: ".fits"
 
 sample_params:
-  n: 100
+  n: 2
   n_prior: 2
-  n_final: 100
+  n_final: 2
   increase_step: 10
   increase_rate: 1.7
 
