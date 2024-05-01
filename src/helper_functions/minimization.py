@@ -157,12 +157,12 @@ def minimization(likelihoods, kl_type, n_global, plot_path, sky_maps=None, power
     n_samples = lambda i: get_n_samples(sample_parameters, 0, False) if i<99 else 100
 
   
-    constants = lambda i: ['chi_lum', 'chi_int_0', 'chi_red', 'chi_env_0'] if i<10 \
-        else (['log_profile_flexibility', 'log_profile_fluctuations', 'log_profile_loglogavgslope', 'log_profile_spectrum', 'log_profile_xi', 'log_profile_zeromode', 'noise_excitations', 'sign_flexibility', 'sign_fluctuations', 'sign_loglogavgslope', 'sign_spectrum', 'sign_xi', 'sign_zeromode'] if 10<=i<=80 \
+    constants = lambda i: ['chi_lum', 'chi_int_0', 'chi_red', 'chi_env_0'] if i<1 \
+        else ( ['log_profile_flexibility', 'log_profile_fluctuations', 'log_profile_loglogavgslope', 'log_profile_spectrum', 'log_profile_xi', 'log_profile_zeromode', 'sign_flexibility', 'sign_fluctuations', 'sign_loglogavgslope', 'sign_spectrum', 'sign_xi', 'sign_zeromode'] if 1<=i<=2 \
             else [])
 
-    point_estimates = lambda i: ['chi_lum', 'chi_int_0', 'chi_red', 'chi_env_0']  if i<10 \
-        else (['log_profile_flexibility', 'log_profile_fluctuations', 'log_profile_loglogavgslope', 'log_profile_spectrum', 'log_profile_xi', 'log_profile_zeromode', 'noise_excitations', 'sign_flexibility', 'sign_fluctuations', 'sign_loglogavgslope', 'sign_spectrum', 'sign_xi', 'sign_zeromode'] if 10<=i<=80 \
+    point_estimates = lambda i: ['chi_lum', 'chi_int_0', 'chi_red', 'chi_env_0'] if i<1 \
+        else (['log_profile_flexibility', 'log_profile_fluctuations', 'log_profile_loglogavgslope', 'log_profile_spectrum', 'log_profile_xi', 'log_profile_zeromode', 'sign_flexibility', 'sign_fluctuations', 'sign_loglogavgslope', 'sign_spectrum', 'sign_xi', 'sign_zeromode'] if 1<=i<=2 \
             else [])
     
     op_output = {}
