@@ -2,9 +2,6 @@ import nifty8 as ift
 import libs as Egf
 import numpy as np
 
-# - fixed library requirements
-# - set colorbar range to -250;+250
-
 
 def run_inference():
     
@@ -19,12 +16,7 @@ def run_inference():
     data = Egf.get_rm(filter_pulsars=True, version='custom_sim', default_error_level=0.5)
 
     # filter
-    #schnitzeler_indices = (data['catalog'] == '2017MNRAS.467.1776K')
     z_indices = ~np.isnan(data['z_best'])
-
-    #
-    #egal_rm = data['rm'][schnitzeler_indices]
-    #egal_stddev = data['rm_err'][schnitzeler_indices]
 
     egal_rm = np.array(data['rm'][z_indices])
     egal_stddev = np.array(data['rm_err'][z_indices])
@@ -102,11 +94,6 @@ def run_inference():
                                                                inverse_covariance_key='icov',
                                                                sampling_dtype=np.dtype(np.float64)) @ n_res
     
-    #explicit_likelihood = ift.VariableCovarianceGaussianEnergy(inverse_covariance=egal_inverse_noise.get_model()+emodel.get_model(),
-    #                                         sampling_dtype=float) @ residual
-    #explicit_likelihood = ift.GaussianEnergy(inverse_covariance=egal_inverse_noise.get_model(),
-    #                                         sampling_dtype=float) @ residual
-
 
     gal_rm = np.array(data['rm'][~z_indices])
     gal_stddev = np.array(data['rm_err'][~z_indices])
@@ -152,17 +139,10 @@ def run_inference():
     sky_models = {'faraday_sky': galactic_model.get_model(), 'profile': components['log_profile'].exp(),
                   'sign': components['sign']}
     power_models = {'log_profile': components['log_profile_amplitude'], 'sign': components['sign_amplitude']}
-    #scatter_pairs = {'egal_results_vs_data': (egal_model, egal_rm)}
-    #scatter_pairs = None
-    #scatter_pairs = {'intrinsic': (ecomponents['chi_lum'], ecomponents['sigma_int_0']),'environmental': (ecomponents['chi_red'], ecomponents['sigma_env_0'])}
-    
+   
     #the value that we plot are indeed the values in the position field 
     scatter_pairs = {'intrinsic': (ecomponents['chi_lum'], ecomponents['chi_int_0']),'environmental': (ecomponents['chi_red'], ecomponents['chi_env_0'])}
 
-    #plotting_kwargs = {'faraday_sky': {'cmap': 'fm', 'cmap_stddev': 'fu', 
-    #                                   'vmin_mean':'-250', 'vmax_mean':'250', 
-    #                                   'vmin_std':'-250', 'vmax_std':'250'},
-    #                   'egal_results_vs_data': {'x_label': 'results', 'y_label': 'data'}}
     plotting_kwargs = {'faraday_sky': {'cmap': 'fm', 'cmap_stddev': 'fu', 
                                        'vmin_mean':'-250', 'vmax_mean':'250', 
                                        'vmin_std':'-250', 'vmax_std':'250'},

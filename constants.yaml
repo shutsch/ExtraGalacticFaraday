@@ -7,3 +7,10 @@ Planck:
   Wm: 0.315
   Wc: 0.0
   Wl: 0.685
+
+Jens:
+  h: 0.702
+  Wm: 0.272
+  Wb: 0.045
+  Wl: 0.728
+  Wc: 0.0  #this is defined as 1-Wl-Wm

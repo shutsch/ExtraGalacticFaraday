@@ -21,7 +21,7 @@ controllers:
     increase_step: "None"
     increase_rate: "None"
     deltaE: 1.0e-07
-    convergence_level: 1
+    convergence_level: 2
   
   minimizer:
     n: 25
@@ -29,7 +29,7 @@ controllers:
     increase_step: "None"
     increase_rate: "None"
     deltaE: 1.0e-07
-    convergence_level: 1 #sometimes better 2
+    convergence_level: 2 #sometimes better 2
 
   minimizer_samples:
     n: 25
@@ -37,4 +37,4 @@ controllers:
     increase_step: "None"
     increase_rate: "None"
     deltaE: 1.0e-07
-    convergence_level: 1
+    convergence_level: 2
