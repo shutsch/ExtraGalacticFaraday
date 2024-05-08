@@ -89,7 +89,7 @@ class ExtraGalDemoModel(Model):
         fact6 = z_weights @ integrator @ (fact5 * (expander @ expander_chi @ chi_env_0.exp()))
 
         
-        sigmaRm2 = fact1 + fact6
+        sigmaRm2 = fact1 #+ fact6
 
 
         ##sigmaRm2 = fact6

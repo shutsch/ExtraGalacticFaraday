@@ -16,15 +16,15 @@ sample_params:
 
 controllers:
   sampler:
-    n: 500
-    n_final: 500
+    n: 50
+    n_final: 50
     increase_step: "None"
     increase_rate: "None"
     deltaE: 1.0e-07
     convergence_level: 2
   
   minimizer:
-    n: 25
+    n: 5
     n_final: 40
     increase_step: "None"
     increase_rate: "None"

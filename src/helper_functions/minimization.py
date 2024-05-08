@@ -154,25 +154,25 @@ def minimization(likelihoods, kl_type, n_global, plot_path, sky_maps=None, power
 
     # n_samples = lambda iiter: 10 if iiter < 5 else 20
 
-    n_samples = lambda i: get_n_samples(sample_parameters, 0, False) if i<99 else 100
+    #n_samples = lambda i: get_n_samples(sample_parameters, 0, False) if i<99 else 100
 
   
-    constants = lambda i: ['chi_lum', 'chi_int_0', 'chi_red', 'chi_env_0'] if i<10 \
-        else ( ['log_profile_flexibility', 'log_profile_fluctuations', 'log_profile_loglogavgslope', 'log_profile_spectrum', 'log_profile_xi', 'log_profile_zeromode', 'sign_flexibility', 'sign_fluctuations', 'sign_loglogavgslope', 'sign_spectrum', 'sign_xi', 'sign_zeromode'] if 10<=i<80 \
-            else [])
+    #constants = lambda i: ['chi_lum', 'chi_int_0', 'chi_red', 'chi_env_0'] if i<10 \
+    #    else ( ['log_profile_flexibility', 'log_profile_fluctuations', 'log_profile_loglogavgslope', 'log_profile_spectrum', 'log_profile_xi', 'log_profile_zeromode', 'sign_flexibility', 'sign_fluctuations', 'sign_loglogavgslope', 'sign_spectrum', 'sign_xi', 'sign_zeromode'] if 10<=i<80 \
+    #        else [])
 
-    point_estimates = lambda i: ['chi_lum', 'chi_int_0', 'chi_red', 'chi_env_0'] if i<10 \
-        else (['log_profile_flexibility', 'log_profile_fluctuations', 'log_profile_loglogavgslope', 'log_profile_spectrum', 'log_profile_xi', 'log_profile_zeromode', 'sign_flexibility', 'sign_fluctuations', 'sign_loglogavgslope', 'sign_spectrum', 'sign_xi', 'sign_zeromode'] if 10<=i<80 \
-            else [])
+    #point_estimates = lambda i: ['chi_lum', 'chi_int_0', 'chi_red', 'chi_env_0'] if i<10 \
+    #    else (['log_profile_flexibility', 'log_profile_fluctuations', 'log_profile_loglogavgslope', 'log_profile_spectrum', 'log_profile_xi', 'log_profile_zeromode', 'sign_flexibility', 'sign_fluctuations', 'sign_loglogavgslope', 'sign_spectrum', 'sign_xi', 'sign_zeromode'] if 10<=i<80 \
+    #        else [])
     
     op_output = {}
     sample_list, mean = ift.optimize_kl(
         likelihood_energy=likelihood,
         total_iterations=n_global,
-        constants=constants,
-        point_estimates=point_estimates,
-        #n_samples=get_n_samples(sample_parameters, 0, False),
-        n_samples = n_samples,
+        #constants=constants,
+        #point_estimates=point_estimates,
+        n_samples=get_n_samples(sample_parameters, 0, False),
+        #n_samples = n_samples,
         kl_minimizer=ift.NewtonCG(controllers['Minimizer']),
         sampling_iteration_controller=controllers['Sampler'],
         nonlinear_sampling_minimizer=None,
