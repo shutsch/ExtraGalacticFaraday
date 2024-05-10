@@ -65,7 +65,7 @@ class ExtraGalDemoModel(Model):
 
        
         nz = 100  # number of redshift bins
-        normalized_z_domain = ift.RGSpace(100, 1.) # that's the redshift domain. The distance between pixels is set to one, as we will manually mutiply with the real z distance later, since it is not the same for each LoS.
+        normalized_z_domain = ift.RGSpace(nz, 1/nz) # that's the redshift domain. The volume is set to one, as we will manually mutiply with the real z distance later, since it is not the same for each LoS.
         
         full_domain = ift.DomainTuple.make((self.target_domain[0], normalized_z_domain,))
         integrator = ift.ContractionOperator(full_domain, spaces=1) # this is the integration operator, mapping the full domain on the target_domain via a sum
@@ -89,7 +89,7 @@ class ExtraGalDemoModel(Model):
         fact6 = z_weights @ integrator @ (fact5 * (expander @ expander_chi @ chi_env_0.exp()))
 
         
-        sigmaRm2 = fact1 #+ fact6
+        sigmaRm2 = fact1 + fact6
 
 
         ##sigmaRm2 = fact6
