@@ -67,6 +67,45 @@ def scatter_plotting(model_1, model_2, name, path, plot_obj=None, string=None, *
     xmax, xmin = (val_1.max(), val_1.min(),)
     ymax, ymin = (val_2.max(), val_2.min(), )
 
+
+def scatter_plotting_posterior(model_1, model_2, name, path, plot_obj=None, string=None, **kwargs):
+    if string is None:
+        string = ''
+    path += 'scatter/'
+
+    scatter_path = path + name + '/'
+    if not os.path.exists(scatter_path):
+        os.makedirs(scatter_path)
+
+    if isinstance(model_1, ift.Operator) and not isinstance(model_1, ift.Field):
+        if isinstance(plot_obj, list):
+            val_1_list = list()
+            print(*plot_obj)
+            for s in plot_obj:
+                val_1_list.append(model_1.force(s).val)
+            val_1=np.array(val_1_list)
+        else:
+            raise TypeError
+    else:
+        val_1 = model_1
+
+    if isinstance(model_2, ift.Operator) and not isinstance(model_2, ift.Field):
+        if isinstance(plot_obj, list):
+            val_2_list = list()
+            for s in plot_obj:
+                val_2_list.append(model_2.force(s).val)
+            val_2=np.array(val_2_list)
+        else:
+            raise TypeError
+    else:
+        val_2 = model_2
+    val_1 = val_1.val if isinstance(val_1, ift.Field) else val_1
+    val_2 = val_2.val if isinstance(val_2, ift.Field) else val_2
+    xmax, xmin = (val_1.max(), val_1.min(),)
+    ymax, ymin = (val_2.max(), val_2.min(), )
+
+
+
     pl.figure()
     xxx, yyy, zzz = _density_estimation(val_1, val_2, xmin, xmax, ymin, ymax, 100)
     xx = np.linspace(xmin, xmax, 10)

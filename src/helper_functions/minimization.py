@@ -1,6 +1,6 @@
 import nifty8 as ift
 from .minimization_helpers import get_controller, get_n_samples
-from .plot.plot import sky_map_plotting, power_plotting, energy_plotting, scatter_plotting
+from .plot.plot import sky_map_plotting, power_plotting, energy_plotting, scatter_plotting_posterior
 import libs as Egf
 
 _localParams = []
@@ -30,7 +30,7 @@ def plot_cb(latest_sample_list, i):
 
     if _localParams['scatter_pairs'] is not None:
         for key, (sc1, sc2) in _localParams['scatter_pairs'].items():
-            scatter_plotting(sc1, sc2, key, _localParams['plot_path'], [s for s in latest_sample_list.iterator()], string=ident,
+            scatter_plotting_posterior(sc1, sc2, key, _localParams['plot_path'], [s for s in latest_sample_list.iterator()], string=ident,
                                 **_localParams['plotting_kwargs'].get(key, {}))
 
     # minimizer = ift.NewtonCG(controllers['Minimizer'])
@@ -131,38 +131,13 @@ def minimization(likelihoods, kl_type, n_global, plot_path, sky_maps=None, power
 
     position = 0.1*ift.from_random(likelihood.domain)
 
-    #p_d = position.to_dict() 
-    #chiint0_field = p_d['chi_int_0'] 
-    #chienv0_field = p_d['chi_env_0'] 
-    #chilum_field = p_d['chi_lum'] 
-    #chired_field = p_d['chi_red'] 
-    #kwargs={'mean':0., 'std': 1.0}
-    #p_d['chi_int_0'] = ift.full(chiint0_field.domain, ift.from_random(domain= ift.DomainTuple.scalar_domain(),**kwargs).val.item()) 
-    #p_d['chi_env_0'] = ift.full(chienv0_field.domain, ift.from_random(domain= ift.DomainTuple.scalar_domain(), **kwargs).val.item()) 
-    #p_d['chi_lum'] = ift.full(chilum_field.domain, ift.from_random(domain= ift.DomainTuple.scalar_domain(), **kwargs).val.item()) 
-    #p_d['chi_red'] = ift.full(chired_field.domain, ift.from_random(domain= ift.DomainTuple.scalar_domain(), **kwargs).val.item()) 
     
-    
-    #position = position.from_dict(p_d)
-
-    #p_d = position.to_dict() 
-    #chiint0_field = p_d['chi_int_0'] 
-    #chienv0_field = p_d['chi_env_0'] 
-    #p_d['chi_int_0'] = ift.from_random(domain= chiint0_field.domain,std=2).val.item() 
-    #p_d['chi_env_0'] = ift.from_random(domain= chienv0_field.domain,std=2).val.item() 
-    #position = position.from_dict(p_d)
-
-    # n_samples = lambda iiter: 10 if iiter < 5 else 20
-
-    #n_samples = lambda i: get_n_samples(sample_parameters, 0, False) if i<99 else 100
-
-  
-    #constants = lambda i: ['chi_lum', 'chi_int_0', 'chi_red', 'chi_env_0'] if i<10 \
-    #    else ( ['log_profile_flexibility', 'log_profile_fluctuations', 'log_profile_loglogavgslope', 'log_profile_spectrum', 'log_profile_xi', 'log_profile_zeromode', 'sign_flexibility', 'sign_fluctuations', 'sign_loglogavgslope', 'sign_spectrum', 'sign_xi', 'sign_zeromode'] if 10<=i<80 \
+    #constants = lambda i: ['chi_lum', 'chi_int_0', 'chi_red', 'chi_env_0'] if i<20 \
+    #    else ( ['log_profile_flexibility', 'log_profile_fluctuations', 'log_profile_loglogavgslope', 'log_profile_spectrum', 'log_profile_xi', 'log_profile_zeromode', 'sign_flexibility', 'sign_fluctuations', 'sign_loglogavgslope', 'sign_spectrum', 'sign_xi', 'sign_zeromode'] if 20<=i<40 \
     #        else [])
 
-    #point_estimates = lambda i: ['chi_lum', 'chi_int_0', 'chi_red', 'chi_env_0'] if i<10 \
-    #    else (['log_profile_flexibility', 'log_profile_fluctuations', 'log_profile_loglogavgslope', 'log_profile_spectrum', 'log_profile_xi', 'log_profile_zeromode', 'sign_flexibility', 'sign_fluctuations', 'sign_loglogavgslope', 'sign_spectrum', 'sign_xi', 'sign_zeromode'] if 10<=i<80 \
+    #point_estimates = lambda i: ['chi_lum', 'chi_int_0', 'chi_red', 'chi_env_0'] if i<20 \
+    #    else (['log_profile_flexibility', 'log_profile_fluctuations', 'log_profile_loglogavgslope', 'log_profile_spectrum', 'log_profile_xi', 'log_profile_zeromode', 'sign_flexibility', 'sign_fluctuations', 'sign_loglogavgslope', 'sign_spectrum', 'sign_xi', 'sign_zeromode'] if 10<=i<40 \
     #        else [])
     
     op_output = {}

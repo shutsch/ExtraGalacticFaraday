@@ -155,8 +155,18 @@ def run_inference():
     Egf.minimization(n_global=Egf.config['params']['nglobal'], kl_type='SampledKLEnergy', plot_path=Egf.config['params']['plot_path'],
                      likelihoods={'implicit_likelihood': implicit_likelihood,
                                   'explicit_likelihood': explicit_likelihood},
-                     sky_maps=sky_models, power_spectra=power_models, scatter_pairs=None,
+                     sky_maps=sky_models, power_spectra=power_models, scatter_pairs=scatter_pairs,
                      plotting_kwargs=plotting_kwargs)
+    
+    likelihoods={'implicit_likelihood': implicit_likelihood, 'explicit_likelihood': explicit_likelihood}
+    likelihood_energy=ift.utilities.my_sum(likelihoods.values())
+    ic_sampling=ift.AbsDeltaEnergyController(name="Sampler", deltaE=Egf.config['controllers']['sampler']['deltaE'], iteration_limit=Egf.config['controllers']['sampler']['n'])
+    latent_posterior_mean = ift.ResidualSampleList.load_mean('./runs/demo/results/pickle/last')
+    n_samples_new=100
+    ham=ift.StandardHamiltonian(likelihood_energy, ic_sampling)
+    e=ift.SampledKLEnergy(latent_posterior_mean, ham, n_samples_new, minimizer_sampling=None, constants=[], point_estimates=[])
+    samples=e.samples.at(latent_posterior_mean)
+    samples.save('samples_posterior', overwrite=True)  
 
 
 if __name__ == '__main__':
