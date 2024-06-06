@@ -6,7 +6,8 @@ from ..Model import Model
 
 class EgalAddingNoise(Model):
 
-    def __init__(self, target_domain, noise_params, name=''):
+    def __init__(self, target_domain, noise_params, name='', inverse=False):
+        self.inverse = inverse
         self.egal_var = noise_params['egal_var']
         self.emodel = noise_params['emodel']
 
@@ -16,5 +17,7 @@ class EgalAddingNoise(Model):
 
     def set_model(self):
         egal_op = ift.Adder(self.egal_var)
+        if self.inverse:
+            self._model = (egal_op @ self.emodel).reciprocal()
         self._model = egal_op @ self.emodel
         

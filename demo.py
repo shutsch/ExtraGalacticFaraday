@@ -13,7 +13,7 @@ def run_inference():
 
     # load_the data, define domains, covariance and projection operators
 
-    data = Egf.get_rm(filter_pulsars=True, version='custom_sim', default_error_level=0.5)
+    data = Egf.get_rm(filter_pulsars=True, version='custom', default_error_level=0.5)
 
     # filter
     z_indices = ~np.isnan(data['z_best'])
@@ -72,7 +72,7 @@ def run_inference():
         'emodel': emodel.get_model()
     }
 
-    egal_inverse_noise = Egf.EgalAddingNoise(egal_data_domain, noise_params).get_model()
+    egal_inverse_noise = Egf.EgalAddingNoise(egal_data_domain, noise_params, inverse=True).get_model()
 
 
     
@@ -88,7 +88,7 @@ def run_inference():
     #includes the eg part that now we are fitting) is varying, is not anymore a costant. When we will include the 
     #correlated eg component we will need to use again the GaussianEnergy. 
     new_dom = ift.MultiDomain.make({'icov': egal_inverse_noise.target, 'residual': residual.target})
-    n_res = ift.FieldAdapter(new_dom, 'icov')(egal_inverse_noise.reciprocal()) + \
+    n_res = ift.FieldAdapter(new_dom, 'icov')(egal_inverse_noise) + \
         ift.FieldAdapter(new_dom, 'residual')(residual)
     explicit_likelihood = ift.VariableCovarianceGaussianEnergy(domain=egal_data_domain, residual_key='residual',
                                                                inverse_covariance_key='icov',
@@ -148,7 +148,7 @@ def run_inference():
 
     plotting_kwargs = {'faraday_sky': {'cmap': 'fm', 'cmap_stddev': 'fu', 
                                        'vmin_mean':'-250', 'vmax_mean':'250', 
-                                       'vmin_std':'-250', 'vmax_std':'250'},
+                                       'vmin_std':'0', 'vmax_std':'80'},
                        'intrinsic': {'x_label': 'chi_lum', 'y_label': 'sigma_int_0'},
                        'environmental': {'x_label': 'chi_red', 'y_label': 'sigma_env_0'}}
 
@@ -172,6 +172,7 @@ def run_inference():
 if __name__ == '__main__':
     # print a RuntimeWarning  in case of underflows
     np.seterr(under='warn') 
+    np.seterr(all='raise')
     # set seed
     seed = 1000
     ift.random.push_sseq_from_seed(seed)

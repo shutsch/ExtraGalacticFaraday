@@ -1,10 +1,10 @@
 import nifty8 as ift
 import libs as Egf
 import numpy as np
-
-# - fixed library requirements
-# - set colorbar range to -250;+250
-
+from astropy.io import fits
+import matplotlib.pyplot as plt
+import matplotlib
+matplotlib.use('TkAgg')
 
 def run_inference():
     
@@ -19,12 +19,7 @@ def run_inference():
     data = Egf.get_rm(filter_pulsars=True, version='custom', default_error_level=0.5)
 
     # filter
-    #schnitzeler_indices = (data['catalog'] == '2017MNRAS.467.1776K')
     z_indices = ~np.isnan(data['z_best'])
-
-    #
-    #egal_rm = data['rm'][schnitzeler_indices]
-    #egal_stddev = data['rm_err'][schnitzeler_indices]
 
     egal_rm = np.array(data['rm'][z_indices])
     egal_stddev = np.array(data['rm_err'][z_indices])
@@ -33,15 +28,22 @@ def run_inference():
 
     # set the sky model hyper-parameters and initialize the Faraday 2020 sky model
     #new parameters given by Sebastian
-    log_amplitude_params = {'fluctuations': {'asperity': None,'flexibility': [.1, .1], 
-                          'fluctuations': [1.0, 0.5], 'loglogavgslope': [-11/3, 1.],},
-                            'offset': {'offset_mean': 5., 'offset_std': [1., 0.001]},}
+    log_amplitude_params = {'fluctuations': {'asperity': None, 
+                                             'flexibility': [1., 1.],  
+                                             'fluctuations': [1.0, 0.5], 
+                                             'loglogavgslope': [-11./3, 2.],},
+                          'offset': {'offset_mean': 4., 
+                                     'offset_std': [1., 1.]},}
 
-    sign_params = {'fluctuations': {'asperity': None, 'flexibility': [.1, .1],
-                    'fluctuations': [5.0, 4.0], 'loglogavgslope': [-11/3, 1.0], },
-                   'offset': {'offset_mean': 0, 'offset_std': [5., 4.]},}
+    sign_params = {'fluctuations': {'asperity': None, 
+                                    'flexibility': [1., 1.], 
+                                    'fluctuations': [5.0, 4.0], 
+                                    'loglogavgslope': [-11./3, 2.], },
+                   'offset': {'offset_mean': 0, 
+                              'offset_std': [5., 4.]},}
     
    
+
 
     galactic_model = Egf.Faraday2020Sky(sky_domain, **{'log_amplitude_parameters': log_amplitude_params,
                                                        'sign_parameters': sign_params})
@@ -73,7 +75,7 @@ def run_inference():
         'emodel': emodel.get_model()
     }
 
-    egal_inverse_noise = Egf.EgalAddingNoise(egal_data_domain, noise_params).get_model()
+    egal_inverse_noise = Egf.EgalAddingNoise(egal_data_domain, noise_params, inverse=True).get_model()
 
 
     
@@ -89,17 +91,12 @@ def run_inference():
     #includes the eg part that now we are fitting) is varying, is not anymore a costant. When we will include the 
     #correlated eg component we will need to use again the GaussianEnergy. 
     new_dom = ift.MultiDomain.make({'icov': egal_inverse_noise.target, 'residual': residual.target})
-    n_res = ift.FieldAdapter(new_dom, 'icov')(egal_inverse_noise.reciprocal()) + \
+    n_res = ift.FieldAdapter(new_dom, 'icov')(egal_inverse_noise) + \
         ift.FieldAdapter(new_dom, 'residual')(residual)
     explicit_likelihood = ift.VariableCovarianceGaussianEnergy(domain=egal_data_domain, residual_key='residual',
                                                                inverse_covariance_key='icov',
                                                                sampling_dtype=np.dtype(np.float64)) @ n_res
     
-    #explicit_likelihood = ift.VariableCovarianceGaussianEnergy(inverse_covariance=egal_inverse_noise.get_model()+emodel.get_model(),
-    #                                         sampling_dtype=float) @ residual
-    #explicit_likelihood = ift.GaussianEnergy(inverse_covariance=egal_inverse_noise.get_model(),
-    #                                         sampling_dtype=float) @ residual
-
 
     gal_rm = np.array(data['rm'][~z_indices])
     gal_stddev = np.array(data['rm_err'][~z_indices])
@@ -115,18 +112,31 @@ def run_inference():
                                          domain=sky_domain, target=gal_data_domain)
 
 
-    implicit_noise = Egf.SimpleVariableNoise(gal_data_domain, alpha=2.5, q='mode', noise_cov=gal_stddev**2).get_model()
+    alpha = 2.5
+
+    # Possible all sky variation of alpha, requires pygedm package 
+    
+    #log_ymw = np.log(Egf.load_ymw_sky('./data/', nside=Egf.config['params']['nside'], model='ymw16', mode='mc'))
+    #log_ymw /= log_ymw.min()
+    #log_ymw *= 5
+    #alpha = implicit_response(ift.Field(ift.makeDomain(implicit_response.domain), log_ymw)).val
+
+
+    #implicit_noise = Egf.SimpleVariableNoise(gal_data_domain, alpha=alpha, q='mode', noise_cov=gal_stddev**2).get_model()
+    implicit_noise = Egf.StaticNoise(gal_data_domain, gal_stddev**2, True)
 
     # build the full model and connect it to the likelihood
 
     implicit_model = implicit_response @ galactic_model.get_model()
     residual = ift.Adder(-gal_rm) @ implicit_model
-    new_dom = ift.MultiDomain.make({'icov': implicit_noise.target, 'residual': residual.target})
-    n_res = ift.FieldAdapter(new_dom, 'icov')(implicit_noise.reciprocal()) + \
-        ift.FieldAdapter(new_dom, 'residual')(residual)
-    implicit_likelihood = ift.VariableCovarianceGaussianEnergy(domain=gal_data_domain, residual_key='residual',
-                                                               inverse_covariance_key='icov',
-                                                               sampling_dtype=np.dtype(np.float64)) @ n_res
+    #new_dom = ift.MultiDomain.make({'icov': implicit_noise.target, 'residual': residual.target})
+    #n_res = ift.FieldAdapter(new_dom, 'icov')(implicit_noise.reciprocal()) + \
+    #    ift.FieldAdapter(new_dom, 'residual')(residual)
+    #implicit_likelihood = ift.VariableCovarianceGaussianEnergy(domain=gal_data_domain, residual_key='residual',
+    #                                                           inverse_covariance_key='icov',
+    #                                                           sampling_dtype=np.dtype(np.float64)) @ n_res
+    implicit_likelihood = ift.GaussianEnergy(inverse_covariance=implicit_noise.get_model(),
+                                             sampling_dtype=float) @ residual
 
     # set run parameters and start the inference
     components = galactic_model.get_components()
@@ -135,54 +145,77 @@ def run_inference():
     sky_models = {'faraday_sky': galactic_model.get_model(), 'profile': components['log_profile'].exp(),
                   'sign': components['sign']}
     power_models = {'log_profile': components['log_profile_amplitude'], 'sign': components['sign_amplitude']}
-    #scatter_pairs = {'egal_results_vs_data': (egal_model, egal_rm)}
-    #scatter_pairs = None
-    #scatter_pairs = {'intrinsic': (ecomponents['chi_lum'], ecomponents['sigma_int_0']),'environmental': (ecomponents['chi_red'], ecomponents['sigma_env_0'])}
-    
+   
     #the value that we plot are indeed the values in the position field 
-    scatter_pairs = {'intrinsic': (ecomponents['chi_lum'], ecomponents['sigma_int_0']),'environmental': (ecomponents['chi_red'], ecomponents['sigma_env_0'])}
+    scatter_pairs = {'intrinsic': (ecomponents['chi_lum'], ecomponents['chi_int_0']),'environmental': (ecomponents['chi_red'], ecomponents['chi_env_0'])}
 
-    #plotting_kwargs = {'faraday_sky': {'cmap': 'fm', 'cmap_stddev': 'fu', 
-    #                                   'vmin_mean':'-250', 'vmax_mean':'250', 
-    #                                   'vmin_std':'-250', 'vmax_std':'250'},
-    #                   'egal_results_vs_data': {'x_label': 'results', 'y_label': 'data'}}
     plotting_kwargs = {'faraday_sky': {'cmap': 'fm', 'cmap_stddev': 'fu', 
                                        'vmin_mean':'-250', 'vmax_mean':'250', 
-                                       'vmin_std':'-250', 'vmax_std':'250'},
+                                       'vmin_std':'0', 'vmax_std':'80'},
                        'intrinsic': {'x_label': 'chi_lum', 'y_label': 'sigma_int_0'},
                        'environmental': {'x_label': 'chi_red', 'y_label': 'sigma_env_0'}}
 
+    # Specify noise
+    noise = 0.05
+    N = ift.ScalingOperator(ift.UnstructuredDomain(len(data['theta'])), noise, np.float64)
 
-    samples = ift.ResidualSampleList.load('/raid/ERG/DEFROST_MOCK/DEFROST_MOCK_GAL/ExtraGalacticFaraday/runs/demo/results/pickle/iteration_19')
-    m, s = samples.sample_stat(sky_models['faraday_sky'])
-    fsamples = [s for s in samples.iterator(op=sky_models['faraday_sky'])]
-    print(fsamples)
-    #plo = ift.Plot()
-    #plo.add(fsamples[1],  cmap=getattr(ncmap, 'fm')(), vmin=-250.0, vmax=250.0)
-    #plo.output(name='faraday_sky.png')
+    overall_response = Egf.SkyProjector(theta=data['theta'],
+                                         phi=data['phi'],
+                                         domain=sky_domain, target=ift.UnstructuredDomain(len(data['theta'])))
 
-    gal_rm_mock=implicit_response(m)
-    gal_rm_noise_mock=implicit_response(s)
+    overall_model= overall_response @ galactic_model.get_model()
+
+    mock_position = ift.from_random(overall_model.domain, 'normal')
+    overall_data=overall_model(mock_position)
+
+    egal_mock_position = ift.from_random(emodel.get_model().domain, 'normal')
+    data_array=np.array(overall_data.val)
+    data_array[z_indices]+=emodel.get_model()(egal_mock_position).val
+    
+    data_field=ift.makeField(ift.UnstructuredDomain(len(data['theta'])), data_array)
+
+    data_RM = data_field + N.draw_sample()
+
+    sign = components['sign'].force(mock_position)
+
+    #Plot 1
+    plot = ift.Plot()
+    #plot.add(overall_response.adjoint(overall_data), vmin=-250, vmax=250)
+    plot.add(overall_response.adjoint(overall_data), vmin=min(sign.val)-10, vmax=max(sign.val)+10)
+    plot.add(overall_response.adjoint(data_RM), vmin=min(sign.val)-10, vmax=max(sign.val)+10)
+    plot.add(sign, vmin=min(sign.val)-10, vmax=max(sign.val)+10)
+    plot.output()
+
+    #Plot 2
+    #fig, axs = plt.subplots(1, 2)
+
+    #axs[1].set_xlabel('Observed Extragalactic RM (rad/m$^2$)')
+    #axs[1].set_ylabel('Simulated Extragalactic RM (rad/m$^2$)')
+    #axs[1].scatter(data['rm'][z_indices],data_RM.val[z_indices])
+
+    #axs[0].set_xlabel('Observed Galactic RM ($rad/m^2$)')
+    #axs[0].set_ylabel('Simulated Galactic RM ($rad/m^2$)')
+    #axs[0].scatter(data['rm'][~z_indices],data_RM.val[~z_indices])
+    #plt.show()
 
 
-    gal_residual=(gal_rm - gal_rm_mock)**2/(gal_stddev**2 + gal_rm_noise_mock**2)
 
-    print('Residual mean', gal_residual.val.mean())
-    print('Residual std', gal_residual.val.std())
 
-    #plo = ift.Plot()
-    #plo.add(gal_residual)
-    #plo.output(name='residual_faraday_sky.png')
-    plt.plot(gal_residual.val, 'k.')
-    plt.ylim(-20, 20)
-    plt.ylabel('Galactic Residual')
-    plt.savefig('residual_faraday_sky_gal_mock.png')
+    data['rm'] = np.array(data_RM.val)
+    data['rm_err'] =  noise*np.ones(np.array(data_RM.val).size)
+    
+    hdu= fits.open('/home/valentina/Documents/PROJECTS/BAYESIAN_CODE/DATA/new_catalog.fits')
+    hdu[1].data['rm'][np.where(hdu[1].data['type']!='Pulsar')] = np.array(data_RM.val)
+    hdu[1].data['rm_err'][np.where(hdu[1].data['type']!='Pulsar')] =  noise*np.ones(np.array(data_RM.val).size)
+    hdu.writeto('/home/valentina/Documents/PROJECTS/BAYESIAN_CODE/DEFROST_LAST/ExtraGalacticFaraday/data/Faraday/catalog_versions/master_catalog_vercustom_prior.fits', overwrite=True)
+    hdu.close()
 
 
 if __name__ == '__main__':
     # print a RuntimeWarning  in case of underflows
     np.seterr(under='warn') 
+    np.seterr(all='raise')
     # set seed
-    seed = 2000
+    seed = 1000
     ift.random.push_sseq_from_seed(seed)
     run_inference()
