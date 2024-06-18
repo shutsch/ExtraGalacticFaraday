@@ -1,10 +1,11 @@
 import nifty8 as ift
 import libs as Egf
 import numpy as np
-from astropy.io import fits
+from matplotlib.patches import Ellipse
 import matplotlib.pyplot as plt
 import matplotlib
 matplotlib.use('TkAgg')
+
 
 def run_inference():
     
@@ -155,60 +156,157 @@ def run_inference():
                        'intrinsic': {'x_label': 'chi_lum', 'y_label': 'sigma_int_0'},
                        'environmental': {'x_label': 'chi_red', 'y_label': 'sigma_env_0'}}
 
-    # Specify noise
-    noise = 0.05
-    N = ift.ScalingOperator(ift.UnstructuredDomain(len(data['theta'])), noise, np.float64)
+    mean = ift.ResidualSampleList.load_mean('samples_posterior')
+    samples = ift.ResidualSampleList.load('samples_posterior')
+ 
+    cr=np.array([s for s in samples.iterator(ecomponents['chi_red'])])
+    mr, vr = samples.sample_stat(ecomponents['chi_red'])
 
-    overall_response = Egf.SkyProjector(theta=data['theta'],
-                                         phi=data['phi'],
-                                         domain=sky_domain, target=ift.UnstructuredDomain(len(data['theta'])))
+    ci0=np.array([s for s in samples.iterator(ecomponents['chi_int_0'])])
+    mi0, vi0 = samples.sample_stat(ecomponents['chi_int_0'])
 
-    overall_model= overall_response @ galactic_model.get_model()
+    cl=np.array([s for s in samples.iterator(ecomponents['chi_lum'])])
+    ml, vl = samples.sample_stat(ecomponents['chi_lum'])
 
-    mock_position = ift.from_random(overall_model.domain, 'normal')
-    overall_data=overall_model(mock_position)
-
-    egal_mock_position = ift.from_random(emodel.get_model().domain, 'normal')
-    data_array=np.array(overall_data.val)
-    data_array[z_indices]+=emodel.get_model()(egal_mock_position).val
+    ce0=np.array([s for s in samples.iterator(ecomponents['chi_env_0'])])
+    me0, ve0 = samples.sample_stat(ecomponents['chi_env_0'])
     
-    data_field=ift.makeField(ift.UnstructuredDomain(len(data['theta'])), data_array)
+    sr=np.sqrt(vr.val)
+    si0=np.sqrt(vi0.val)
+    sl=np.sqrt(vl.val)
+    se0=np.sqrt(ve0.val)
 
-    data_RM = data_field + N.draw_sample()
-
-    sign = components['sign'].force(mock_position)
-
-    #Plot 1
-    plot = ift.Plot()
-    plot.add(overall_response.adjoint(overall_data), vmin=-250, vmax=250)
-    #plot.add(overall_response.adjoint(overall_data), vmin=min(sign.val)-10, vmax=max(sign.val)+10, cmap='fm')
-    plot.add(overall_response.adjoint(data_RM), vmin=min(sign.val)-10, vmax=max(sign.val)+10)
-    plot.add(sign, vmin=min(sign.val)-10, vmax=max(sign.val)+10)
-    plot.output()
-
-    #Plot 2
-    #fig, axs = plt.subplots(1, 2)
-
-    #axs[1].set_xlabel('Observed Extragalactic RM (rad/m$^2$)')
-    #axs[1].set_ylabel('Simulated Extragalactic RM (rad/m$^2$)')
-    #axs[1].scatter(data['rm'][z_indices],data_RM.val[z_indices])
-
-    #axs[0].set_xlabel('Observed Galactic RM ($rad/m^2$)')
-    #axs[0].set_ylabel('Simulated Galactic RM ($rad/m^2$)')
-    #axs[0].scatter(data['rm'][~z_indices],data_RM.val[~z_indices])
-    #plt.show()
+    print('cr', mr.val, sr)
+    print('ci0', mi0.val, si0)
+    print('cl', ml.val, sl)
+    print('ce0', me0.val, se0)
 
 
 
 
-    data['rm'] = np.array(data_RM.val)
-    data['rm_err'] =  noise*np.ones(np.array(data_RM.val).size)
+    cr_list=[]
+    cl_list=[]
+    ci0_list=[]
+    ce0_list=[]
+    for i in range(0,len(cr)):
+        cr_list.append(cr[i].val)
+        cl_list.append(cl[i].val)
+        ci0_list.append(ci0[i].val)
+        ce0_list.append(ce0[i].val)
+    cr_array=np.array(cr_list)
+    cl_array=np.array(cl_list)
+    ci0_array=np.array(ci0_list)
+    ce0_array=np.array(ce0_list)
+
+ 
+    fig, axs = plt.subplots(3, 3)
     
-    #hdu= fits.open('/home/valentina/Documents/PROJECTS/BAYESIAN_CODE/DATA/new_catalog.fits')
-    #hdu[1].data['rm'][np.where(hdu[1].data['type']!='Pulsar')] = np.array(data_RM.val)
-    #hdu[1].data['rm_err'][np.where(hdu[1].data['type']!='Pulsar')] =  noise*np.ones(np.array(data_RM.val).size)
-    #hdu.writeto('/home/valentina/Documents/PROJECTS/BAYESIAN_CODE/DEFROST_LAST/ExtraGalacticFaraday/data/Faraday/catalog_versions/master_catalog_vercustom_prior.fits', overwrite=True)
-    #hdu.close()
+    axs[0,0].scatter(cr_array, ci0_array, color='k')
+    axs[0,0].set_ylabel('$\chi_{int,0}$')
+
+
+    axs[0,1].scatter(cl_array, ci0_array, color='k')
+    axs[0,1].set_yticklabels([])
+
+    axs[0,2].scatter(ce0_array, ci0_array, color='k')
+    axs[0,2].set_xlabel('$\chi_{env,0}$')
+    axs[0,2].set_yticklabels([])
+
+
+
+    axs[1,0].scatter(cr_array, ce0_array, color='k')
+    axs[1,0].set_ylabel('$\chi_{env,0}$')
+
+    axs[1,1].scatter(cl_array, ce0_array, color='k')
+    axs[1,1].set_xlabel('$\chi_{lum}$')
+    axs[1,1].set_yticklabels([])
+
+    axs[1,2].axis('off')
+
+    axs[2,0].scatter(cr_array, cl_array, color='k')
+    axs[2,0].set_xlabel('$\chi_{red}$')
+    axs[2,0].set_ylabel('$\chi_{lum}$')
+
+
+    axs[2,1].axis('off')
+    axs[2,2].axis('off')
+
+
+    ellipse1_1sigma = Ellipse(xy=(mr.val, mi0.val), width=1*2*sr, height=1*2*si0, edgecolor='green', fc='None', lw=2)
+    ellipse1_2sigma = Ellipse(xy=(mr.val, mi0.val), width=2*2*sr, height=2*2*si0, edgecolor='cyan', fc='None', lw=2)
+    ellipse1_3sigma = Ellipse(xy=(mr.val, mi0.val), width=3*2*sr, height=3*2*si0, edgecolor='blue', fc='None', lw=2)
+    axs[0,0].add_patch(ellipse1_1sigma)
+    axs[0,0].add_patch(ellipse1_2sigma)
+    axs[0,0].add_patch(ellipse1_3sigma)
+
+
+    ellipse2_1sigma = Ellipse(xy=(ml.val, mi0.val), width=1*2*sl, height=1*2*si0, edgecolor='green', fc='None', lw=2)
+    ellipse2_2sigma = Ellipse(xy=(ml.val, mi0.val), width=2*2*sl, height=2*2*si0, edgecolor='cyan', fc='None', lw=2)
+    ellipse2_3sigma = Ellipse(xy=(ml.val, mi0.val), width=3*2*sl, height=3*2*si0, edgecolor='blue', fc='None', lw=2)
+    axs[0,1].add_patch(ellipse2_1sigma)
+    axs[0,1].add_patch(ellipse2_2sigma)
+    axs[0,1].add_patch(ellipse2_3sigma)
+
+    ellipse3_1sigma = Ellipse(xy=(me0.val, mi0.val), width=1*2*se0, height=1*2*si0, edgecolor='green', fc='None', lw=2)
+    ellipse3_2sigma = Ellipse(xy=(me0.val, mi0.val), width=2*2*se0, height=2*2*si0, edgecolor='cyan', fc='None', lw=2)
+    ellipse3_3sigma = Ellipse(xy=(me0.val, mi0.val), width=3*2*se0, height=3*2*si0, edgecolor='blue', fc='None', lw=2)
+    axs[0,2].add_patch(ellipse3_1sigma)
+    axs[0,2].add_patch(ellipse3_2sigma)
+    axs[0,2].add_patch(ellipse3_3sigma)
+
+
+
+    ellipse4_1sigma = Ellipse(xy=(mr.val, me0.val), width=1*2*sr, height=1*2*se0, edgecolor='green', fc='None', lw=2)
+    ellipse4_2sigma = Ellipse(xy=(mr.val, me0.val), width=2*2*sr, height=2*2*se0, edgecolor='cyan', fc='None', lw=2)
+    ellipse4_3sigma = Ellipse(xy=(mr.val, me0.val), width=3*2*sr, height=3*2*se0, edgecolor='blue', fc='None', lw=2)
+    axs[1,0].add_patch(ellipse4_1sigma)
+    axs[1,0].add_patch(ellipse4_2sigma)
+    axs[1,0].add_patch(ellipse4_3sigma)
+
+
+    ellipse5_1sigma = Ellipse(xy=(ml.val, me0.val), width=1*2*sl, height=1*2*se0, edgecolor='green', fc='None', lw=2)
+    ellipse5_2sigma = Ellipse(xy=(ml.val, me0.val), width=2*2*sl, height=2*2*se0, edgecolor='cyan', fc='None', lw=2)
+    ellipse5_3sigma = Ellipse(xy=(ml.val, me0.val), width=3*2*sl, height=3*2*se0, edgecolor='blue', fc='None', lw=2)
+    axs[1,1].add_patch(ellipse5_1sigma)
+    axs[1,1].add_patch(ellipse5_2sigma)
+    axs[1,1].add_patch(ellipse5_3sigma)
+
+
+
+    ellipse6_1sigma = Ellipse(xy=(mr.val, ml.val), width=1*2*sr, height=1*2*sl, edgecolor='green', fc='None', lw=2)
+    ellipse6_2sigma = Ellipse(xy=(mr.val, ml.val), width=2*2*sr, height=2*2*sl, edgecolor='cyan', fc='None', lw=2)
+    ellipse6_3sigma = Ellipse(xy=(mr.val, ml.val), width=3*2*sr, height=3*2*sl, edgecolor='blue', fc='None', lw=2)
+    axs[2,0].add_patch(ellipse6_1sigma)
+    axs[2,0].add_patch(ellipse6_2sigma)
+    axs[2,0].add_patch(ellipse6_3sigma)
+
+    plt.subplots_adjust(wspace=0, hspace=0)
+
+
+
+    axs[0,0].axhline(y = 5.0, color = 'b', linestyle = '--') 
+    axs[0,0].axvline(x = -0.5, color = 'b', linestyle='--')
+
+    axs[1,0].axhline(y = 0.0, color = 'b', linestyle = '--') 
+    axs[1,0].axvline(x = -0.5, color = 'b', linestyle='--')
+
+
+    axs[2,0].axhline(y = 0.0, color = 'b', linestyle = '--') 
+    axs[2,0].axvline(x = -0.5, color = 'b', linestyle='--')
+
+    axs[0,1].axhline(y = 5.0, color = 'b', linestyle = '--') 
+    axs[0,1].axvline(x = 0.0, color = 'b', linestyle='--')
+
+
+    axs[1,1].axhline(y = 0.0, color = 'b', linestyle = '--') 
+    axs[1,1].axvline(x = 0.0, color = 'b', linestyle='--')
+
+    axs[0,2].axhline(y = 5.0, color = 'b', linestyle = '--') 
+    axs[0,2].axvline(x = 0.0, color = 'b', linestyle='--')
+
+    plt.savefig('EG_posterior.png', bbox_inches='tight')
+
+    plt.show()
 
 
 if __name__ == '__main__':

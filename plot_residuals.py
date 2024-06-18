@@ -1,6 +1,7 @@
 import nifty8 as ift
 import libs as Egf
 import numpy as np
+from nifty_cmaps import ncmap
 import matplotlib.pyplot as plt
 import matplotlib
 matplotlib.use('TkAgg')
@@ -156,52 +157,99 @@ def run_inference():
 
   
     samples = ift.ResidualSampleList.load('samples_posterior')
-    m, s = samples.sample_stat(sky_models['faraday_sky'])
-    fsamples = [s for s in samples.iterator(op=sky_models['faraday_sky'])]
-    
+
+    m, v = samples.sample_stat(sky_models['faraday_sky'])
 
     gal_rm_mock=implicit_response(m)
-    gal_rm_noise_mock=implicit_response(s)
+    gal_rm_var_mock=implicit_response(v)
 
     egal_rm_mock=explicit_response(m)
-    egal_rm_noise_mock=explicit_response(s)
+    egal_rm_var_mock=explicit_response(v)
 
 
-    gal_gal_residual=(gal_rm - gal_rm_mock)/gal_rm_noise_mock
-    print(gal_gal_residual.val.size)
-    print(np.array(np.where(gal_gal_residual.val>10)).size)
-    egal_gal_residual=(egal_rm - egal_rm_mock)/egal_rm_noise_mock
-    print(egal_gal_residual.val.size)
-    print(np.array(np.where(egal_gal_residual.val>1)).size)
+    gal_gal_residual=(gal_rm - gal_rm_mock)/gal_rm_var_mock.sqrt()
+    egal_gal_residual=(egal_rm - egal_rm_mock)/egal_rm_var_mock.sqrt()
 
 
 
 
-    fig, axs = plt.subplots(2, 2)
+    plo=ift.Plot()
+    plo.add(m, cmap=getattr(ncmap, 'fm')(), title='Mean', vmin=-45000, vmax=45000)
+    plo.add(v.sqrt(), cmap=getattr(ncmap, 'fu')(), title='Std', vmin=0.0, vmax=45000)
+    plo.add(implicit_response.adjoint(gal_gal_residual), cmap=getattr(ncmap, 'pm')(), vmin=-0.5, vmax=0.5, title='Gal Galactic residuals')
+    plo.add(explicit_response.adjoint(egal_gal_residual), cmap=getattr(ncmap, 'pm')(), vmin=-0.25, vmax=0.25, title='EG Galactic residulas')
+    plo.add(implicit_response.adjoint(gal_rm_var_mock.sqrt()), cmap=getattr(ncmap, 'pm')(), vmax=10000, title='Gal points Rec RM std')
+    plo.add(explicit_response.adjoint(egal_rm_var_mock.sqrt()), cmap=getattr(ncmap, 'pm')(), vmax=2500, title='EG points Rec RM std')
+    plo.output(nx=2, ny=3, xsize=2 * 4, ysize=3 * 4, name='Residuals_sky_distribution.png')
+
+
+    fig, axs = plt.subplots(3, 4)
     fig.tight_layout()
     axs[0,0].plot(gal_gal_residual.val, 'k.')
-    axs[1,0].plot(egal_gal_residual.val, 'k.')
+    axs[0,2].plot(egal_gal_residual.val, 'k.')
     axs[0,0].set_xlabel('Point number')
-    axs[0,0].set_ylabel('Galactic - Galactic residual')
-    axs[1,0].set_xlabel('Point number')
-    axs[1,0].set_ylabel('Extragalactic - Galactic residual')
+    axs[0,0].set_ylabel('Gal Galactic residual')
+    axs[0,2].set_xlabel('Point number')
+    axs[0,2].set_ylabel('EG Galactic residual')
 
     axs[0,1].hist(np.abs(gal_gal_residual.val),bins='auto', density=True)
-    axs[0,1].set_xlabel('Galactic - Galactic residual')
+    axs[0,1].set_xlabel('Gal Galactic residual')
+    axs[0,1].set_ylim(0,3)
     axs[0,1].set_xscale('log')
-    #axs[0,1].set_xlim(1e3, 1e12)
-    axs[1,1].hist(egal_gal_residual.val,bins='auto', density=True)
-    axs[1,1].set_xlabel('Extragalactic - Galactic residual')
-    axs[1,1].set_xscale('log')
-    #axs[1,1].set_xlim(1e-2, 1e12)
+    axs[0,3].hist(egal_gal_residual.val,bins='auto', density=True)
+    axs[0,3].set_xlabel('EG Galactic residual')
+    axs[0,3].set_xscale('log')
+    axs[0,3].set_xlim(1e-3, 1e1)
+
+    axs[1,0].scatter(gal_rm_var_mock.sqrt().val, gal_gal_residual.val)
+    axs[1,1].scatter(egal_rm_var_mock.sqrt().val, egal_gal_residual.val)
+    axs[1,0].set_xlabel('Rec uncertainty')
+    axs[1,0].set_xlim(-10,50000)
+    axs[1,1].set_xlim(-10,10000)
+    axs[1,0].set_ylabel('Gal Galactic residual')
+    axs[1,1].set_xlabel('Rec uncertainty')
+    axs[1,1].set_ylabel('EG Galactic residual')
+    axs[1,0].axvline(10000, color='red', linestyle='--')
+    axs[1,1].axvline(2500, color='red', linestyle='--')
+
+    axs[2,0].scatter(gal_stddev.val, gal_gal_residual.val)
+    axs[2,1].scatter(egal_stddev.val, egal_gal_residual.val)
+    axs[2,0].set_xlabel('Obs uncertainty')
+    axs[2,0].set_ylabel('Gal Galactic residual')
+    axs[2,1].set_xlabel('Obs uncertainty')
+    axs[2,1].set_ylabel('EG Galactic residual')
+    axs[2,1].set_xlim(-10,100)
+
+    axs[1,2].scatter((gal_rm - gal_rm_mock).val, gal_gal_residual.val)
+    axs[1,3].scatter((egal_rm - egal_rm_mock).val, egal_gal_residual.val)
+    axs[1,2].set_xlabel('Gal (Obs - Reconstr)')
+    axs[1,2].set_ylabel('Gal Galactic residual')
+    axs[1,3].set_xlabel('EG (Obs - Reconstr)')
+    axs[1,3].set_ylabel('EG Galactic residual')
+    axs[1,2].set_xlim(-10000,10000)
+    axs[1,3].set_xlim(-5000,5000)
+
+
+
+    axs[2,2].scatter(gal_rm_mock.val, gal_gal_residual.val)
+    axs[2,3].scatter(egal_rm_mock.val, egal_gal_residual.val)
+    axs[2,2].set_xlabel('Gal Reconstr')
+    axs[2,2].set_ylabel('Gal Galactic residual')
+    axs[2,2].set_xlim(-1000,1000)
+    axs[2,3].set_xlabel('EG Reconstr')
+    axs[2,3].set_ylabel('EG Galactic residual')
+    axs[2,3].set_xlim(-500,500)
+
 
 
     plt.tight_layout(pad=0.4, w_pad=0.5, h_pad=1.0)
-    plt.savefig('Residual_mock_case_a.png', bbox_inches='tight')
+
+    plt.savefig('Residual.png', bbox_inches='tight')
     plt.show()
 
 
 
+   
 if __name__ == '__main__':
     # print a RuntimeWarning  in case of underflows
     np.seterr(under='warn') 
