@@ -13,7 +13,7 @@ def run_inference():
 
     # load_the data, define domains, covariance and projection operators
 
-    data = Egf.get_rm(filter_pulsars=True, version='custom', default_error_level=0.5)
+    data = Egf.get_rm(filter_pulsars=True, version='custom_sim', default_error_level=0.5)
 
     # filter
     z_indices = ~np.isnan(data['z_best'])
@@ -144,7 +144,7 @@ def run_inference():
     power_models = {'log_profile': components['log_profile_amplitude'], 'sign': components['sign_amplitude']}
    
     #the value that we plot are indeed the values in the position field 
-    scatter_pairs = {'intrinsic': (ecomponents['chi_lum'], ecomponents['chi_int_0']),'environmental': (ecomponents['chi_red'], ecomponents['chi_env_0'])}
+    #scatter_pairs = {'intrinsic': (ecomponents['chi_lum'], ecomponents['chi_int_0']),'environmental': (ecomponents['chi_red'], ecomponents['chi_env_0'])}
 
     plotting_kwargs = {'faraday_sky': {'cmap': 'fm', 'cmap_stddev': 'fu', 
                                        'vmin_mean':'-250', 'vmax_mean':'250', 
@@ -155,7 +155,7 @@ def run_inference():
     Egf.minimization(n_global=Egf.config['params']['nglobal'], kl_type='SampledKLEnergy', plot_path=Egf.config['params']['plot_path'],
                      likelihoods={'implicit_likelihood': implicit_likelihood,
                                   'explicit_likelihood': explicit_likelihood},
-                     sky_maps=sky_models, power_spectra=power_models, scatter_pairs=scatter_pairs,
+                     sky_maps=sky_models, power_spectra=power_models, scatter_pairs=None,
                      plotting_kwargs=plotting_kwargs)
     
     likelihoods={'implicit_likelihood': implicit_likelihood, 'explicit_likelihood': explicit_likelihood}

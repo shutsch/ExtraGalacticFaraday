@@ -178,6 +178,7 @@ def sky_map_plotting(model, plot_obj, name, path, string=None, **kwargs):
         for sample in plot_obj:
             sc.add(model.force(sample))
         m = sc.mean
+        print(m.val)
     else:
         m = model.force(plot_obj)
     if 'cmap' in kwargs:

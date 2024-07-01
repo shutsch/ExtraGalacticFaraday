@@ -5,6 +5,49 @@ from nifty_cmaps import ncmap
 import matplotlib.pyplot as plt
 import matplotlib
 matplotlib.use('TkAgg')
+import os
+
+def sky_map_plotting(model, plot_obj, name, path, string=None, **kwargs):
+    if string is None:
+        string = ''
+    sky_path = path + 'sky/' + name + '/'
+    if not os.path.exists(sky_path):
+        os.makedirs(sky_path)
+    plot = ift.Plot()
+    if isinstance(plot_obj, list):
+        sc = ift.StatCalculator()
+        for sample in plot_obj:
+            sc.add(model.force(sample))
+        m = sc.mean
+        print(m.val)
+    else:
+        m = model.force(plot_obj)
+    if 'cmap' in kwargs:
+        try:
+            kwargs['cmap'] = getattr(ncmap, kwargs['cmap'])()
+            kwargs['vmin']= kwargs['vmin_mean']
+            kwargs['vmax']= kwargs['vmax_mean']
+        except AttributeError:
+            kwargs['cmap'] = getattr(cm, kwargs['cmap'])
+
+    plot.add(m, title="mean", **kwargs)
+    if len(plot_obj) > 1:
+        if 'cmap_stddev' in kwargs:
+            try:
+                kwargs['cmap'] = getattr(ncmap, kwargs['cmap_stddev'])()
+                kwargs['vmin']= kwargs['vmin_std']
+                kwargs['vmax']= kwargs['vmax_std']
+            except AttributeError:
+                kwargs['cmap'] = getattr(cm, kwargs['cmap_stddev'])
+        plot.add(ift.sqrt(sc.var), **kwargs, title='std')
+    if len(plot_obj) == 1:
+        nx = 1
+        ny = len(plot._plots)
+    else:
+        nx = 2
+        ny = int(len(plot._plots) / 2)
+    plot.output(nx=nx, ny=ny, xsize=2 * 12, ysize=ny * 12, name='Sebastian_' + name + '_' + string + ".png")
+
 
 def run_inference():
     
@@ -156,9 +199,28 @@ def run_inference():
                        'environmental': {'x_label': 'chi_red', 'y_label': 'sigma_env_0'}}
 
   
-    samples = ift.ResidualSampleList.load('samples_posterior')
+    samples = ift.ResidualSampleList.load('/home/valentina/Documents/PROJECTS/BAYESIAN_CODE/DEFROST_LAST/ExtraGalacticFaraday/runs/demo/results/pickle/last')
+
+
+
+    #sky_maps= sky_models
+    #plot_path="."
+
+    #_localParams = {
+    #    'sky_maps':sky_maps,
+    #    'plotting_kwargs':plotting_kwargs,
+    #    'plot_path': plot_path,
+
+    #}
+
+    #for sky_name, sky in _localParams['sky_maps'].items():
+    #        sky_map_plotting(sky, [s for s in samples.iterator()], sky_name, _localParams['plot_path'], 
+    #                            **_localParams['plotting_kwargs'].get(sky_name, {}))
+
+
 
     m, v = samples.sample_stat(sky_models['faraday_sky'])
+    print(m.val)
 
     gal_rm_mock=implicit_response(m)
     gal_rm_var_mock=implicit_response(v)
@@ -174,13 +236,13 @@ def run_inference():
 
 
     plo=ift.Plot()
-    plo.add(m, cmap=getattr(ncmap, 'fm')(), title='Mean', vmin=-45000, vmax=45000)
-    plo.add(v.sqrt(), cmap=getattr(ncmap, 'fu')(), title='Std', vmin=0.0, vmax=45000)
-    plo.add(implicit_response.adjoint(gal_gal_residual), cmap=getattr(ncmap, 'pm')(), vmin=-0.5, vmax=0.5, title='Gal Galactic residuals')
-    plo.add(explicit_response.adjoint(egal_gal_residual), cmap=getattr(ncmap, 'pm')(), vmin=-0.25, vmax=0.25, title='EG Galactic residulas')
-    plo.add(implicit_response.adjoint(gal_rm_var_mock.sqrt()), cmap=getattr(ncmap, 'pm')(), vmax=10000, title='Gal points Rec RM std')
-    plo.add(explicit_response.adjoint(egal_rm_var_mock.sqrt()), cmap=getattr(ncmap, 'pm')(), vmax=2500, title='EG points Rec RM std')
-    plo.output(nx=2, ny=3, xsize=2 * 4, ysize=3 * 4, name='Residuals_sky_distribution.png')
+    plo.add(m, cmap=getattr(ncmap, 'fm')(), title='Mean', vmin=-250, vmax=250)
+    # plo.add(v.sqrt(), cmap=getattr(ncmap, 'fu')(), title='Std', vmin=0.0, vmax=45000)
+    # plo.add(implicit_response.adjoint(gal_gal_residual), cmap=getattr(ncmap, 'pm')(), vmin=-0.5, vmax=0.5, title='Gal Galactic residuals')
+    # plo.add(explicit_response.adjoint(egal_gal_residual), cmap=getattr(ncmap, 'pm')(), vmin=-0.25, vmax=0.25, title='EG Galactic residulas')
+    # plo.add(implicit_response.adjoint(gal_rm_var_mock.sqrt()), cmap=getattr(ncmap, 'pm')(), vmax=10000, title='Gal points Rec RM std')
+    # plo.add(explicit_response.adjoint(egal_rm_var_mock.sqrt()), cmap=getattr(ncmap, 'pm')(), vmax=2500, title='EG points Rec RM std')
+    plo.output(nx=2, ny=3, xsize=2 * 4, ysize=3 * 4)#, name='Residuals_sky_distribution.png')
 
 
     fig, axs = plt.subplots(3, 4)

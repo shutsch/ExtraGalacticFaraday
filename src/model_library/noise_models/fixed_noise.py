@@ -15,4 +15,5 @@ class StaticNoise(Model):
     def set_model(self):
         if self.inverse:
             self._model = ift.makeOp(self.noise_cov**(-1),sampling_dtype=float)
-        self._model = ift.makeOp(self.noise_cov,sampling_dtype=float)
+        else:
+            self._model = ift.makeOp(self.noise_cov,sampling_dtype=float)

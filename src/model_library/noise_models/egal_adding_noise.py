@@ -19,5 +19,6 @@ class EgalAddingNoise(Model):
         egal_op = ift.Adder(self.egal_var)
         if self.inverse:
             self._model = (egal_op @ self.emodel).reciprocal()
-        self._model = egal_op @ self.emodel
+        else:
+            self._model = egal_op @ self.emodel
         
