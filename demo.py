@@ -18,10 +18,10 @@ def run_inference():
     # filter
     z_indices = ~np.isnan(data['z_best'])
 
-    egal_rm = np.array(data['rm'][z_indices])
-    egal_stddev = np.array(data['rm_err'][z_indices])
-    egal_z = np.array(data['z_best'][z_indices])
-    egal_L = np.array(data['stokesI'][z_indices])
+    e_rm = np.array(data['rm'][z_indices])
+    e_stddev = np.array(data['rm_err'][z_indices])
+    e_z = np.array(data['z_best'][z_indices])
+    e_F = np.array(data['stokesI'][z_indices])
 
     # set the sky model hyper-parameters and initialize the Faraday 2020 sky model
     #new parameters given by Sebastian
@@ -46,18 +46,14 @@ def run_inference():
                                                        'sign_parameters': sign_params})
 
 
-    egal_data_domain = ift.makeDomain(ift.UnstructuredDomain((len(egal_rm),)))
+    egal_data_domain = ift.makeDomain(ift.UnstructuredDomain((len(e_rm),)))
 
-    egal_rm = ift.Field(egal_data_domain, egal_rm)
-    egal_stddev = ift.Field(egal_data_domain, egal_stddev)
+    egal_rm = ift.Field(egal_data_domain, e_rm)
+    egal_stddev = ift.Field(egal_data_domain, e_stddev)
     
-
-    
-
     # build the full model and connect it to the likelihood
     # set the extra-galactic model hyper-parameters and initialize the model
-    egal_model_params = {'z': egal_z,'L': egal_L, 
-         }
+    egal_model_params = {'z': e_z, 'F': e_F }
       
     emodel = Egf.ExtraGalDemoModel(egal_data_domain, egal_model_params)
 
@@ -81,38 +77,38 @@ def run_inference():
 
       
     #if we are not interested in the RM but only in its sigma we do not need to include the Rm in the following line
-    egal_model = explicit_response @ galactic_model.get_model()
+    explicit_model = explicit_response @ galactic_model.get_model()
     #egal_model = explicit_response @ galactic_model.get_model() + emodel.get_model()
-    residual = ift.Adder(-egal_rm) @ egal_model
-    #we need to use the VariableCovarianceGaussianEnerg instead than the GaussianEnergy because the variance (that now
-    #includes the eg part that now we are fitting) is varying, is not anymore a costant. When we will include the 
-    #correlated eg component we will need to use again the GaussianEnergy. 
+    residual = ift.Adder(-egal_rm) @ explicit_model
+    
     new_dom = ift.MultiDomain.make({'icov': egal_inverse_noise.target, 'residual': residual.target})
     n_res = ift.FieldAdapter(new_dom, 'icov')(egal_inverse_noise) + \
         ift.FieldAdapter(new_dom, 'residual')(residual)
+    
+    #we need to use the VariableCovarianceGaussianEnerg instead than the GaussianEnergy because the variance (that now
+    #includes the eg part that now we are fitting) is varying, is not anymore a costant. When we will include the 
+    #correlated eg component we will need to use again the GaussianEnergy. 
     explicit_likelihood = ift.VariableCovarianceGaussianEnergy(domain=egal_data_domain, residual_key='residual',
                                                                inverse_covariance_key='icov',
                                                                sampling_dtype=np.dtype(np.float64)) @ n_res
     
 
-    gal_rm = np.array(data['rm'][~z_indices])
-    gal_stddev = np.array(data['rm_err'][~z_indices])
+    g_rm = np.array(data['rm'][~z_indices])
+    g_stddev = np.array(data['rm_err'][~z_indices])
 
-  
-    gal_data_domain = ift.makeDomain(ift.UnstructuredDomain((len(gal_rm),)))
+    gal_data_domain = ift.makeDomain(ift.UnstructuredDomain((len(g_rm),)))
 
-    gal_rm = ift.Field(gal_data_domain, gal_rm)
-    gal_stddev = ift.Field(gal_data_domain, gal_stddev)
+    gal_rm = ift.Field(gal_data_domain, g_rm)
+    gal_stddev = ift.Field(gal_data_domain, g_stddev)
 
     implicit_response = Egf.SkyProjector(theta=data['theta'][~z_indices],
                                          phi=data['phi'][~z_indices],
                                          domain=sky_domain, target=gal_data_domain)
 
 
-    alpha = 2.5
 
     # Possible all sky variation of alpha, requires pygedm package 
-    
+    #alpha = 2.5
     #log_ymw = np.log(Egf.load_ymw_sky('./data/', nside=Egf.config['params']['nside'], model='ymw16', mode='mc'))
     #log_ymw /= log_ymw.min()
     #log_ymw *= 5
@@ -144,34 +140,26 @@ def run_inference():
     power_models = {'log_profile': components['log_profile_amplitude'], 'sign': components['sign_amplitude']}
    
     #the value that we plot are indeed the values in the position field 
-    #scatter_pairs = {'intrinsic': (ecomponents['chi_lum'], ecomponents['chi_int_0']),'environmental': (ecomponents['chi_red'], ecomponents['chi_env_0'])}
+    scatter_pairs = {'intrinsic': (ecomponents['chi_lum'], ecomponents['chi_int_0']),'environmental': (ecomponents['chi_red'], ecomponents['chi_env_0'])}
 
     plotting_kwargs = {'faraday_sky': {'cmap': 'fm', 'cmap_stddev': 'fu', 
                                        'vmin_mean':'-250', 'vmax_mean':'250', 
                                        'vmin_std':'0', 'vmax_std':'80'},
                        'intrinsic': {'x_label': 'chi_lum', 'y_label': 'sigma_int_0'},
                        'environmental': {'x_label': 'chi_red', 'y_label': 'sigma_env_0'}}
-
-    Egf.minimization(n_global=Egf.config['params']['nglobal'], kl_type='SampledKLEnergy', plot_path=Egf.config['params']['plot_path'],
-                     likelihoods={'implicit_likelihood': implicit_likelihood,
-                                  'explicit_likelihood': explicit_likelihood},
-                     sky_maps=sky_models, power_spectra=power_models, scatter_pairs=None,
-                     plotting_kwargs=plotting_kwargs)
     
     likelihoods={'implicit_likelihood': implicit_likelihood, 'explicit_likelihood': explicit_likelihood}
-    likelihood_energy=ift.utilities.my_sum(likelihoods.values())
-    ic_sampling=ift.AbsDeltaEnergyController(name="Sampler", deltaE=Egf.config['controllers']['sampler']['deltaE'], iteration_limit=Egf.config['controllers']['sampler']['n'])
-    latent_posterior_mean = ift.ResidualSampleList.load_mean('./runs/demo/results/pickle/last')
-    n_samples_new=100
-    ham=ift.StandardHamiltonian(likelihood_energy, ic_sampling)
-    e=ift.SampledKLEnergy(latent_posterior_mean, ham, n_samples_new, minimizer_sampling=None, constants=[], point_estimates=[])
-    samples=e.samples.at(latent_posterior_mean)
-    samples.save('samples_posterior', overwrite=True)  
+
+    Egf.minimization(n_global=Egf.config['params']['nglobal'], kl_type='SampledKLEnergy', plot_path=Egf.config['params']['plot_path'],
+                     likelihoods=likelihoods,
+                     sky_maps=sky_models, power_spectra=power_models, scatter_pairs=scatter_pairs,
+                     plotting_kwargs=plotting_kwargs)
+    
+
 
 
 if __name__ == '__main__':
     # print a RuntimeWarning  in case of underflows
-    np.seterr(under='warn') 
     np.seterr(all='raise')
     # set seed
     seed = 1000

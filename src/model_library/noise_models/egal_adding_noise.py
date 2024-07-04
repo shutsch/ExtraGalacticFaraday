@@ -6,12 +6,10 @@ from ..Model import Model
 
 class EgalAddingNoise(Model):
 
-    def __init__(self, target_domain, noise_params, name='', inverse=False):
+    def __init__(self, target_domain, noise_params, inverse=False):
         self.inverse = inverse
         self.egal_var = noise_params['egal_var']
         self.emodel = noise_params['emodel']
-
-        self.name = name if name == '' else '_' + name
 
         super().__init__(target_domain)
 

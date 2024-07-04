@@ -11,7 +11,7 @@ class ExtraGalDemoModel(Model):
     def __init__(self, target_domain, args):
 
         self.z = args['z']
-        self.L = args['L']
+        self.F = args['F']
 
         
         super().__init__(target_domain)
@@ -25,11 +25,23 @@ class ExtraGalDemoModel(Model):
         #chi_lum = InverseGammaOperator(self.target_domain, self.alpha, self.q) @ ift.FieldAdapter(self.target_domain, 'chi_lum')
              
 
+        multiply_sigma_lum = ift.makeOp(ift.full(ift.DomainTuple.scalar_domain(), 0.5), sampling_dtype=float)
+        multiply_sigma_int = ift.makeOp(ift.full(ift.DomainTuple.scalar_domain(), 0.5), sampling_dtype=float)
+        multiply_sigma_red = ift.makeOp(ift.full(ift.DomainTuple.scalar_domain(), 0.5), sampling_dtype=float)
+        multiply_sigma_env = ift.makeOp(ift.full(ift.DomainTuple.scalar_domain(), 0.5), sampling_dtype=float)
+        add_mu_int = ift.Adder(ift.full(ift.DomainTuple.scalar_domain(), 5.0))
+        add_mu_red = ift.Adder(ift.full(ift.DomainTuple.scalar_domain(), -0.5))
+        
+        chi_env_0 = multiply_sigma_env @ ift.FieldAdapter(ift.DomainTuple.scalar_domain(), 'chi_env_0')
+        chi_red = add_mu_red @ multiply_sigma_red @ ift.FieldAdapter(ift.DomainTuple.scalar_domain(), 'chi_red') 
+        chi_int_0 = add_mu_int @ multiply_sigma_int @ ift.FieldAdapter(ift.DomainTuple.scalar_domain(), 'chi_int_0') 
+        chi_lum = multiply_sigma_lum @ ift.FieldAdapter(ift.DomainTuple.scalar_domain(), 'chi_lum')
 
-        chi_int_0=ift.FieldAdapter(ift.DomainTuple.scalar_domain(), 'chi_int_0')
-        chi_lum=ift.FieldAdapter(ift.DomainTuple.scalar_domain(), 'chi_lum')
-        chi_env_0=ift.FieldAdapter(ift.DomainTuple.scalar_domain(), 'chi_env_0')
-        chi_red=ift.FieldAdapter(ift.DomainTuple.scalar_domain(), 'chi_red')
+
+        #chi_int_0=ift.FieldAdapter(ift.DomainTuple.scalar_domain(), 'chi_int_0')
+        #chi_lum=ift.FieldAdapter(ift.DomainTuple.scalar_domain(), 'chi_lum')
+        #chi_env_0=ift.FieldAdapter(ift.DomainTuple.scalar_domain(), 'chi_env_0')
+        #chi_red=ift.FieldAdapter(ift.DomainTuple.scalar_domain(), 'chi_red')
         
         
         
@@ -49,7 +61,7 @@ class ExtraGalDemoModel(Model):
 
         multiply_z = ift.makeOp(ift.Field(self.target_domain, 1./(1+self.z)**4),sampling_dtype=float)
 
-        multiply_L = ift.makeOp(ift.Field(self.target_domain, np.log(self.L*4*m.pi*Dl**2*factor/L0)),sampling_dtype=float)
+        multiply_L = ift.makeOp(ift.Field(self.target_domain, np.log(self.F*4*m.pi*Dl**2*factor/L0)),sampling_dtype=float)
 
 
         expander_chi = ift.VdotOperator(ift.full(self.target_domain, 1.)).adjoint
@@ -81,7 +93,7 @@ class ExtraGalDemoModel(Model):
         add_4 = ift.Adder(ift.full(full_domain, 4))
         multiply_1pz = ift.makeOp(z_grid.log(), sampling_dtype=float)
         fact3 = (multiply_1pz @ add_4 @ expander @ expander_chi @ chi_red).exp()  # expander maps chi_red on the full domain
-        fact4 = ift.makeOp((light_speed/(H0*(Wm*z_grid**3+Wc*z_grid**2 +Wl)**0.5)*1/D0),sampling_dtype=float)
+        fact4 = ift.makeOp(((light_speed/(H0*(Wm*z_grid**3+Wc*z_grid**2 +Wl)**0.5))*(1/D0)),sampling_dtype=float)
 
         fact5 = fact4 @ fact3
 

@@ -131,12 +131,14 @@ def minimization(likelihoods, kl_type, n_global, plot_path, sky_maps=None, power
 
     position = 0.1*ift.from_random(likelihood.domain)
 
-    
-    #constants = lambda i: ['chi_lum', 'chi_int_0', 'chi_red', 'chi_env_0'] if i<20 \
+    n_samples= lambda i: get_n_samples(sample_parameters, 0, False) if i< Egf.config['params']['nglobal']-1 \
+        else 100
+
+    #constants = lambda i: ['chi_lum', 'chi_int_0', 'chi_red', 'chi_env_0'] if i<10 \
     #    else ( ['log_profile_flexibility', 'log_profile_fluctuations', 'log_profile_loglogavgslope', 'log_profile_spectrum', 'log_profile_xi', 'log_profile_zeromode', 'sign_flexibility', 'sign_fluctuations', 'sign_loglogavgslope', 'sign_spectrum', 'sign_xi', 'sign_zeromode'] if 20<=i<40 \
     #        else [])
 
-    #point_estimates = lambda i: ['chi_lum', 'chi_int_0', 'chi_red', 'chi_env_0'] if i<20 \
+    #point_estimates = lambda i: ['chi_lum', 'chi_int_0', 'chi_red', 'chi_env_0'] if i<10 \
     #    else (['log_profile_flexibility', 'log_profile_fluctuations', 'log_profile_loglogavgslope', 'log_profile_spectrum', 'log_profile_xi', 'log_profile_zeromode', 'sign_flexibility', 'sign_fluctuations', 'sign_loglogavgslope', 'sign_spectrum', 'sign_xi', 'sign_zeromode'] if 10<=i<40 \
     #        else [])
     
@@ -146,8 +148,8 @@ def minimization(likelihoods, kl_type, n_global, plot_path, sky_maps=None, power
         total_iterations=n_global,
         #constants=constants,
         #point_estimates=point_estimates,
-        n_samples=get_n_samples(sample_parameters, 0, False),
-        #n_samples = n_samples,
+        #n_samples=get_n_samples(sample_parameters, 0, False),
+        n_samples = n_samples,
         kl_minimizer=ift.NewtonCG(controllers['Minimizer']),
         sampling_iteration_controller=controllers['Sampler'],
         nonlinear_sampling_minimizer=None,
