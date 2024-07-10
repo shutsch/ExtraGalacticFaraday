@@ -13,7 +13,7 @@ class ExtraGalDemoModel(Model):
     def __init__(self, target_domain, args):
 
         self.z = args['z']
-        self.L = args['L']
+        self.F = args['F']
 
         
         super().__init__(target_domain)
