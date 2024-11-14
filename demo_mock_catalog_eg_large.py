@@ -75,8 +75,8 @@ def run_inference():
 
     o_projector = Egf.SkyProjector(ift.makeDomain(ift.HPSpace(256)), ift.makeDomain(ift.UnstructuredDomain(len(theta_o))), theta=theta_o, phi=phi_o)
 
-    o_rm_gal_data = o_projector(rm_gal)
-    #o_rm_gal_data = o_projector(b) #whitouth disk
+    #o_rm_gal_data = o_projector(rm_gal)
+    o_rm_gal_data = o_projector(b) #whitouth disk
 
 
 
@@ -97,12 +97,12 @@ def run_inference():
 
     p_d = egal_mock_position.to_dict() 
 
-    #p_d['chi_int_0'] = ift.full(p_d['chi_int_0'].domain, 0.0)
-    #p_d['chi_env_0'] = ift.full(p_d['chi_env_0'].domain, 0.0)
-    #p_d['chi_lum'] = ift.full(p_d['chi_lum'].domain, 0.0)
-    #p_d['chi_red'] = ift.full(p_d['chi_red'].domain, 0.0)
+    p_d['chi_int_0'] = ift.full(p_d['chi_int_0'].domain, 0.0)
+    p_d['chi_env_0'] = ift.full(p_d['chi_env_0'].domain, 0.0)
+    p_d['chi_lum'] = ift.full(p_d['chi_lum'].domain, 0.0)
+    p_d['chi_red'] = ift.full(p_d['chi_red'].domain, 0.0)
 
-    p_d['chi1'] = ift.full(p_d['chi1'].domain, 0.0)
+    #p_d['chi1'] = ift.full(p_d['chi1'].domain, 0.0)
 
     egal_mock_position = egal_mock_position.from_dict(p_d)
 
@@ -125,9 +125,9 @@ def run_inference():
 
     #Plot 1
     plot = ift.Plot()
-    plot.add(o_projector.adjoint(o_rm_gal_data), vmin=-250, vmax=250)
-    plot.add(o_projector.adjoint(noised_rm_data), vmin=-250, vmax=250)
-    plot.add(rm_gal, vmin=-250, vmax=250)
+    plot.add(o_projector.adjoint(o_rm_gal_data), vmin=-0.25, vmax=0.25)
+    plot.add(o_projector.adjoint(noised_rm_data), vmin=-0.25, vmax=0.25)
+    plot.add(b, vmin=-10, vmax=10)
     plot.output()
 
     #Plot 2
@@ -150,7 +150,7 @@ def run_inference():
     hdu= fits.open('/home/valentina/Documents/PROJECTS/BAYESIAN_CODE/DEFROST_LAST/ExtraGalacticFaraday/data/Faraday/catalog_versions/master_catalog_vercustom.fits')
     hdu[1].data['rm'][np.where(hdu[1].data['type']!='Pulsar')] = np.array(noised_rm_data.val)
     hdu[1].data['rm_err'][np.where(hdu[1].data['type']!='Pulsar')] =  noise*np.ones(np.array(noised_rm_data.val).size)
-    hdu.writeto('/home/valentina/Documents/PROJECTS/BAYESIAN_CODE/DEFROST_LAST/ExtraGalacticFaraday/data/Faraday/catalog_versions/master_catalog_vercustom_eg_large.fits', overwrite=True)
+    #hdu.writeto('/home/valentina/Documents/PROJECTS/BAYESIAN_CODE/DEFROST_LAST/ExtraGalacticFaraday/data/Faraday/catalog_versions/master_catalog_vercustom_no_eg.fits', overwrite=True)
     hdu.close()
 
     

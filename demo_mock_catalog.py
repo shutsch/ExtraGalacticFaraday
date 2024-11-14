@@ -17,7 +17,7 @@ def run_inference():
 
     # load_the data, define domains, covariance and projection operators
 
-    data = Egf.get_rm(filter_pulsars=True, version='custom_sim', default_error_level=0.5)
+    data = Egf.get_rm(filter_pulsars=True, version='custom', default_error_level=0.5)
 
     # filter
     z_indices = ~np.isnan(data['z_best'])
@@ -194,7 +194,7 @@ def run_inference():
 
     #Plot 1
     plot = ift.Plot()
-    plot.add(overall_response.adjoint(o_rm_gal_data), vmin=-250, vmax=250)
+    plot.add(overall_response.adjoint(o_rm_gal_data), vmin=-20e3, vmax=20e3)
     plot.add(overall_response.adjoint(noised_rm_data), vmin=min(sign.val)-10, vmax=max(sign.val)+10)
     plot.add(sign, vmin=min(sign.val)-1, vmax=max(sign.val)+1)
     plot.add(profile, vmin=min(profile.val)-1, vmax=max(profile.val)+1)
@@ -217,11 +217,11 @@ def run_inference():
     data['rm'] = np.array(noised_rm_data.val)
     data['rm_err'] =  noise*np.ones(np.array(noised_rm_data.val).size)
     
-    #hdu= fits.open('/home/valentina/Documents/PROJECTS/BAYESIAN_CODE/DEFROST_LAST/ExtraGalacticFaraday/data/Faraday/catalog_versions/master_catalog_vercustom.fits')
-    #hdu[1].data['rm'][np.where(hdu[1].data['type']!='Pulsar')] = np.array(noised_rm_data.val)
-    #hdu[1].data['rm_err'][np.where(hdu[1].data['type']!='Pulsar')] =  noise*np.ones(np.array(noised_rm_data.val).size)
+    hdu= fits.open('/home/valentina/Documents/PROJECTS/BAYESIAN_CODE/DEFROST_LAST/ExtraGalacticFaraday/data/Faraday/catalog_versions/master_catalog_vercustom.fits')
+    hdu[1].data['rm'][np.where(hdu[1].data['type']!='Pulsar')] = np.array(noised_rm_data.val)
+    hdu[1].data['rm_err'][np.where(hdu[1].data['type']!='Pulsar')] =  noise*np.ones(np.array(noised_rm_data.val).size)
     #hdu.writeto('/home/valentina/Documents/PROJECTS/BAYESIAN_CODE/DEFROST_LAST/ExtraGalacticFaraday/data/Faraday/catalog_versions/master_catalog_vercustom_prior.fits', overwrite=True)
-    #hdu.close()
+    hdu.close()
 
     
 
@@ -231,6 +231,6 @@ if __name__ == '__main__':
     # print a RuntimeWarning  in case of underflows
     np.seterr(all='raise')
     # set seed
-    seed = 40
+    seed = 10 #630 #450
     ift.random.push_sseq_from_seed(seed)
     run_inference()
