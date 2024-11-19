@@ -1,13 +1,18 @@
 import nifty8 as ift
+
+from .logger import logger, Format
+
 from .minimization_helpers import get_controller, get_n_samples
 from .plot.plot import sky_map_plotting, power_plotting, energy_plotting, scatter_plotting_posterior
 import libs as Egf
 
 _localParams = []
 _controllerParameters = {}
+_controllers = {}
 
 
 def plot_cb(latest_sample_list, i):
+    logger.info(f"NSAMPLES: {len(latest_sample_list)}")
     latest_mean = latest_sample_list.average()
     
     energy_dict = {key: list() for key in _localParams['likelihoods']}
@@ -40,6 +45,14 @@ def plot_cb(latest_sample_list, i):
     #                 for key, controller_dict in _controllerParameters.items()}
 
     # position = latest_mean
+
+def get_minimizer(i):
+    if i<100: 
+        # logger.info(f"Using GAL minimizer it. {i}")
+        return ift.NewtonCG(_controllers['Minimizer'])  
+    else:
+        # logger.info(f"Using EGAL minimizer it. {i}")
+        return ift.NewtonCG(_controllers['Minimizer_eg'])
 
 
 def minimization(likelihoods, kl_type, n_global, plot_path, sky_maps=None, power_spectra=None, scatter_pairs=None,
@@ -102,6 +115,26 @@ def minimization(likelihoods, kl_type, n_global, plot_path, sky_maps=None, power
              'controller_params': {'deltaE': Egf.config['controllers']['minimizer']['deltaE'],
                                    'convergence_level': Egf.config['controllers']['minimizer']['convergence_level']} #maybe at 2
              },
+        'Sampler_eg':
+            {'n': Egf.config['controllers']['sampler_eg']['n'],
+             'type': 'AbsDeltaEnergy',
+             'change_params': {'n_final': Egf.config['controllers']['sampler_eg']['n_final'],
+                               'increase_step': Egf.config['controllers']['sampler_eg']['increase_step'],
+                               'increase_rate': Egf.config['controllers']['sampler_eg']['increase_rate']
+                               },
+             'controller_params': {'deltaE': Egf.config['controllers']['sampler_eg']['deltaE'],
+                                   'convergence_level': Egf.config['controllers']['sampler_eg']['convergence_level']}
+             },
+        'Minimizer_eg':
+            {'n': Egf.config['controllers']['minimizer_eg']['n'],
+             'type': 'AbsDeltaEnergy',
+             'change_params': {'n_final': Egf.config['controllers']['minimizer_eg']['n_final'],
+                               'increase_step': Egf.config['controllers']['minimizer_eg']['increase_step'],
+                               'increase_rate': Egf.config['controllers']['minimizer_eg']['increase_rate']
+                               },
+             'controller_params': {'deltaE': Egf.config['controllers']['minimizer_eg']['deltaE'],
+                                   'convergence_level': Egf.config['controllers']['minimizer_eg']['convergence_level']} #maybe at 2
+             },
         'Minimizer_Samples':
             {'n': Egf.config['controllers']['minimizer_samples']['n'],
              'type': 'AbsDeltaEnergy',
@@ -123,6 +156,8 @@ def minimization(likelihoods, kl_type, n_global, plot_path, sky_maps=None, power
 
     controllers = {key: get_controller(controller_dict, 0, False, key)
                    for key, controller_dict in controller_parameters.items()}
+    global _controllers
+    _controllers = controllers
 
     # build the  likelihood
     likelihood = ift.utilities.my_sum(likelihoods.values())
@@ -134,30 +169,33 @@ def minimization(likelihoods, kl_type, n_global, plot_path, sky_maps=None, power
     n_samples= lambda i: get_n_samples(sample_parameters, 0, False) if i< Egf.config['params']['nglobal']-1 \
         else 100
 
-    #constants = lambda i: ['chi_lum', 'chi_int_0', 'chi_red', 'chi_env_0'] if i<10 \
-    #    else ( ['log_profile_flexibility', 'log_profile_fluctuations', 'log_profile_loglogavgslope', 'log_profile_spectrum', 'log_profile_xi', 'log_profile_zeromode', 'sign_flexibility', 'sign_fluctuations', 'sign_loglogavgslope', 'sign_spectrum', 'sign_xi', 'sign_zeromode'] if 20<=i<40 \
-    #        else [])
 
-    #point_estimates = lambda i: ['chi_lum', 'chi_int_0', 'chi_red', 'chi_env_0'] if i<10 \
-    #    else (['log_profile_flexibility', 'log_profile_fluctuations', 'log_profile_loglogavgslope', 'log_profile_spectrum', 'log_profile_xi', 'log_profile_zeromode', 'sign_flexibility', 'sign_fluctuations', 'sign_loglogavgslope', 'sign_spectrum', 'sign_xi', 'sign_zeromode'] if 10<=i<40 \
-    #        else [])
+    constants = lambda i: [] if i<100 \
+        else ( ['log_profile_flexibility', 'log_profile_fluctuations', 'log_profile_loglogavgslope', 'log_profile_spectrum', 'log_profile_xi', 'log_profile_zeromode', 'sign_flexibility', 'sign_fluctuations', 'sign_loglogavgslope', 'sign_spectrum', 'sign_xi', 'sign_zeromode'])
+
+    point_estimates = lambda i: [] if i<100 \
+        else (['log_profile_flexibility', 'log_profile_fluctuations', 'log_profile_loglogavgslope', 'log_profile_spectrum', 'log_profile_xi', 'log_profile_zeromode', 'sign_flexibility', 'sign_fluctuations', 'sign_loglogavgslope', 'sign_spectrum', 'sign_xi', 'sign_zeromode'])
     
+    # get_minimizer = lambda i : ift.NewtonCG(controllers['Minimizer']) if i<100 else ift.NewtonCG(controllers['Minimizer_eg'])
+    get_sampler = lambda i : controllers['Sampler'] if i<100 else controllers['Sampler_eg']
+
+   
     op_output = {}
     sample_list, mean = ift.optimize_kl(
         likelihood_energy=likelihood,
         total_iterations=n_global,
-        #constants=constants,
-        #point_estimates=point_estimates,
-        #n_samples=get_n_samples(sample_parameters, 0, False),
+        constants=constants,
+        point_estimates=point_estimates,
         n_samples = n_samples,
-        kl_minimizer=ift.NewtonCG(controllers['Minimizer']),
-        sampling_iteration_controller=controllers['Sampler'],
+        kl_minimizer=get_minimizer,
+        sampling_iteration_controller=get_sampler,
         nonlinear_sampling_minimizer=None,
         export_operator_outputs=op_output,
         initial_position=position,
         return_final_position=True,
         inspect_callback=plot_cb,
-        output_directory='./runs/demo/results/'
+        output_directory='./runs/demo/results/',
+        resume=True
         #dry_run=False
         )
 
