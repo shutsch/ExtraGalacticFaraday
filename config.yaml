@@ -1,5 +1,5 @@
 params:
-  nside: 256
+  nside: 128
   nglobal: 200
   plot_path: "./runs/demo/"
 
@@ -18,8 +18,8 @@ controllers:
   sampler:
     n: 500
     n_final: 500
-    increase_step: "None"
-    increase_rate: "None"
+    increase_step: 10
+    increase_rate: 1.7
     deltaE: 1.0e-07
     convergence_level: 2
   
