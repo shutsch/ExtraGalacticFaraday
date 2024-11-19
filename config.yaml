@@ -1,5 +1,5 @@
 params:
-  nside: 128
+  nside: 256
   nglobal: 200
   plot_path: "./runs/demo/"
 
