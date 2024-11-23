@@ -34,9 +34,9 @@ controllers:
   sampler_eg:
     n: 500
     n_final: 500
-    increase_step: "None"
-    increase_rate: "None"
-    deltaE: 1.0e-20
+    increase_step: 10
+    increase_rate: 1.7
+    deltaE: 1.0e-7
     convergence_level: 2
   
   minimizer_eg:

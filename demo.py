@@ -13,7 +13,7 @@ def run_inference():
 
     # load_the data, define domains, covariance and projection operators
 
-    data = Egf.get_rm(filter_pulsars=True, version='custom', default_error_level=0.5)
+    data = Egf.get_rm(filter_pulsars=True, version='custom_eg_large_four_param', default_error_level=0.5)
 
     # filter
     z_indices = ~np.isnan(data['z_best'])

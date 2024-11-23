@@ -161,6 +161,7 @@ cython_debug/
 
 #Custom files/folders	
 runs/
+runs_gal/
 data/Faraday/
 
 output_chi.txt
