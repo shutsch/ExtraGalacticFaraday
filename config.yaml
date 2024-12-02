@@ -2,7 +2,7 @@ params:
   nside: 256
   nglobal: 200
   plot_path: "./runs/demo/"
-  results_path: "./runs/demo/results/"
+  results_path: "./runs/demo/results_zero_centered_prior/"
 
 file_params:
   fits_file_path: "data/Faraday/catalog_versions/master_catalog_ver"
