@@ -194,7 +194,8 @@ def minimization(likelihoods, kl_type, n_global, plot_path, sky_maps=None, power
         initial_position=position,
         return_final_position=True,
         inspect_callback=plot_cb,
-        output_directory='./runs/demo/results/',
+        #output_directory='./runs/demo/results/',
+        output_directory=Egf.config['params']['results_path'],
         resume=True
         #dry_run=False
         )
