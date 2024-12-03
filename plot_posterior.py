@@ -1,10 +1,6 @@
 import nifty8 as ift
 import libs as Egf
 import numpy as np
-from matplotlib.patches import Ellipse
-import matplotlib.pyplot as plt
-import matplotlib
-matplotlib.use('TkAgg')
 
 
 def run_inference():
@@ -17,15 +13,15 @@ def run_inference():
 
     # load_the data, define domains, covariance and projection operators
 
-    data = Egf.get_rm(filter_pulsars=True, version='custom', default_error_level=0.5)
+    data = Egf.get_rm(filter_pulsars=True, version='custom_eg_large_four_param', default_error_level=0.5)
 
     # filter
     z_indices = ~np.isnan(data['z_best'])
 
-    egal_rm = np.array(data['rm'][z_indices])
-    egal_stddev = np.array(data['rm_err'][z_indices])
-    egal_z = np.array(data['z_best'][z_indices])
-    egal_L = np.array(data['stokesI'][z_indices])
+    e_rm = np.array(data['rm'][z_indices])
+    e_stddev = np.array(data['rm_err'][z_indices])
+    e_z = np.array(data['z_best'][z_indices])
+    e_F = np.array(data['stokesI'][z_indices])
 
     # set the sky model hyper-parameters and initialize the Faraday 2020 sky model
     #new parameters given by Sebastian
@@ -50,18 +46,14 @@ def run_inference():
                                                        'sign_parameters': sign_params})
 
 
-    egal_data_domain = ift.makeDomain(ift.UnstructuredDomain((len(egal_rm),)))
+    egal_data_domain = ift.makeDomain(ift.UnstructuredDomain((len(e_rm),)))
 
-    egal_rm = ift.Field(egal_data_domain, egal_rm)
-    egal_stddev = ift.Field(egal_data_domain, egal_stddev)
+    egal_rm = ift.Field(egal_data_domain, e_rm)
+    egal_stddev = ift.Field(egal_data_domain, e_stddev)
     
-
-    
-
     # build the full model and connect it to the likelihood
     # set the extra-galactic model hyper-parameters and initialize the model
-    egal_model_params = {'z': egal_z,'L': egal_L, 
-         }
+    egal_model_params = {'z': e_z, 'F': e_F }
       
     emodel = Egf.ExtraGalDemoModel(egal_data_domain, egal_model_params)
 
@@ -85,38 +77,38 @@ def run_inference():
 
       
     #if we are not interested in the RM but only in its sigma we do not need to include the Rm in the following line
-    egal_model = explicit_response @ galactic_model.get_model()
+    explicit_model = explicit_response @ galactic_model.get_model()
     #egal_model = explicit_response @ galactic_model.get_model() + emodel.get_model()
-    residual = ift.Adder(-egal_rm) @ egal_model
-    #we need to use the VariableCovarianceGaussianEnerg instead than the GaussianEnergy because the variance (that now
-    #includes the eg part that now we are fitting) is varying, is not anymore a costant. When we will include the 
-    #correlated eg component we will need to use again the GaussianEnergy. 
+    residual = ift.Adder(-egal_rm) @ explicit_model
+    
     new_dom = ift.MultiDomain.make({'icov': egal_inverse_noise.target, 'residual': residual.target})
     n_res = ift.FieldAdapter(new_dom, 'icov')(egal_inverse_noise) + \
         ift.FieldAdapter(new_dom, 'residual')(residual)
+    
+    #we need to use the VariableCovarianceGaussianEnerg instead than the GaussianEnergy because the variance (that now
+    #includes the eg part that now we are fitting) is varying, is not anymore a costant. When we will include the 
+    #correlated eg component we will need to use again the GaussianEnergy. 
     explicit_likelihood = ift.VariableCovarianceGaussianEnergy(domain=egal_data_domain, residual_key='residual',
                                                                inverse_covariance_key='icov',
                                                                sampling_dtype=np.dtype(np.float64)) @ n_res
     
 
-    gal_rm = np.array(data['rm'][~z_indices])
-    gal_stddev = np.array(data['rm_err'][~z_indices])
+    g_rm = np.array(data['rm'][~z_indices])
+    g_stddev = np.array(data['rm_err'][~z_indices])
 
-  
-    gal_data_domain = ift.makeDomain(ift.UnstructuredDomain((len(gal_rm),)))
+    gal_data_domain = ift.makeDomain(ift.UnstructuredDomain((len(g_rm),)))
 
-    gal_rm = ift.Field(gal_data_domain, gal_rm)
-    gal_stddev = ift.Field(gal_data_domain, gal_stddev)
+    gal_rm = ift.Field(gal_data_domain, g_rm)
+    gal_stddev = ift.Field(gal_data_domain, g_stddev)
 
     implicit_response = Egf.SkyProjector(theta=data['theta'][~z_indices],
                                          phi=data['phi'][~z_indices],
                                          domain=sky_domain, target=gal_data_domain)
 
 
-    alpha = 2.5
 
     # Possible all sky variation of alpha, requires pygedm package 
-    
+    #alpha = 2.5
     #log_ymw = np.log(Egf.load_ymw_sky('./data/', nside=Egf.config['params']['nside'], model='ymw16', mode='mc'))
     #log_ymw /= log_ymw.min()
     #log_ymw *= 5
@@ -155,10 +147,34 @@ def run_inference():
                                        'vmin_std':'0', 'vmax_std':'80'},
                        'intrinsic': {'x_label': 'chi_lum', 'y_label': 'sigma_int_0'},
                        'environmental': {'x_label': 'chi_red', 'y_label': 'sigma_env_0'}}
+    
+    likelihoods={'implicit_likelihood': implicit_likelihood, 'explicit_likelihood': explicit_likelihood}
+    # set run parameters and start the inference
+    components = galactic_model.get_components()
+    ecomponents = emodel.get_components()
 
-    mean = ift.ResidualSampleList.load_mean('samples_posterior')
-    samples = ift.ResidualSampleList.load('samples_posterior')
- 
+    sky_models = {'faraday_sky': galactic_model.get_model(), 'profile': components['log_profile'].exp(),
+                  'sign': components['sign']}
+    power_models = {'log_profile': components['log_profile_amplitude'], 'sign': components['sign_amplitude']}
+   
+    #the value that we plot are indeed the values in the position field 
+    scatter_pairs = {'intrinsic': (ecomponents['chi_lum'], ecomponents['chi_int_0']),'environmental': (ecomponents['chi_red'], ecomponents['chi_env_0'])}
+
+    plotting_kwargs = {'faraday_sky': {'cmap': 'fm', 'cmap_stddev': 'fu', 
+                                       'vmin_mean':'-250', 'vmax_mean':'250', 
+                                       'vmin_std':'0', 'vmax_std':'80'},
+                       'intrinsic': {'x_label': 'chi_lum', 'y_label': 'sigma_int_0'},
+                       'environmental': {'x_label': 'chi_red', 'y_label': 'sigma_env_0'}}
+    
+
+    likelihoods={'implicit_likelihood': implicit_likelihood, 'explicit_likelihood': explicit_likelihood}
+
+
+
+    #mean = ift.ResidualSampleList.load_mean('samples_posterior')
+    #samples = ift.ResidualSampleList.load('samples_posterior')
+    samples = ift.ResidualSampleList.load('/raid/ERG/DEFROST_MOCK/src/ExtraGalacticFaraday/runs/demo/results_zero_centered_prior/pickle/last')
+
     cr=np.array([s for s in samples.iterator(ecomponents['chi_red'])])
     mr, vr = samples.sample_stat(ecomponents['chi_red'])
 
@@ -280,6 +296,20 @@ def run_inference():
     axs[2,0].add_patch(ellipse6_2sigma)
     axs[2,0].add_patch(ellipse6_3sigma)
 
+    ellipse_prior1 = Ellipse(xy=(0.0, 0.0), width=2*1.0, height=2*1.0, edgecolor='red', fc='None', lw=1)
+    ellipse_prior2 = Ellipse(xy=(0.0, 0.0), width=2*1.0, height=2*1.0, edgecolor='red', fc='None', lw=1)
+    ellipse_prior3 = Ellipse(xy=(0.0, 0.0), width=2*1.0, height=2*1.0, edgecolor='red', fc='None', lw=1)
+    ellipse_prior4 = Ellipse(xy=(0.0, 0.0), width=2*1.0, height=2*1.0, edgecolor='red', fc='None', lw=1)
+    ellipse_prior5 = Ellipse(xy=(0.0, 0.0), width=2*1.0, height=2*1.0, edgecolor='red', fc='None', lw=1)
+    ellipse_prior6 = Ellipse(xy=(0.0, 0.0), width=2*1.0, height=2*1.0, edgecolor='red', fc='None', lw=1)
+
+    axs[2,0].add_patch(ellipse_prior1)
+    axs[1,0].add_patch(ellipse_prior2)
+    axs[1,1].add_patch(ellipse_prior3)
+    axs[0,2].add_patch(ellipse_prior4)
+    axs[0,0].add_patch(ellipse_prior5)
+    axs[0,1].add_patch(ellipse_prior6)
+
     plt.subplots_adjust(wspace=0, hspace=0)
 
 
@@ -307,11 +337,12 @@ def run_inference():
     plt.savefig('EG_posterior.png', bbox_inches='tight')
 
     plt.show()
+   
+
 
 
 if __name__ == '__main__':
     # print a RuntimeWarning  in case of underflows
-    np.seterr(under='warn') 
     np.seterr(all='raise')
     # set seed
     seed = 1000

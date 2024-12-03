@@ -12,7 +12,7 @@ _controllers = {}
 
 
 def plot_cb(latest_sample_list, i):
-    logger.info(f"NSAMPLES: {len(latest_sample_list)}")
+    #logger.info(f"NSAMPLES: {len(latest_sample_list)}")
     latest_mean = latest_sample_list.average()
     
     energy_dict = {key: list() for key in _localParams['likelihoods']}
