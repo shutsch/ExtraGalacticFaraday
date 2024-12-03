@@ -32,13 +32,12 @@ class ExtraGalDemoModel(Model):
         #multiply_sigma_env = ift.makeOp(ift.full(ift.DomainTuple.scalar_domain(), 0.5), sampling_dtype=float)
         #add_mu_lum = ift.Adder(ift.full(ift.DomainTuple.scalar_domain(), 0.0))
         #add_mu_int = ift.Adder(ift.full(ift.DomainTuple.scalar_domain(), 5.0))
-        add_mu_int = ift.Adder(ift.full(ift.DomainTuple.scalar_domain(), 0.0))
         #add_mu_red = ift.Adder(ift.full(ift.DomainTuple.scalar_domain(), -0.5))
         #add_mu_env = ift.Adder(ift.full(ift.DomainTuple.scalar_domain(), 0.0))
 
         #chi_env_0 = add_mu_env @ multiply_sigma_env @ ift.FieldAdapter(ift.DomainTuple.scalar_domain(), 'chi_env_0')
         #chi_red = add_mu_red @ multiply_sigma_red @ ift.FieldAdapter(ift.DomainTuple.scalar_domain(), 'chi_red') 
-        chi_int_0 = add_mu_int @ multiply_sigma_int @ ift.FieldAdapter(ift.DomainTuple.scalar_domain(), 'chi_int_0') 
+        chi_int_0 = multiply_sigma_int @ ift.FieldAdapter(ift.DomainTuple.scalar_domain(), 'chi_int_0') 
         #chi_lum = add_mu_lum @ multiply_sigma_lum @ ift.FieldAdapter(ift.DomainTuple.scalar_domain(), 'chi_lum')
 
 

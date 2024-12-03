@@ -1,7 +1,7 @@
 params:
   nside: 256
   nglobal: 200
-  plot_path: "./runs/demo/"
+  plot_path: "./runs/demo/results_zero_centered_prior/"
   results_path: "./runs/demo/results_zero_centered_prior/"
 
 file_params:
