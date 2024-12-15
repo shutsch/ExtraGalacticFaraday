@@ -13,7 +13,7 @@ def run_inference():
 
     # load_the data, define domains, covariance and projection operators
 
-    data = Egf.get_rm(filter_pulsars=True, version='custom_eg_large_four_param', default_error_level=0.5)
+    data = Egf.get_rm(filter_pulsars=True, version='custom_large_1param_large_scales', default_error_level=0.5)
 
     # filter
     z_indices = ~np.isnan(data['z_best'])
@@ -154,7 +154,7 @@ def run_inference():
 
     Egf.minimization(n_global=Egf.config['params']['nglobal'], kl_type='SampledKLEnergy', plot_path=Egf.config['params']['plot_path'],
                      likelihoods=likelihoods,
-                     sky_maps=sky_models, power_spectra=power_models, scatter_pairs=scatter_pairs,
+                     sky_maps=sky_models, power_spectra=power_models, #scatter_pairs=scatter_pairs,
                      plotting_kwargs=plotting_kwargs)
     
 
