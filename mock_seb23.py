@@ -1,12 +1,10 @@
 import numpy as np
 import nifty8 as ift
 from astropy.io import fits
+import libs as Egf
 
 def pow_spec(k):
-    #P0, k0, gamma = [1.1e14, 34, -2.4]  # parameters of the power spectrum as defined in Hustschenreuter et al. 2022
-    #P0, k0, gamma = [0.1, 34, -2.4]  # test parameters
-    #P0, k0, gamma = [4., 2.8, -2.4]  # modified parameters of the power spectrum, more similar to Oppermann (used for the mock catalog)
-    P0, k0, gamma = [1.5, 5.0, -2.5]  # modified parameters of the power spectrum Oppermann et al. 2012 (I could not find the results from NO2015)
+    P0, k0, gamma = [Egf.config['params_mock_cat']['P0'], Egf.config['params_mock_cat']['k0'], Egf.config['params_mock_cat']['gamma']]  
     return P0 / (1. + (k/k0)**(-gamma))
 
 def seb23(num_seed):

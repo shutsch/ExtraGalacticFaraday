@@ -1,6 +1,10 @@
 import nifty8 as ift
 import libs as Egf
 import numpy as np
+from matplotlib.patches import Ellipse
+import matplotlib.pyplot as plt
+import matplotlib
+matplotlib.use('TkAgg')
 
 
 def run_inference():

@@ -1,3 +1,17 @@
+params_mock_cat:
+# parameters of the power spectrum as defined in Hustschenreuter et al. 2022
+  #P0: 1.1e+14
+  #k0: 34
+  #gamma: -2.4 
+# values used in the tests 
+  #P0: 1.5
+  #k0: 5.0
+  #gamma: -2.5
+# values for a Gal RM on large scales
+  P0: 3.8
+  k0: 5.0
+  gamma: -8.0
+
 params:
   nside: 256
   nglobal: 200
