@@ -303,9 +303,9 @@ def run_inference():
     ellipse_prior1 = Ellipse(xy=(0.0, 0.0), width=2*1.0, height=2*1.0, edgecolor='red', fc='None', lw=1)
     ellipse_prior2 = Ellipse(xy=(0.0, 0.0), width=2*1.0, height=2*1.0, edgecolor='red', fc='None', lw=1)
     ellipse_prior3 = Ellipse(xy=(0.0, 0.0), width=2*1.0, height=2*1.0, edgecolor='red', fc='None', lw=1)
-    ellipse_prior4 = Ellipse(xy=(0.0, 0.0), width=2*1.0, height=2*1.0, edgecolor='red', fc='None', lw=1)
-    ellipse_prior5 = Ellipse(xy=(0.0, 0.0), width=2*1.0, height=2*1.0, edgecolor='red', fc='None', lw=1)
-    ellipse_prior6 = Ellipse(xy=(0.0, 0.0), width=2*1.0, height=2*1.0, edgecolor='red', fc='None', lw=1)
+    ellipse_prior4 = Ellipse(xy=(0.0, 0.0), width=2*1.0, height=2*3.0, edgecolor='red', fc='None', lw=1)
+    ellipse_prior5 = Ellipse(xy=(0.0, 0.0), width=2*1.0, height=2*3.0, edgecolor='red', fc='None', lw=1)
+    ellipse_prior6 = Ellipse(xy=(0.0, 0.0), width=2*1.0, height=2*3.0, edgecolor='red', fc='None', lw=1)
 
     axs[2,0].add_patch(ellipse_prior1)
     axs[1,0].add_patch(ellipse_prior2)
