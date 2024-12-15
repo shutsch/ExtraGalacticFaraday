@@ -14,7 +14,7 @@ params_mock_cat:
 
 params:
   nside: 256
-  nglobal: 200
+  nglobal: 95
   plot_path: "./runs/demo/results_zero_centered_prior/"
   results_path: "./runs/demo/results_zero_centered_prior/"
 

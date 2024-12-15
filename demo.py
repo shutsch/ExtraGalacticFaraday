@@ -28,14 +28,16 @@ def run_inference():
     log_amplitude_params = {'fluctuations': {'asperity': None, 
                                              'flexibility': [1., 1.],  
                                              'fluctuations': [1.0, 0.5], 
-                                             'loglogavgslope': [-11./3, 2.],},
+                                             #'loglogavgslope': [-11./3, 2.],},
+                                             'loglogavgslope': [-10., -5.], },
                           'offset': {'offset_mean': 4., 
                                      'offset_std': [1., 1.]},}
 
     sign_params = {'fluctuations': {'asperity': None, 
                                     'flexibility': [1., 1.], 
                                     'fluctuations': [5.0, 4.0], 
-                                    'loglogavgslope': [-11./3, 2.], },
+                                   # 'loglogavgslope': [-11./3, 2.], },
+                                    'loglogavgslope': [-10., -5.], },
                    'offset': {'offset_mean': 0, 
                               'offset_std': [5., 4.]},}
     
@@ -140,7 +142,7 @@ def run_inference():
     power_models = {'log_profile': components['log_profile_amplitude'], 'sign': components['sign_amplitude']}
    
     #the value that we plot are indeed the values in the position field 
-    scatter_pairs = {'intrinsic': (ecomponents['chi_lum'], ecomponents['chi_int_0']),'environmental': (ecomponents['chi_red'], ecomponents['chi_env_0'])}
+    #scatter_pairs = {'intrinsic': (ecomponents['chi_lum'], ecomponents['chi_int_0']),'environmental': (ecomponents['chi_red'], ecomponents['chi_env_0'])}
 
     plotting_kwargs = {'faraday_sky': {'cmap': 'fm', 'cmap_stddev': 'fu', 
                                        'vmin_mean':'-250', 'vmax_mean':'250', 
