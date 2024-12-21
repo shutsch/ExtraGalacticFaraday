@@ -25,24 +25,34 @@ def run_inference():
 
     # set the sky model hyper-parameters and initialize the Faraday 2020 sky model
     #new parameters given by Sebastian
-    log_amplitude_params = {'fluctuations': {'asperity': None, 
-                                             'flexibility': [1., 1.],  
-                                             'fluctuations': [1.0, 0.5], 
-                                             #'loglogavgslope': [-11./3, 2.],},
-                                             'loglogavgslope': [-10., -5.], },
-                          'offset': {'offset_mean': 4., 
-                                     'offset_std': [1., 1.]},}
+    #log_amplitude_params = {'fluctuations': {'asperity': None, 
+    #                                         'flexibility': [1., 1.],  
+    #                                         'fluctuations': [1.0, 0.5], 
+    #                                         'loglogavgslope': [-11./3, 2.],},
+    #                      'offset': {'offset_mean': 4., 
+    #                                 'offset_std': [1., 1.]},}
 
+    #sign_params = {'fluctuations': {'asperity': None, 
+    #                                'flexibility': [1., 1.], 
+    #                                'fluctuations': [5.0, 4.0], 
+    #                               'loglogavgslope': [-11./3, 2.], },
+    #               'offset': {'offset_mean': 0, 
+    #                          'offset_std': [5., 4.]},}
+    
+    # test parameters
+   
+    log_amplitude_params = {'fluctuations': {'asperity': None, 
+                                             'flexibility': [1.e-5, 1.e-6],  
+                                             'fluctuations': [1.0e-5, 1e-6], 
+                                             'loglogavgslope': [-6., 1.], },
+                          'offset': {'offset_mean': 0., 
+                                     'offset_std': [1.e-5, 1.e-6]},}
     sign_params = {'fluctuations': {'asperity': None, 
                                     'flexibility': [1., 1.], 
                                     'fluctuations': [5.0, 4.0], 
-                                   # 'loglogavgslope': [-11./3, 2.], },
-                                    'loglogavgslope': [-10., -5.], },
+                                    'loglogavgslope': [-6., 1.], },
                    'offset': {'offset_mean': 0, 
                               'offset_std': [5., 4.]},}
-    
-   
-
 
     galactic_model = Egf.Faraday2020Sky(sky_domain, **{'log_amplitude_parameters': log_amplitude_params,
                                                        'sign_parameters': sign_params})

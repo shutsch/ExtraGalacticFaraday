@@ -115,8 +115,11 @@ def run_inference():
     ### rm data assembly ###
 
     rm_data=np.array(o_rm_gal_data.val)
+    print(rm_data.min(), rm_data.max(), rm_data.mean())
     rm_data[z_indices]+=emodel.get_model().sqrt()(egal_mock_position).val*np.random.normal(0.0, 1.0,len(e_rm))
-    
+    print('std',np.std(emodel.get_model().sqrt()(egal_mock_position).val*np.random.normal(0.0, 1.0,len(e_rm))))
+    print('mean',np.mean(emodel.get_model().sqrt()(egal_mock_position).val*np.random.normal(0.0, 1.0,len(e_rm))))
+
     rm_data_field=ift.makeField(ift.UnstructuredDomain(len(data['theta'])), rm_data)
 
     noised_rm_data = rm_data_field + N.draw_sample()
@@ -150,7 +153,7 @@ def run_inference():
     hdu= fits.open('/home/valentina/Documents/PROJECTS/BAYESIAN_CODE/DEFROST/ExtraGalacticFaraday/data/Faraday/catalog_versions/master_catalog_vercustom.fits')
     hdu[1].data['rm'][np.where(hdu[1].data['type']!='Pulsar')] = np.array(noised_rm_data.val)
     hdu[1].data['rm_err'][np.where(hdu[1].data['type']!='Pulsar')] =  noise*np.ones(np.array(noised_rm_data.val).size)
-    hdu.writeto('/home/valentina/Documents/PROJECTS/BAYESIAN_CODE/DEFROST/ExtraGalacticFaraday/data/Faraday/catalog_versions/master_catalog_vercustom_large_1param_large_scales.fits', overwrite=True)
+    #hdu.writeto('/home/valentina/Documents/PROJECTS/BAYESIAN_CODE/DEFROST/ExtraGalacticFaraday/data/Faraday/catalog_versions/master_catalog_vercustom_large_1param_large_scales_disk_off.fits', overwrite=True)
     hdu.close()
 
     
