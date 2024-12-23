@@ -83,18 +83,18 @@ class CatalogMaker():
     
         eg_projector = Egf.SkyProjector(ift.makeDomain(ift.HPSpace(256)), ift.makeDomain(ift.UnstructuredDomain(lthetaeg)), theta=theta_eg, phi=phi_eg)
 
-        log_amplitude_params = {'fluctuations': {'asperity': None, 
-                                                'flexibility': [1.e-5, 1.e-6],  
-                                                'fluctuations': [1.0e-5, 1e-6], 
-                                                'loglogavgslope': [-3., 1.], },
-                            'offset': {'offset_mean': 0., 
-                                        'offset_std': [1.e-5, 1.e-6]},}
-        sign_params = {'fluctuations': {'asperity': None, 
-                                        'flexibility': [1., 1.], 
-                                        'fluctuations': [5.0, 4.0], 
-                                        'loglogavgslope': [-3., 1.], },
-                    'offset': {'offset_mean': 0, 
-                                'offset_std': [5., 4.]},}
+        log_amplitude_params = {'fluctuations': {'asperity': Egf.config['params_mock_cat']['log_amplitude']['fluctuations']['asperity'], 
+                                                'flexibility': [Egf.config['params_mock_cat']['log_amplitude']['fluctuations']['flexibility']],  
+                                                'fluctuations': [Egf.config['params_mock_cat']['log_amplitude']['fluctuations']['fluctuations']], 
+                                                'loglogavgslope': [Egf.config['params_mock_cat']['log_amplitude']['fluctuations']['loglogavgslope']], },
+                            'offset': {'offset_mean': Egf.config['params_mock_cat']['log_amplitude']['offset']['offset_mean'], 
+                                        'offset_std': [Egf.config['params_mock_cat']['log_amplitude']['offset']['offset_std']]},}
+        sign_params = {'fluctuations': {'asperity': Egf.config['params_mock_cat']['sign']['fluctuations']['asperity'], 
+                                        'flexibility': [Egf.config['params_mock_cat']['sign']['fluctuations']['flexibility']], 
+                                        'fluctuations': [Egf.config['params_mock_cat']['sign']['fluctuations']['fluctuations']], 
+                                        'loglogavgslope': [Egf.config['params_mock_cat']['sign']['fluctuations']['loglogavgslope']], },
+                    'offset': {'offset_mean': Egf.config['params_mock_cat']['sign']['offset']['offset_mean'], 
+                                'offset_std': [Egf.config['params_mock_cat']['sign']['offset']['offset_std']]},}
 
         galactic_model = Egf.Faraday2020Sky(sky_domain, **{'log_amplitude_parameters': log_amplitude_params,
                                                         'sign_parameters': sign_params})

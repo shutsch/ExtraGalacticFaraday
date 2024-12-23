@@ -4,7 +4,7 @@ from astropy.io import fits
 import libs as Egf
 
 def pow_spec(k):
-    P0, k0, gamma = [Egf.config['params_mock_cat']['P0'], Egf.config['params_mock_cat']['k0'], Egf.config['params_mock_cat']['gamma']]  
+    P0, k0, gamma = [Egf.config['params_mock_cat']['power_spec']['P0'], Egf.config['params_mock_cat']['power_spec']['k0'], Egf.config['params_mock_cat']['power_spec']['gamma']]  
     return P0 / (1. + (k/k0)**(-gamma))
 
 def seb23(num_seed):

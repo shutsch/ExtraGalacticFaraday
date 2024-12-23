@@ -1,19 +1,58 @@
 params_mock_cat:
-# parameters of the power spectrum as defined in Hustschenreuter et al. 2022
-  #P0: 1.1e+14
-  #k0: 34
-  #gamma: -2.4 
-# values used in the tests 
-  #P0: 1.5
-  #k0: 5.0
-  #gamma: -2.5
-# values for a Gal RM on large scales
-  P0: 3.8
-  k0: 5.0
-  gamma: -8.0
+  power_spec:
+  # parameters of the power spectrum as defined in Hustschenreuter et al. 2022
+    #P0: 1.1e+14
+    #k0: 34
+    #gamma: -2.4 
+  # values used in the tests 
+    #P0: 1.5
+    #k0: 5.0
+    #gamma: -2.5
+  # values for a Gal RM on large scales
+    P0: 3.8
+    k0: 5.0
+    gamma: -8.0
   maker_params:
     seed: 1000
-    maker_type : "seb23" #"seb23"
+    maker_type : "consistent" #"seb23"
+  #Sebastian
+  #log_amplitude:
+  #  fluctuations:
+  #    asperity: "None"
+  #    flexibility: "1., 1."
+  #    fluctuations: "1.0, 0.5"
+  #    loglogavgslope: "-11./3, 2."
+  #  offset:
+  #    offset_mean: 4.
+  #    offset_std: "1., 1."
+  #sign:
+  #  fluctuations:
+  #    asperity: "None"
+  #    flexibility: "1., 1."
+  #    fluctuations: "5.0, 4.0"
+  #    loglogavgslope: "-11./3, 2."
+  #  offset:
+  #    offset_mean: 0.
+  #    offset_std: "5., 4."
+  #tests
+  log_amplitude:
+    fluctuations:
+      asperity: "None"
+      flexibility: "1.e-5,1.e-6"
+      fluctuations: "1.0e-5, 1.0e-6"
+      loglogavgslope: "-3., 1."
+    offset:
+      offset_mean: 0.
+      offset_std: "1.e-5, 1.e-6"
+  sign:
+    fluctuations:
+      asperity: "None"
+      flexibility: "1., 1."
+      fluctuations: "5.0, 4.0"
+      loglogavgslope: "-3., 1."
+    offset:
+      offset_mean: 0.
+      offset_std: "5., 4."
 
 params:
   nside: 256
@@ -29,15 +68,15 @@ sample_params:
   n: 2
   n_prior: 2
   n_final: 2
-  increase_step: 100
+  increase_step: 10
   increase_rate: 1.7
 
 controllers:
   sampler:
     n: 500
     n_final: 500
-    increase_step: 10
-    increase_rate: 1.7
+    increase_step:  "None"
+    increase_rate:  "None"
     deltaE: 1.0e-07
     convergence_level: 2
   

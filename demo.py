@@ -1,6 +1,7 @@
 import nifty8 as ift
 import libs as Egf
 import numpy as np
+import utilities as U
 
 
 def run_inference():
@@ -23,36 +24,36 @@ def run_inference():
     e_z = np.array(data['z_best'][z_indices])
     e_F = np.array(data['stokesI'][z_indices])
 
-    # set the sky model hyper-parameters and initialize the Faraday 2020 sky model
-    #new parameters given by Sebastian
-    #log_amplitude_params = {'fluctuations': {'asperity': None, 
-    #                                         'flexibility': [1., 1.],  
-    #                                         'fluctuations': [1.0, 0.5], 
-    #                                         'loglogavgslope': [-11./3, 2.],},
-    #                      'offset': {'offset_mean': 4., 
-    #                                 'offset_std': [1., 1.]},}
+    params = U.parse_yaml_params()
 
-    #sign_params = {'fluctuations': {'asperity': None, 
-    #                                'flexibility': [1., 1.], 
-    #                                'fluctuations': [5.0, 4.0], 
-    #                               'loglogavgslope': [-11./3, 2.], },
-    #               'offset': {'offset_mean': 0, 
-    #                          'offset_std': [5., 4.]},}
-    
+    log_amplitude_params_ = {'fluctuations': {'asperity': None, 
+                                                'flexibility': [1.e-5, 1.e-6],  
+                                                'fluctuations': [1.0e-5, 1e-6], 
+                                                'loglogavgslope': [-3., 1.], },
+                            'offset': {'offset_mean': 0., 
+                                        'offset_std': [1.e-5, 1.e-6]},}
+    sign_params_ = {'fluctuations': {'asperity': None, 
+                                        'flexibility': [1., 1.], 
+                                        'fluctuations': [5.0, 4.0], 
+                                        'loglogavgslope': [-3., 1.], },
+                    'offset': {'offset_mean': 0, 
+                                'offset_std': [5., 4.]},}
+
+
     # test parameters
-   
-    log_amplitude_params = {'fluctuations': {'asperity': None, 
-                                             'flexibility': [1.e-5, 1.e-6],  
-                                             'fluctuations': [1.0e-5, 1e-6], 
-                                             'loglogavgslope': [-6., 1.], },
-                          'offset': {'offset_mean': 0., 
-                                     'offset_std': [1.e-5, 1.e-6]},}
-    sign_params = {'fluctuations': {'asperity': None, 
-                                    'flexibility': [1., 1.], 
-                                    'fluctuations': [5.0, 4.0], 
-                                    'loglogavgslope': [-6., 1.], },
-                   'offset': {'offset_mean': 0, 
-                              'offset_std': [5., 4.]},}
+    log_amplitude_params = {'fluctuations': {'asperity': params['log_amplitude.fluctuations.asperity'], 
+                                            'flexibility': params['log_amplitude.fluctuations.flexibility'],  
+                                            'fluctuations': params['log_amplitude.fluctuations.fluctuations'], 
+                                            'loglogavgslope': params['log_amplitude.fluctuations.loglogavgslope'], },
+                            'offset': {'offset_mean': params['log_amplitude.offset.offset_mean'], 
+                                      'offset_std': params['log_amplitude.offset.offset_std']},}
+
+    sign_params = {'fluctuations': {'asperity': params['sign.fluctuations.asperity'], 
+                                            'flexibility': params['sign.fluctuations.flexibility'],  
+                                            'fluctuations': params['sign.fluctuations.fluctuations'], 
+                                            'loglogavgslope': params['sign.fluctuations.loglogavgslope'], },
+                            'offset': {'offset_mean': params['sign.offset.offset_mean'], 
+                                      'offset_std': params['sign.offset.offset_std']},}
 
     galactic_model = Egf.Faraday2020Sky(sky_domain, **{'log_amplitude_parameters': log_amplitude_params,
                                                        'sign_parameters': sign_params})
