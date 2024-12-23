@@ -60,7 +60,8 @@ def run_inference():
     e_z = np.array(data['z_best'][z_indices])
     e_F = np.array(data['stokesI'][z_indices])
     e_rm = np.array(data['rm'][z_indices])
-    g_rm = np.array(data['rm'][~z_indices])
+    #g_rm = np.array(data['rm'][~z_indices])
+    lerm = len(e_rm)
 
     # coordinates
 
@@ -68,7 +69,10 @@ def run_inference():
     eg_b = np.array(data['b'])
 
     theta_eg, phi_eg = gal2gal(eg_l, eg_b) # converting to colatitude and logitude in radians
-    eg_projector = Egf.SkyProjector(ift.makeDomain(ift.HPSpace(256)), ift.makeDomain(ift.UnstructuredDomain(len(theta_eg))), theta=theta_eg, phi=phi_eg)
+
+    ltheta=len(data['theta'])
+    lthetaeg = len(theta_eg)
+    eg_projector = Egf.SkyProjector(ift.makeDomain(ift.HPSpace(256)), ift.makeDomain(ift.UnstructuredDomain(lthetaeg)), theta=theta_eg, phi=phi_eg)
     
     ### gal contribution ####
 
@@ -87,20 +91,29 @@ def run_inference():
     #log_amplitude_params = {'fluctuations': {'asperity': None, 
     #                                         'flexibility': [1., 1.],  
     #                                         'fluctuations': [1.0, 0.5], 
-    #                                         #'loglogavgslope': [-11./3, 2.],},
-    #                                         'loglogavgslope': [-10., 5.], },
+    #                                         'loglogavgslope': [-11./3, 2.],},
     #                      'offset': {'offset_mean': 4., 
     #                                 'offset_std': [1., 1.]},}
+
+    #sign_params = {'fluctuations': {'asperity': None, 
+    #                                'flexibility': [1., 1.], 
+    #                                'fluctuations': [5.0, 4.0], 
+    #                               'loglogavgslope': [-11./3, 2.], },
+    #               'offset': {'offset_mean': 0, 
+    #                          'offset_std': [5., 4.]},}
+    
+    # test parameters
+   
     log_amplitude_params = {'fluctuations': {'asperity': None, 
                                              'flexibility': [1.e-5, 1.e-6],  
                                              'fluctuations': [1.0e-5, 1e-6], 
-                                             'loglogavgslope': [-6., 1.], },
+                                             'loglogavgslope': [-3., 1.], },
                           'offset': {'offset_mean': 0., 
                                      'offset_std': [1.e-5, 1.e-6]},}
     sign_params = {'fluctuations': {'asperity': None, 
                                     'flexibility': [1., 1.], 
                                     'fluctuations': [5.0, 4.0], 
-                                    'loglogavgslope': [-6., 1.], },
+                                    'loglogavgslope': [-3., 1.], },
                    'offset': {'offset_mean': 0, 
                               'offset_std': [5., 4.]},}
     
@@ -116,16 +129,16 @@ def run_inference():
     gal=galactic_model.get_model()(gal_mock_position)
 
 
-    #plot = ift.Plot()
-    #plot.add(gal, vmin=-50, vmax=50)
-    #plot.output()
+    plot = ift.Plot()
+    plot.add(gal, vmin=-50, vmax=50)
+    plot.output()
 
     ### eg contribution ####
 
     eg_gal_data = eg_projector(gal)
 
 
-    egal_data_domain = ift.makeDomain(ift.UnstructuredDomain((len(e_rm),)))
+    egal_data_domain = ift.makeDomain(ift.UnstructuredDomain((lerm,)))
 
 
     # build the full model and connect it to the likelihood
@@ -137,6 +150,7 @@ def run_inference():
 
 
     egal_mock_position = ift.from_random(emodel.get_model().domain, 'normal')
+    print(f'mock:{egal_mock_position.val}')
 
     p_d = egal_mock_position.to_dict() 
 
@@ -149,42 +163,47 @@ def run_inference():
 
     egal_mock_position = egal_mock_position.from_dict(p_d)
 
+    print(f'mock after:{egal_mock_position.val}')
 
+    # egal_mock_position = ift.full(emodel.get_model().domain, 0.0)
 
     ### Specify noise
     noise = 0.05
-    N = ift.ScalingOperator(ift.UnstructuredDomain(len(data['theta'])), noise, np.float64)
+    N = ift.ScalingOperator(ift.UnstructuredDomain(ltheta), noise, np.float64)
 
     ### rm data assembly ###
 
     rm_data=np.array(eg_gal_data.val)
     print(rm_data.min(), rm_data.max(), rm_data.mean())
-    rm_data[z_indices]+=emodel.get_model().sqrt()(egal_mock_position).val*np.random.normal(0.0, 1.0,len(e_rm))
-    print('std',np.std(emodel.get_model().sqrt()(egal_mock_position).val*np.random.normal(0.0, 1.0,len(e_rm))))
-    print('mean',np.mean(emodel.get_model().sqrt()(egal_mock_position).val*np.random.normal(0.0, 1.0,len(e_rm))))
+    rand_rm=np.random.normal(0.0, 1.0,len(e_rm))
+    egal_contr = emodel.get_model().sqrt()(egal_mock_position).val*rand_rm
 
-    rm_data_field=ift.makeField(ift.UnstructuredDomain(len(data['theta'])), rm_data)
+    rm_data[z_indices]+=egal_contr
+    print('std',np.std(egal_contr))
+    print('mean',np.mean(egal_contr))
+
+    rm_data_field=ift.makeField(ift.UnstructuredDomain(ltheta), rm_data)
 
     noised_rm_data = rm_data_field + N.draw_sample()
 
     #sign = components['sign'].force(mock_position)
 
     #Plot 1
-    #plot = ift.Plot()
-    #plot.add(eg_projector.adjoint(eg_gal_data), vmin=-2.5, vmax=2.5)
-    #plot.add(eg_projector.adjoint(noised_rm_data), vmin=-2.5, vmax=2.5)
-    ##plot.add(b, vmin=-10, vmax=10)
-    #plot.output()
+    plot = ift.Plot()
+    plot.add(eg_projector.adjoint(eg_gal_data), vmin=-2.5, vmax=2.5)
+    plot.add(eg_projector.adjoint(noised_rm_data), vmin=-2.5, vmax=2.5)
+    #plot.add(b, vmin=-10, vmax=10)
+    plot.output()
 
     #Plot 2
-    fig, axs = plt.subplots(1, 2)
-    axs[1].set_xlabel('Observed Extragalactic RM (rad/m$^2$)')
-    axs[1].set_ylabel('Simulated Extragalactic RM (rad/m$^2$)')
-    axs[1].scatter(data['rm'][z_indices],noised_rm_data.val[z_indices])
-    axs[0].set_xlabel('Observed Galactic RM ($rad/m^2$)')
-    axs[0].set_ylabel('Simulated Galactic RM ($rad/m^2$)')
-    axs[0].scatter(data['rm'][~z_indices],noised_rm_data.val[~z_indices])
-    plt.show()
+    #fig, axs = plt.subplots(1, 2)
+    #axs[1].set_xlabel('Observed Extragalactic RM (rad/m$^2$)')
+    #axs[1].set_ylabel('Simulated Extragalactic RM (rad/m$^2$)')
+    #axs[1].scatter(data['rm'][z_indices],noised_rm_data.val[z_indices])
+    #axs[0].set_xlabel('Observed Galactic RM ($rad/m^2$)')
+    #axs[0].set_ylabel('Simulated Galactic RM ($rad/m^2$)')
+    #axs[0].scatter(data['rm'][~z_indices],noised_rm_data.val[~z_indices])
+    #plt.show()
 
 
 
@@ -193,9 +212,9 @@ def run_inference():
     data['rm_err'] =  noise*np.ones(np.array(noised_rm_data.val).size)
     
     hdu= fits.open('/home/valentina/Documents/PROJECTS/BAYESIAN_CODE/DEFROST/ExtraGalacticFaraday/data/Faraday/catalog_versions/master_catalog_vercustom.fits')
-    hdu[1].data['rm'][np.where(hdu[1].data['type']!='Pulsar')] = np.array(noised_rm_data.val)
-    hdu[1].data['rm_err'][np.where(hdu[1].data['type']!='Pulsar')] =  noise*np.ones(np.array(noised_rm_data.val).size)
-    hdu.writeto('/home/valentina/Documents/PROJECTS/BAYESIAN_CODE/DEFROST/ExtraGalacticFaraday/data/Faraday/catalog_versions/master_catalog_vercustom_consistent_1param_large_scales_disk_off.fits', overwrite=True)
+    hdu[1].data['rm'][np.where(hdu[1].data['type']!='Pulsar')] = data['rm']
+    hdu[1].data['rm_err'][np.where(hdu[1].data['type']!='Pulsar')] =  data['rm_err']
+    #hdu.writeto('/home/valentina/Documents/PROJECTS/BAYESIAN_CODE/DEFROST/ExtraGalacticFaraday/data/Faraday/catalog_versions/master_catalog_vercustom_consistent_1param_scales.fits', overwrite=True)
     hdu.close()
 
     
@@ -206,6 +225,6 @@ if __name__ == '__main__':
     # print a RuntimeWarning  in case of underflows
     np.seterr(all='raise')
     # set seed
-    seed = 1000
+    seed = 1000 #1211212 #1000
     ift.random.push_sseq_from_seed(seed)
     run_inference()

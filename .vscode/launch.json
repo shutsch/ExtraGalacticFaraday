@@ -10,7 +10,7 @@
             "request": "launch",
             //"program": "demo.py",
              //"program": "demo_mock_catalog_eg_large.py",
-             "program": "demo_mock_catalog_consistent.py",
+           "program": "demo_mock_catalog_consistent.py",
            //"program": "demo_mock_catalog.py",
             // "program": "${file}",
             "console": "integratedTerminal",
