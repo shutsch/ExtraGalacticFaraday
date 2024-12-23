@@ -26,20 +26,6 @@ def run_inference():
 
     params = U.parse_yaml_params()
 
-    log_amplitude_params_ = {'fluctuations': {'asperity': None, 
-                                                'flexibility': [1.e-5, 1.e-6],  
-                                                'fluctuations': [1.0e-5, 1e-6], 
-                                                'loglogavgslope': [-3., 1.], },
-                            'offset': {'offset_mean': 0., 
-                                        'offset_std': [1.e-5, 1.e-6]},}
-    sign_params_ = {'fluctuations': {'asperity': None, 
-                                        'flexibility': [1., 1.], 
-                                        'fluctuations': [5.0, 4.0], 
-                                        'loglogavgslope': [-3., 1.], },
-                    'offset': {'offset_mean': 0, 
-                                'offset_std': [5., 4.]},}
-
-
     # test parameters
     log_amplitude_params = {'fluctuations': {'asperity': params['log_amplitude.fluctuations.asperity'], 
                                             'flexibility': params['log_amplitude.fluctuations.flexibility'],  
