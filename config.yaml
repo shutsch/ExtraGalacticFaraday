@@ -11,6 +11,9 @@ params_mock_cat:
   P0: 3.8
   k0: 5.0
   gamma: -8.0
+  maker_params:
+    seed: 1000
+    maker_type : "seb23" #"seb23"
 
 params:
   nside: 256

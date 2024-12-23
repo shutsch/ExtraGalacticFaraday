@@ -1,0 +1,158 @@
+import nifty8 as ift
+import libs as Egf 
+import numpy as np
+from src.helper_functions.misc import gal2gal
+from mock_seb23 import seb23
+from astropy.io import fits
+from scipy.stats import rv_histogram
+import matplotlib
+matplotlib.use('TkAgg')
+import sys
+
+class CatalogMaker():
+    _seed = 1000
+    _maker_type = "consistent"
+
+    def __init__(self, seed, maker_type):
+        self._seed = seed
+        self._maker_type = maker_type
+
+    def make_catalog(self):
+
+        sky_domain = ift.makeDomain(ift.HPSpace(Egf.config['params']['nside']))
+
+        #starting catalog
+        data = Egf.get_rm(filter_pulsars=True, version='custom', default_error_level=0.5)
+
+        z_indices = ~np.isnan(data['z_best'])
+
+        e_rm = np.array(data['rm'][z_indices])
+        e_z = np.array(data['z_best'][z_indices])
+        e_F = np.array(data['stokesI'][z_indices])
+
+        los=14500
+
+        b_indices=np.where(abs(data['b'])>45.0)[0]
+        z_mock_indices=np.unique(np.random.choice(b_indices, size=los))
+
+        histogram_z = rv_histogram(np.histogram(e_z, bins=100), density=False)
+        z_mock=histogram_z.rvs(size=z_mock_indices.size)
+
+        data['z_best'][:] = np.nan
+        data['z_best'][z_mock_indices] = z_mock
+
+        F_all = np.array(data['stokesI'])
+        F_indices = np.where(F_all>0)[0]
+        F_sample= np.array(data['stokesI'][F_indices])
+
+        #creating mock fluxes
+        histogram_F = rv_histogram(np.histogram(F_sample, bins=10000), density=False)
+        F_mock=histogram_F.rvs(size=len(data['stokesI']))
+
+        data['stokesI'] = F_mock
+
+        # new filter
+        z_indices = ~np.isnan(data['z_best'])
+        e_z = np.array(data['z_best'][z_indices])
+        e_F = np.array(data['stokesI'][z_indices])
+        e_rm = np.array(data['rm'][z_indices])
+        g_rm = np.array(data['rm'][~z_indices])
+        lerm = len(e_rm)
+
+        if(self._maker_type == "seb23"):
+            rm_gal, b, dm =seb23(self._seed)
+
+
+            o_l = np.array(data['l'])
+            o_b = np.array(data['b'])
+
+            theta_o, phi_o = gal2gal(o_l, o_b) # converting to colatitude and logitude in radians
+
+            o_projector = Egf.SkyProjector(ift.makeDomain(ift.HPSpace(256)), ift.makeDomain(ift.UnstructuredDomain(len(theta_o))), theta=theta_o, phi=phi_o)
+
+            o_rm_gal_data = o_projector(rm_gal)
+
+        # coordinates
+        eg_l = np.array(data['l'])
+        eg_b = np.array(data['b'])
+
+        theta_eg, phi_eg = gal2gal(eg_l, eg_b) # converting to colatitude and logitude in radians
+
+        ltheta=len(data['theta'])
+        lthetaeg = len(theta_eg)
+    
+        eg_projector = Egf.SkyProjector(ift.makeDomain(ift.HPSpace(256)), ift.makeDomain(ift.UnstructuredDomain(lthetaeg)), theta=theta_eg, phi=phi_eg)
+
+        log_amplitude_params = {'fluctuations': {'asperity': None, 
+                                                'flexibility': [1.e-5, 1.e-6],  
+                                                'fluctuations': [1.0e-5, 1e-6], 
+                                                'loglogavgslope': [-3., 1.], },
+                            'offset': {'offset_mean': 0., 
+                                        'offset_std': [1.e-5, 1.e-6]},}
+        sign_params = {'fluctuations': {'asperity': None, 
+                                        'flexibility': [1., 1.], 
+                                        'fluctuations': [5.0, 4.0], 
+                                        'loglogavgslope': [-3., 1.], },
+                    'offset': {'offset_mean': 0, 
+                                'offset_std': [5., 4.]},}
+
+        galactic_model = Egf.Faraday2020Sky(sky_domain, **{'log_amplitude_parameters': log_amplitude_params,
+                                                        'sign_parameters': sign_params})
+        
+        gal_mock_position = ift.from_random(galactic_model.get_model().domain, 'normal')
+        gal=galactic_model.get_model()(gal_mock_position)
+
+        plot = ift.Plot()
+        plot.add(gal, vmin=-50, vmax=50)
+        plot.output()
+
+        ### eg contribution ####
+
+        eg_gal_data = eg_projector(gal)
+
+        egal_data_domain = ift.makeDomain(ift.UnstructuredDomain((lerm,)))
+
+        # build the full model and connect it to the likelihood
+        # set the extra-galactic model hyper-parameters and initialize the model
+        egal_model_params = {'z': e_z, 'F': e_F }
+        
+        emodel = Egf.ExtraGalDemoModel(egal_data_domain, egal_model_params)
+
+        egal_mock_position = ift.from_random(emodel.get_model().domain, 'normal')
+        print(f'mock:{egal_mock_position.val}')
+
+        egal_mock_position = ift.full(emodel.get_model().domain, 0.0)
+
+        ### Specify noise
+        noise = 0.05
+        N = ift.ScalingOperator(ift.UnstructuredDomain(ltheta), noise, np.float64)
+
+        ### rm data assembly ###
+        rm_data=np.array(o_rm_gal_data.val if self._maker_type == "seb23" else eg_gal_data.val)
+        print(rm_data.min(), rm_data.max(), rm_data.mean())
+        rand_rm=np.random.normal(0.0, 1.0,len(e_rm))
+        egal_contr = emodel.get_model().sqrt()(egal_mock_position).val*rand_rm
+
+        rm_data[z_indices]+=egal_contr
+        print('std',np.std(egal_contr))
+        print('mean',np.mean(egal_contr))
+
+        rm_data_field=ift.makeField(ift.UnstructuredDomain(ltheta), rm_data)
+
+        noised_rm_data = rm_data_field + N.draw_sample()
+
+        #Plot 1
+        plot = ift.Plot()
+        plot.add(eg_projector.adjoint(eg_gal_data), vmin=-2.5, vmax=2.5)
+        plot.add(eg_projector.adjoint(noised_rm_data), vmin=-2.5, vmax=2.5)
+        plot.output()
+
+        data['rm'] = np.array(noised_rm_data.val)
+        data['rm_err'] =  noise*np.ones(np.array(noised_rm_data.val).size)
+        
+        hdu= fits.open('/home/valentina/Documents/PROJECTS/BAYESIAN_CODE/DEFROST/ExtraGalacticFaraday/data/Faraday/catalog_versions/master_catalog_vercustom.fits')
+        hdu[1].data['rm'][np.where(hdu[1].data['type']!='Pulsar')] = data['rm']
+        hdu[1].data['rm_err'][np.where(hdu[1].data['type']!='Pulsar')] =  data['rm_err']
+        #hdu.writeto('/home/valentina/Documents/PROJECTS/BAYESIAN_CODE/DEFROST/ExtraGalacticFaraday/data/Faraday/catalog_versions/master_catalog_vercustom_consistent_1param_scales.fits', overwrite=True)
+        hdu.close()
+
