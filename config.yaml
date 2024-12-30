@@ -57,6 +57,8 @@ params_mock_cat:
 params:
   nside: 256
   nglobal: 95
+  n_samples_posterior: 100
+  n_single_fit: 200
   plot_path: "./runs/demo/results/"
   results_path: "./runs/demo/results/"
 

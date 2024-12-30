@@ -184,17 +184,17 @@ def minimization(likelihoods, kl_type, n_global, plot_path, sky_maps=None, power
     position = 0.1*ift.from_random(likelihood.domain)
 
     n_samples= lambda i: get_n_samples(sample_parameters, 0, False) if i< Egf.config['params']['nglobal']-1 \
-        else 100
+        else Egf.config['params']['n_samples_posterior']
 
 
-    constants = lambda i: [] if i<100 \
+    constants = lambda i: [] if i< Egf.config['params']['n_single_fit'] \
         else ( ['log_profile_flexibility', 'log_profile_fluctuations', 'log_profile_loglogavgslope', 'log_profile_spectrum', 'log_profile_xi', 'log_profile_zeromode', 'sign_flexibility', 'sign_fluctuations', 'sign_loglogavgslope', 'sign_spectrum', 'sign_xi', 'sign_zeromode'])
 
-    point_estimates = lambda i: [] if i<100 \
+    point_estimates = lambda i: [] if i< Egf.config['params']['n_single_fit'] \
         else (['log_profile_flexibility', 'log_profile_fluctuations', 'log_profile_loglogavgslope', 'log_profile_spectrum', 'log_profile_xi', 'log_profile_zeromode', 'sign_flexibility', 'sign_fluctuations', 'sign_loglogavgslope', 'sign_spectrum', 'sign_xi', 'sign_zeromode'])
     
     # get_minimizer = lambda i : ift.NewtonCG(controllers['Minimizer']) if i<100 else ift.NewtonCG(controllers['Minimizer_eg'])
-    get_sampler = lambda i : controllers['Sampler'] if i<100 else controllers['Sampler_eg']
+    get_sampler = lambda i : controllers['Sampler'] if i< Egf.config['params']['n_single_fit'] else controllers['Sampler_eg']
 
    
     op_output = {}
