@@ -47,9 +47,26 @@ def plot_cb(latest_sample_list, i):
     # position = latest_mean
 
 def get_minimizer(i):
+                
     if i<100: 
+        deltaE_threshold = Egf.config['controllers']['minimizer']['deltaE_threshold']
+
+        new_dict = {
+            'n': Egf.config['controllers']['minimizer']['n'],
+                'type': 'AbsDeltaEnergy',
+                'change_params': {'n_final': Egf.config['controllers']['minimizer']['n_final'],
+                                'increase_step': Egf.config['controllers']['minimizer']['increase_step'],
+                                'increase_rate': Egf.config['controllers']['minimizer']['increase_rate']
+                                },
+                'controller_params': {'deltaE': Egf.config['controllers']['minimizer']['deltaE_start'] 
+                                    if i <= deltaE_threshold 
+                                    else Egf.config['controllers']['minimizer']['deltaE_end'],
+                                    'convergence_level': Egf.config['controllers']['minimizer']['convergence_level']}
+                }
+
+        new_controller = get_controller(new_dict, i, False, 'Minimizer')
         # logger.info(f"Using GAL minimizer it. {i}")
-        return ift.NewtonCG(_controllers['Minimizer'])  
+        return ift.NewtonCG(new_controller)  
     else:
         # logger.info(f"Using EGAL minimizer it. {i}")
         return ift.NewtonCG(_controllers['Minimizer_eg'])
@@ -112,7 +129,7 @@ def minimization(likelihoods, kl_type, n_global, plot_path, sky_maps=None, power
                                'increase_step': Egf.config['controllers']['minimizer']['increase_step'],
                                'increase_rate': Egf.config['controllers']['minimizer']['increase_rate']
                                },
-             'controller_params': {'deltaE': Egf.config['controllers']['minimizer']['deltaE'],
+             'controller_params': {'deltaE': Egf.config['controllers']['minimizer']['deltaE_start'],
                                    'convergence_level': Egf.config['controllers']['minimizer']['convergence_level']} #maybe at 2
              },
         'Sampler_eg':

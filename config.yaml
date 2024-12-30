@@ -57,8 +57,8 @@ params_mock_cat:
 params:
   nside: 256
   nglobal: 95
-  plot_path: "./runs/demo/results_consistent_large_1param_large_scales_disk_off/"
-  results_path: "./runs/demo/results_consistent_large_1param_large_scales_disk_off/"
+  plot_path: "./runs/demo/results/"
+  results_path: "./runs/demo/results/"
 
 file_params:
   fits_file_path: "data/Faraday/catalog_versions/master_catalog_ver"
@@ -85,7 +85,9 @@ controllers:
     n_final: 40
     increase_step: "None"
     increase_rate: "None"
-    deltaE: 1.0e-07
+    deltaE_threshold: 20
+    deltaE_start: 1.0e-03
+    deltaE_end: 1.0e-07
     convergence_level: 2 #sometimes better 2
 
   sampler_eg:
