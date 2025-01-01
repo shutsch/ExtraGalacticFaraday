@@ -16,43 +16,43 @@ params_mock_cat:
     seed: 1000
     maker_type : "consistent" #"seb23"
   #Sebastian
-  #log_amplitude:
-  #  fluctuations:
-  #    asperity: "None"
-  #    flexibility: "1., 1."
-  #    fluctuations: "1.0, 0.5"
-  #    loglogavgslope: "-11./3, 2."
-  #  offset:
-  #    offset_mean: 4.
-  #    offset_std: "1., 1."
-  #sign:
-  #  fluctuations:
-  #    asperity: "None"
-  #    flexibility: "1., 1."
-  #    fluctuations: "5.0, 4.0"
-  #    loglogavgslope: "-11./3, 2."
-  #  offset:
-  #    offset_mean: 0.
-  #    offset_std: "5., 4."
-  #tests
   log_amplitude:
     fluctuations:
       asperity: "None"
-      flexibility: "1.e-5,1.e-6"
-      fluctuations: "1.0e-5, 1.0e-6"
-      loglogavgslope: "-3., 1."
+      flexibility: "1., 1."
+      fluctuations: "1.0, 0.5"
+      loglogavgslope: "-3.6667, 2."
     offset:
-      offset_mean: 0.
-      offset_std: "1.e-5, 1.e-6"
+      offset_mean: 4.
+      offset_std: "1., 1."
   sign:
     fluctuations:
       asperity: "None"
       flexibility: "1., 1."
       fluctuations: "5.0, 4.0"
-      loglogavgslope: "-3., 1."
+      loglogavgslope: "-3.6667, 2."
     offset:
       offset_mean: 0.
       offset_std: "5., 4."
+  #tests no disk
+  #log_amplitude:
+  #  fluctuations:
+  #    asperity: "None"
+  #    flexibility: "1.e-5,1.e-6"
+  #    fluctuations: "1.0e-5, 1.0e-6"
+  #    loglogavgslope: "-3., 1."
+  #  offset:
+  #    offset_mean: 0.
+  #    offset_std: "1.e-5, 1.e-6"
+  #sign:
+  #  fluctuations:
+  #    asperity: "None"
+  #    flexibility: "1., 1."
+  #    fluctuations: "5.0, 4.0"
+  #    loglogavgslope: "-3., 1."
+  #  offset:
+  #    offset_mean: 0.
+  #    offset_std: "5., 4."
 
 params:
   nside: 256
@@ -61,6 +61,7 @@ params:
   n_single_fit: 200
   plot_path: "./runs/demo/results/"
   results_path: "./runs/demo/results/"
+  n_eg_params: 4
 
 file_params:
   fits_file_path: "data/Faraday/catalog_versions/master_catalog_ver"
@@ -115,3 +116,17 @@ controllers:
     increase_rate: "None"
     deltaE: 1.0e-07
     convergence_level: 2
+
+std:
+  std_int: 0.5
+  std_lum: 0.5
+  std_red: 0.5
+  std_env: 0.5 
+  std_one: 0.05
+
+mean:
+  mean_int: 5.0
+  mean_lum: 0.0
+  mean_red: -0.5
+  mean_env: 0.0
+  mean_one: 4.0

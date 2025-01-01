@@ -52,9 +52,9 @@ def run_inference():
     
     # build the full model and connect it to the likelihood
     # set the extra-galactic model hyper-parameters and initialize the model
-    egal_model_params = {'z': e_z, 'F': e_F }
+    egal_model_params = {'z': e_z, 'F': e_F, 'n_params': Egf.config['params']['n_eg_params'] }
       
-    emodel = Egf.ExtraGalDemoModel(egal_data_domain, egal_model_params)
+    emodel = Egf.ExtraGalModel(egal_data_domain, egal_model_params)
 
     #if we are not interested in the RM but only in its sigma we can consider the eg sigma as a noise and sum the two here. 
     #we include it here but not in the Variable Noise below because the variable noise include the eta factors and applies only to
