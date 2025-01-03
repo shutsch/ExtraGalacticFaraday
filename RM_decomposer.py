@@ -1,20 +1,22 @@
 import nifty8 as ift
 import libs as Egf
 import numpy as np
+from plot_posterior import Posterior_Plotter
+from src.helper_functions.parameters_maker import Parameters_maker
 import utilities as U
 
 
-def run_inference():
+def run_inference(params):
     
 
 
     # set the HealPix resolution parameter and the sky domain
 
-    sky_domain = ift.makeDomain(ift.HPSpace(Egf.config['params']['nside']))
+    sky_domain = ift.makeDomain(ift.HPSpace(params['params.nside']))
 
     # load_the data, define domains, covariance and projection operators
 
-    data = Egf.get_rm(filter_pulsars=True, version='custom_consistent_1param_large_scales_disk_off', default_error_level=0.5)
+    data = Egf.get_rm(filter_pulsars=True, version='custom', default_error_level=0.5)
 
     # filter
     z_indices = ~np.isnan(data['z_best'])
@@ -24,22 +26,20 @@ def run_inference():
     e_z = np.array(data['z_best'][z_indices])
     e_F = np.array(data['stokesI'][z_indices])
 
-    params = U.parse_yaml_params()
-
     # test parameters
-    log_amplitude_params = {'fluctuations': {'asperity': params['log_amplitude.fluctuations.asperity'], 
-                                            'flexibility': params['log_amplitude.fluctuations.flexibility'],  
-                                            'fluctuations': params['log_amplitude.fluctuations.fluctuations'], 
-                                            'loglogavgslope': params['log_amplitude.fluctuations.loglogavgslope'], },
-                            'offset': {'offset_mean': params['log_amplitude.offset.offset_mean'], 
-                                      'offset_std': params['log_amplitude.offset.offset_std']},}
+    log_amplitude_params = {'fluctuations': {'asperity': params['params_mock_cat.log_amplitude.fluctuations.asperity'], 
+                                            'flexibility': params['params_mock_cat.log_amplitude.fluctuations.flexibility'],  
+                                            'fluctuations': params['params_mock_cat.log_amplitude.fluctuations.fluctuations'], 
+                                            'loglogavgslope': params['params_mock_cat.log_amplitude.fluctuations.loglogavgslope'], },
+                            'offset': {'offset_mean': params['params_mock_cat.log_amplitude.offset.offset_mean'], 
+                                      'offset_std': params['params_mock_cat.log_amplitude.offset.offset_std']},}
 
-    sign_params = {'fluctuations': {'asperity': params['sign.fluctuations.asperity'], 
-                                            'flexibility': params['sign.fluctuations.flexibility'],  
-                                            'fluctuations': params['sign.fluctuations.fluctuations'], 
-                                            'loglogavgslope': params['sign.fluctuations.loglogavgslope'], },
-                            'offset': {'offset_mean': params['sign.offset.offset_mean'], 
-                                      'offset_std': params['sign.offset.offset_std']},}
+    sign_params = {'fluctuations': {'asperity': params['params_mock_cat.sign.fluctuations.asperity'], 
+                                            'flexibility': params['params_mock_cat.sign.fluctuations.flexibility'],  
+                                            'fluctuations': params['params_mock_cat.sign.fluctuations.fluctuations'], 
+                                            'loglogavgslope': params['params_mock_cat.sign.fluctuations.loglogavgslope'], },
+                            'offset': {'offset_mean': params['params_mock_cat.sign.offset.offset_mean'], 
+                                      'offset_std': params['params_mock_cat.sign.offset.offset_std']},}
 
     galactic_model = Egf.Faraday2020Sky(sky_domain, **{'log_amplitude_parameters': log_amplitude_params,
                                                        'sign_parameters': sign_params})
@@ -52,7 +52,7 @@ def run_inference():
     
     # build the full model and connect it to the likelihood
     # set the extra-galactic model hyper-parameters and initialize the model
-    egal_model_params = {'z': e_z, 'F': e_F, 'n_params': Egf.config['params']['n_eg_params'] }
+    egal_model_params = {'z': e_z, 'F': e_F, 'n_params': params['params.n_eg_params'] }
       
     emodel = Egf.ExtraGalModel(egal_data_domain, egal_model_params)
 
@@ -149,18 +149,22 @@ def run_inference():
     
     likelihoods={'implicit_likelihood': implicit_likelihood, 'explicit_likelihood': explicit_likelihood}
 
-    Egf.minimization(n_global=Egf.config['params']['nglobal'], kl_type='SampledKLEnergy', plot_path=Egf.config['params']['plot_path'],
+    Egf.minimization(n_global=params['params.nglobal'], kl_type='SampledKLEnergy', plot_path=params['params.plot_path'],
                      likelihoods=likelihoods,
                      sky_maps=sky_models, power_spectra=power_models, #scatter_pairs=scatter_pairs,
                      plotting_kwargs=plotting_kwargs)
     
+    plot_params = {'ecomponents': ecomponents, 'n_params': params['params.n_eg_params'], 'results_path':  params['params.results_path']}
 
+    plotter = Posterior_Plotter(plot_params)
 
 
 if __name__ == '__main__':
+    params = Parameters_maker().get_parsed_params()
+
     # print a RuntimeWarning  in case of underflows
     np.seterr(all='raise')
     # set seed
-    seed = 1000
+    seed = params['params_mock_cat.maker_params.seed_inf']
     ift.random.push_sseq_from_seed(seed)
-    run_inference()
+    run_inference(params)

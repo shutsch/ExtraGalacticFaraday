@@ -13,8 +13,11 @@ params_mock_cat:
     k0: 5.0
     gamma: -8.0
   maker_params:
-    seed: 1000
+    seed_inf: 1000
+    seed_cat: 2000
     maker_type : "consistent" #"seb23"
+    disk_on: 1
+
   #Sebastian
   log_amplitude:
     fluctuations:
@@ -56,12 +59,14 @@ params_mock_cat:
 
 params:
   nside: 256
-  nglobal: 95
+  nglobal: 1
   n_samples_posterior: 100
   n_single_fit: 200
   plot_path: "./runs/demo/results/"
   results_path: "./runs/demo/results/"
+  cat_path: "./data/Faraday/catalog_versions/"
   n_eg_params: 1
+  n_los: 14500
 
 file_params:
   fits_file_path: "data/Faraday/catalog_versions/master_catalog_ver"

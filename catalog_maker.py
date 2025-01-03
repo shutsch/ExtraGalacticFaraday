@@ -5,7 +5,9 @@ from src.helper_functions.misc import gal2gal
 from mock_seb23 import seb23
 from astropy.io import fits
 from scipy.stats import rv_histogram
+import matplotlib.pyplot as plt
 import matplotlib
+from src.helper_functions.parameters_maker import Parameters_maker
 matplotlib.use('TkAgg')
 import sys
 
@@ -13,13 +15,14 @@ class CatalogMaker():
     _seed = 1000
     _maker_type = "consistent"
 
-    def __init__(self, seed, maker_type):
+    def __init__(self, seed, maker_type, params):
         self._seed = seed
         self._maker_type = maker_type
+        self.params = params
 
     def make_catalog(self):
 
-        sky_domain = ift.makeDomain(ift.HPSpace(Egf.config['params']['nside']))
+        sky_domain = ift.makeDomain(ift.HPSpace(self.params['params.nside']))
 
         #starting catalog
         data = Egf.get_rm(filter_pulsars=True, version='custom', default_error_level=0.5)
@@ -30,7 +33,7 @@ class CatalogMaker():
         e_z = np.array(data['z_best'][z_indices])
         e_F = np.array(data['stokesI'][z_indices])
 
-        los=14500
+        los=self.params['params.n_los']
 
         b_indices=np.where(abs(data['b'])>45.0)[0]
         z_mock_indices=np.unique(np.random.choice(b_indices, size=los))
@@ -70,7 +73,10 @@ class CatalogMaker():
 
             o_projector = Egf.SkyProjector(ift.makeDomain(ift.HPSpace(256)), ift.makeDomain(ift.UnstructuredDomain(len(theta_o))), theta=theta_o, phi=phi_o)
 
-            o_rm_gal_data = o_projector(rm_gal)
+            if self.params['maker_params.disk_on']==1:
+                o_rm_gal_data = o_projector(rm_gal)
+            else:
+                o_rm_gal_data = o_projector(b)
 
         # coordinates
         eg_l = np.array(data['l'])
@@ -83,18 +89,19 @@ class CatalogMaker():
     
         eg_projector = Egf.SkyProjector(ift.makeDomain(ift.HPSpace(256)), ift.makeDomain(ift.UnstructuredDomain(lthetaeg)), theta=theta_eg, phi=phi_eg)
 
-        log_amplitude_params = {'fluctuations': {'asperity': Egf.config['params_mock_cat']['log_amplitude']['fluctuations']['asperity'], 
-                                                'flexibility': [Egf.config['params_mock_cat']['log_amplitude']['fluctuations']['flexibility']],  
-                                                'fluctuations': [Egf.config['params_mock_cat']['log_amplitude']['fluctuations']['fluctuations']], 
-                                                'loglogavgslope': [Egf.config['params_mock_cat']['log_amplitude']['fluctuations']['loglogavgslope']], },
-                            'offset': {'offset_mean': Egf.config['params_mock_cat']['log_amplitude']['offset']['offset_mean'], 
-                                        'offset_std': [Egf.config['params_mock_cat']['log_amplitude']['offset']['offset_std']]},}
-        sign_params = {'fluctuations': {'asperity': Egf.config['params_mock_cat']['sign']['fluctuations']['asperity'], 
-                                        'flexibility': [Egf.config['params_mock_cat']['sign']['fluctuations']['flexibility']], 
-                                        'fluctuations': [Egf.config['params_mock_cat']['sign']['fluctuations']['fluctuations']], 
-                                        'loglogavgslope': [Egf.config['params_mock_cat']['sign']['fluctuations']['loglogavgslope']], },
-                    'offset': {'offset_mean': Egf.config['params_mock_cat']['sign']['offset']['offset_mean'], 
-                                'offset_std': [Egf.config['params_mock_cat']['sign']['offset']['offset_std']]},}
+        log_amplitude_params = {'fluctuations': {'asperity': self.params['params_mock_cat.log_amplitude.fluctuations.asperity'], 
+                                            'flexibility': self.params['params_mock_cat.log_amplitude.fluctuations.flexibility'],  
+                                            'fluctuations': self.params['params_mock_cat.log_amplitude.fluctuations.fluctuations'], 
+                                            'loglogavgslope': self.params['params_mock_cat.log_amplitude.fluctuations.loglogavgslope'], },
+                            'offset': {'offset_mean': self.params['params_mock_cat.log_amplitude.offset.offset_mean'], 
+                                      'offset_std': self.params['params_mock_cat.log_amplitude.offset.offset_std']},}
+
+        sign_params = {'fluctuations': {'asperity': self.params['params_mock_cat.sign.fluctuations.asperity'], 
+                                            'flexibility': self.params['params_mock_cat.sign.fluctuations.flexibility'],  
+                                            'fluctuations': self.params['params_mock_cat.sign.fluctuations.fluctuations'], 
+                                            'loglogavgslope': self.params['params_mock_cat.sign.fluctuations.loglogavgslope'], },
+                            'offset': {'offset_mean': self.params['params_mock_cat.sign.offset.offset_mean'], 
+                                      'offset_std': self.params['params_mock_cat.sign.offset.offset_std']},}
 
         galactic_model = Egf.Faraday2020Sky(sky_domain, **{'log_amplitude_parameters': log_amplitude_params,
                                                         'sign_parameters': sign_params})
@@ -147,12 +154,24 @@ class CatalogMaker():
         plot.add(eg_projector.adjoint(noised_rm_data), vmin=-2.5, vmax=2.5)
         plot.output()
 
+        #Plot 2
+        fig, axs = plt.subplots(1, 2)
+
+        axs[1].set_xlabel('Observed Extragalactic RM (rad/m$^2$)')
+        axs[1].set_ylabel('Simulated Extragalactic RM (rad/m$^2$)')
+        axs[1].scatter(data['rm'][z_indices],noised_rm_data.val[z_indices])
+        axs[0].set_xlabel('Observed Galactic RM ($rad/m^2$)')
+        axs[0].set_ylabel('Simulated Galactic RM ($rad/m^2$)')
+        axs[0].scatter(data['rm'][~z_indices],noised_rm_data.val[~z_indices])
+        plt.show()
+
+
         data['rm'] = np.array(noised_rm_data.val)
         data['rm_err'] =  noise*np.ones(np.array(noised_rm_data.val).size)
         
-        hdu= fits.open('/home/valentina/Documents/PROJECTS/BAYESIAN_CODE/DEFROST/ExtraGalacticFaraday/data/Faraday/catalog_versions/master_catalog_vercustom.fits')
+        hdu= fits.open(self.params['params.cat_path']+'catalog_versions/master_catalog_vercustom.fits')
         hdu[1].data['rm'][np.where(hdu[1].data['type']!='Pulsar')] = data['rm']
         hdu[1].data['rm_err'][np.where(hdu[1].data['type']!='Pulsar')] =  data['rm_err']
-        #hdu.writeto('/home/valentina/Documents/PROJECTS/BAYESIAN_CODE/DEFROST/ExtraGalacticFaraday/data/Faraday/catalog_versions/master_catalog_vercustom_consistent_1param_scales.fits', overwrite=True)
+        hdu.writeto(self.params['params.cat_path']+'master_catalog_vercustom_sim.fits', overwrite=True)
         hdu.close()
 
