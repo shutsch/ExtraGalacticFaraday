@@ -5,17 +5,17 @@ params_mock_cat:
     #k0: 34
     #gamma: -2.4 
   # values used in the tests 
-    #P0: 1.5
-    #k0: 5.0
-    #gamma: -2.5
-  # values for a Gal RM on large scales
-    P0: 3.8
+    P0: 1.5
     k0: 5.0
-    gamma: -8.0
+    gamma: -2.5
+  # values for a Gal RM on large scales
+  #  P0: 3.8
+  #  k0: 5.0
+  #  gamma: -8.0
   maker_params:
     seed_inf: 1000
     seed_cat: 2000
-    maker_type : "consistent" #"seb23"
+    maker_type : "seb23" #"consistent"
     disk_on: 1
 
   #Sebastian

@@ -12,8 +12,5 @@ if __name__ == '__main__':
     n = len(sys.argv)
     np.seterr(all='raise')
     params = Parameters_maker().get_parsed_params()
-    seed = params['params_mock_cat.maker_params.seed_cat']
-    maker_type = params['params_mock_cat.maker_params.maker_type']
-    ift.random.push_sseq_from_seed(seed)
-    
-    CatalogMaker(seed, maker_type, params).make_catalog()
+        
+    CatalogMaker(params).make_catalog()

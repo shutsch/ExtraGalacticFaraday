@@ -12,13 +12,10 @@ matplotlib.use('TkAgg')
 import sys
 
 class CatalogMaker():
-    _seed = 1000
-    _maker_type = "consistent"
 
-    def __init__(self, seed, maker_type, params):
-        self._seed = seed
-        self._maker_type = maker_type
+    def __init__(self, params):
         self.params = params
+        ift.random.push_sseq_from_seed(params['params_mock_cat.maker_params.seed_cat'])
 
     def make_catalog(self):
 
@@ -62,8 +59,8 @@ class CatalogMaker():
         g_rm = np.array(data['rm'][~z_indices])
         lerm = len(e_rm)
 
-        if(self._maker_type == "seb23"):
-            rm_gal, b, dm =seb23(self._seed)
+        if(self.params['params_mock_cat.maker_params.maker_type'] == "seb23"):
+            rm_gal, b, dm =seb23(self.params['params_mock_cat.maker_params.seed_cat'])
 
 
             o_l = np.array(data['l'])
@@ -73,7 +70,7 @@ class CatalogMaker():
 
             o_projector = Egf.SkyProjector(ift.makeDomain(ift.HPSpace(256)), ift.makeDomain(ift.UnstructuredDomain(len(theta_o))), theta=theta_o, phi=phi_o)
 
-            if self.params['maker_params.disk_on']==1:
+            if self.params['params_mock_cat.maker_params.disk_on']==1:
                 o_rm_gal_data = o_projector(rm_gal)
             else:
                 o_rm_gal_data = o_projector(b)
@@ -110,7 +107,7 @@ class CatalogMaker():
         gal=galactic_model.get_model()(gal_mock_position)
 
         plot = ift.Plot()
-        plot.add(gal, vmin=-50, vmax=50)
+        plot.add(gal, vmin=-250, vmax=250)
         plot.output()
 
         ### eg contribution ####
@@ -121,7 +118,7 @@ class CatalogMaker():
 
         # build the full model and connect it to the likelihood
         # set the extra-galactic model hyper-parameters and initialize the model
-        egal_model_params = {'z': e_z, 'F': e_F }
+        egal_model_params = {'z': e_z, 'F': e_F, 'n_params': self.params['params.n_eg_params']  }
         
         emodel = Egf.ExtraGalModel(egal_data_domain, egal_model_params)
 
@@ -135,7 +132,7 @@ class CatalogMaker():
         N = ift.ScalingOperator(ift.UnstructuredDomain(ltheta), noise, np.float64)
 
         ### rm data assembly ###
-        rm_data=np.array(o_rm_gal_data.val if self._maker_type == "seb23" else eg_gal_data.val)
+        rm_data=np.array(o_rm_gal_data.val if self.params['params_mock_cat.maker_params.maker_type'] == "seb23" else eg_gal_data.val)
         print(rm_data.min(), rm_data.max(), rm_data.mean())
         rand_rm=np.random.normal(0.0, 1.0,len(e_rm))
         egal_contr = emodel.get_model().sqrt()(egal_mock_position).val*rand_rm
@@ -169,7 +166,7 @@ class CatalogMaker():
         data['rm'] = np.array(noised_rm_data.val)
         data['rm_err'] =  noise*np.ones(np.array(noised_rm_data.val).size)
         
-        hdu= fits.open(self.params['params.cat_path']+'catalog_versions/master_catalog_vercustom.fits')
+        hdu= fits.open(self.params['params.cat_path']+'master_catalog_vercustom.fits')
         hdu[1].data['rm'][np.where(hdu[1].data['type']!='Pulsar')] = data['rm']
         hdu[1].data['rm_err'][np.where(hdu[1].data['type']!='Pulsar')] =  data['rm_err']
         hdu.writeto(self.params['params.cat_path']+'master_catalog_vercustom_sim.fits', overwrite=True)
