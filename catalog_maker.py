@@ -85,7 +85,6 @@ class CatalogMaker():
             plt.savefig('Mock_cat_Seb23_dm_b.png', bbox_inches='tight')
 
         else: #CONSISTENT catalog
-            # coordinates
     
             log_amplitude_params = {'fluctuations': {'asperity': self.params['params_mock_cat.log_amplitude.fluctuations.asperity'], 
                                                 'flexibility': self.params['params_mock_cat.log_amplitude.fluctuations.flexibility'],  
@@ -123,10 +122,9 @@ class CatalogMaker():
         
         emodel = Egf.ExtraGalModel(egal_data_domain, egal_model_params)
 
-        egal_mock_position = ift.from_random(emodel.get_model().domain, 'normal')
+        #egal_mock_position = ift.from_random(emodel.get_model().domain, 'normal')
+        egal_mock_position = ift.full(emodel.get_model().domain, 0.0)
         print(f'mock:{egal_mock_position.val}')
-
-        # egal_mock_position = ift.full(emodel.get_model().domain, 0.0)
 
         ### Specify noise
         noise = 0.05

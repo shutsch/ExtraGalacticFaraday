@@ -59,13 +59,13 @@ params_mock_cat:
 
 params:
   nside: 256
-  nglobal: 1
+  nglobal: 95
   n_samples_posterior: 100
   n_single_fit: 200
   plot_path: "./runs/demo/results/"
   results_path: "./runs/demo/results/"
   cat_path: "./data/Faraday/catalog_versions/"
-  n_eg_params: 1
+  n_eg_params: 4
   n_los: 14500
 
 file_params:
