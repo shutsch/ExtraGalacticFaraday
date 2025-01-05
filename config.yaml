@@ -127,7 +127,7 @@ std:
   std_lum: 0.5
   std_red: 0.5
   std_env: 0.5 
-  std_one: 0.05
+  std_one: 0.5
 
 mean:
   mean_int: 5.0

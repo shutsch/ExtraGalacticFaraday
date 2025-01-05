@@ -56,7 +56,7 @@ class CatalogMaker():
         e_z = np.array(data['z_best'][z_indices])
         e_F = np.array(data['stokesI'][z_indices])
         e_rm = np.array(data['rm'][z_indices])
-        g_rm = np.array(data['rm'][~z_indices])
+        #g_rm = np.array(data['rm'][~z_indices])
         lerm = len(e_rm)
 
         eg_l = np.array(data['l'])
@@ -82,6 +82,7 @@ class CatalogMaker():
             plot.add(dm, vmin=-250, vmax=250)
             plot.add(b, vmin=-2.50, vmax=2.50)
             plot.output()
+            plt.savefig('Mock_cat_Seb23_dm_b.png', bbox_inches='tight')
 
         else: #CONSISTENT catalog
             # coordinates
@@ -109,6 +110,7 @@ class CatalogMaker():
             plot = ift.Plot()
             plot.add(gal, vmin=-250, vmax=250)
             plot.output()
+            plt.savefig('Mock_cat_consistent_RM_gal.png', bbox_inches='tight')
 
             ### eg contribution ####
             eg_gal_data = eg_projector(gal)
@@ -149,6 +151,7 @@ class CatalogMaker():
         plot.add(eg_projector.adjoint(eg_gal_data), vmin=-250, vmax=250)
         plot.add(eg_projector.adjoint(noised_rm_data), vmin=-250, vmax=250)
         plot.output()
+        plt.savefig('Mock_cat_plot_cat.png', bbox_inches='tight')
 
         #Plot 2
         fig, axs = plt.subplots(1, 2)
@@ -160,7 +163,7 @@ class CatalogMaker():
         axs[0].set_ylabel('Simulated Galactic RM ($rad/m^2$)')
         axs[0].scatter(data['rm'][~z_indices],noised_rm_data.val[~z_indices])
         plt.show()
-
+        plt.savefig('Mock_cat_obs_vs_sim.png', bbox_inches='tight')
 
         data['rm'] = np.array(noised_rm_data.val)
         data['rm_err'] =  noise*np.ones(np.array(noised_rm_data.val).size)
