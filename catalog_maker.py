@@ -59,34 +59,33 @@ class CatalogMaker():
         g_rm = np.array(data['rm'][~z_indices])
         lerm = len(e_rm)
 
+        eg_l = np.array(data['l'])
+        eg_b = np.array(data['b'])
+
+        theta_eg, phi_eg = gal2gal(eg_l, eg_b) # converting to colatitude and logitude in radians
+
+        ltheta=len(data['theta'])
+        lthetaeg = len(theta_eg)
+        
+        eg_projector = Egf.SkyProjector(ift.makeDomain(ift.HPSpace(256)), ift.makeDomain(ift.UnstructuredDomain(lthetaeg)), theta=theta_eg, phi=phi_eg)
+
         if(self.params['params_mock_cat.maker_params.maker_type'] == "seb23"):
+
             rm_gal, b, dm =seb23(self.params['params_mock_cat.maker_params.seed_cat'])
 
-
-            o_l = np.array(data['l'])
-            o_b = np.array(data['b'])
-
-            theta_o, phi_o = gal2gal(o_l, o_b) # converting to colatitude and logitude in radians
-
-            o_projector = Egf.SkyProjector(ift.makeDomain(ift.HPSpace(256)), ift.makeDomain(ift.UnstructuredDomain(len(theta_o))), theta=theta_o, phi=phi_o)
-
             if self.params['params_mock_cat.maker_params.disk_on']==1:
-                o_rm_gal_data = o_projector(rm_gal)
+                eg_gal_data = eg_projector(rm_gal)
             else:
-                o_rm_gal_data = o_projector(b)
-        
+                eg_gal_data = eg_projector(b)
+            
+            plot = ift.Plot()
+            plot.add(dm, vmin=-250, vmax=250)
+            plot.add(b, vmin=-2.50, vmax=2.50)
+            plot.output()
+
         else: #CONSISTENT catalog
             # coordinates
-            eg_l = np.array(data['l'])
-            eg_b = np.array(data['b'])
-
-            theta_eg, phi_eg = gal2gal(eg_l, eg_b) # converting to colatitude and logitude in radians
-
-            ltheta=len(data['theta'])
-            lthetaeg = len(theta_eg)
-        
-            eg_projector = Egf.SkyProjector(ift.makeDomain(ift.HPSpace(256)), ift.makeDomain(ift.UnstructuredDomain(lthetaeg)), theta=theta_eg, phi=phi_eg)
-
+    
             log_amplitude_params = {'fluctuations': {'asperity': self.params['params_mock_cat.log_amplitude.fluctuations.asperity'], 
                                                 'flexibility': self.params['params_mock_cat.log_amplitude.fluctuations.flexibility'],  
                                                 'fluctuations': self.params['params_mock_cat.log_amplitude.fluctuations.fluctuations'], 
@@ -132,7 +131,7 @@ class CatalogMaker():
         N = ift.ScalingOperator(ift.UnstructuredDomain(ltheta), noise, np.float64)
 
         ### rm data assembly ###
-        rm_data=np.array(o_rm_gal_data.val if self.params['params_mock_cat.maker_params.maker_type'] == "seb23" else eg_gal_data.val)
+        rm_data=np.array(eg_gal_data.val)
         print(rm_data.min(), rm_data.max(), rm_data.mean())
         rand_rm=np.random.normal(0.0, 1.0,len(e_rm))
         egal_contr = emodel.get_model().sqrt()(egal_mock_position).val*rand_rm
@@ -147,8 +146,8 @@ class CatalogMaker():
 
         #Plot 1
         plot = ift.Plot()
-        plot.add(eg_projector.adjoint(eg_gal_data), vmin=-2.5, vmax=2.5)
-        plot.add(eg_projector.adjoint(noised_rm_data), vmin=-2.5, vmax=2.5)
+        plot.add(eg_projector.adjoint(eg_gal_data), vmin=-250, vmax=250)
+        plot.add(eg_projector.adjoint(noised_rm_data), vmin=-250, vmax=250)
         plot.output()
 
         #Plot 2
