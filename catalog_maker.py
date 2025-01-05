@@ -74,45 +74,45 @@ class CatalogMaker():
                 o_rm_gal_data = o_projector(rm_gal)
             else:
                 o_rm_gal_data = o_projector(b)
-
-        # coordinates
-        eg_l = np.array(data['l'])
-        eg_b = np.array(data['b'])
-
-        theta_eg, phi_eg = gal2gal(eg_l, eg_b) # converting to colatitude and logitude in radians
-
-        ltheta=len(data['theta'])
-        lthetaeg = len(theta_eg)
-    
-        eg_projector = Egf.SkyProjector(ift.makeDomain(ift.HPSpace(256)), ift.makeDomain(ift.UnstructuredDomain(lthetaeg)), theta=theta_eg, phi=phi_eg)
-
-        log_amplitude_params = {'fluctuations': {'asperity': self.params['params_mock_cat.log_amplitude.fluctuations.asperity'], 
-                                            'flexibility': self.params['params_mock_cat.log_amplitude.fluctuations.flexibility'],  
-                                            'fluctuations': self.params['params_mock_cat.log_amplitude.fluctuations.fluctuations'], 
-                                            'loglogavgslope': self.params['params_mock_cat.log_amplitude.fluctuations.loglogavgslope'], },
-                            'offset': {'offset_mean': self.params['params_mock_cat.log_amplitude.offset.offset_mean'], 
-                                      'offset_std': self.params['params_mock_cat.log_amplitude.offset.offset_std']},}
-
-        sign_params = {'fluctuations': {'asperity': self.params['params_mock_cat.sign.fluctuations.asperity'], 
-                                            'flexibility': self.params['params_mock_cat.sign.fluctuations.flexibility'],  
-                                            'fluctuations': self.params['params_mock_cat.sign.fluctuations.fluctuations'], 
-                                            'loglogavgslope': self.params['params_mock_cat.sign.fluctuations.loglogavgslope'], },
-                            'offset': {'offset_mean': self.params['params_mock_cat.sign.offset.offset_mean'], 
-                                      'offset_std': self.params['params_mock_cat.sign.offset.offset_std']},}
-
-        galactic_model = Egf.Faraday2020Sky(sky_domain, **{'log_amplitude_parameters': log_amplitude_params,
-                                                        'sign_parameters': sign_params})
         
-        gal_mock_position = ift.from_random(galactic_model.get_model().domain, 'normal')
-        gal=galactic_model.get_model()(gal_mock_position)
+        else: #CONSISTENT catalog
+            # coordinates
+            eg_l = np.array(data['l'])
+            eg_b = np.array(data['b'])
 
-        plot = ift.Plot()
-        plot.add(gal, vmin=-250, vmax=250)
-        plot.output()
+            theta_eg, phi_eg = gal2gal(eg_l, eg_b) # converting to colatitude and logitude in radians
 
-        ### eg contribution ####
+            ltheta=len(data['theta'])
+            lthetaeg = len(theta_eg)
+        
+            eg_projector = Egf.SkyProjector(ift.makeDomain(ift.HPSpace(256)), ift.makeDomain(ift.UnstructuredDomain(lthetaeg)), theta=theta_eg, phi=phi_eg)
 
-        eg_gal_data = eg_projector(gal)
+            log_amplitude_params = {'fluctuations': {'asperity': self.params['params_mock_cat.log_amplitude.fluctuations.asperity'], 
+                                                'flexibility': self.params['params_mock_cat.log_amplitude.fluctuations.flexibility'],  
+                                                'fluctuations': self.params['params_mock_cat.log_amplitude.fluctuations.fluctuations'], 
+                                                'loglogavgslope': self.params['params_mock_cat.log_amplitude.fluctuations.loglogavgslope'], },
+                                'offset': {'offset_mean': self.params['params_mock_cat.log_amplitude.offset.offset_mean'], 
+                                        'offset_std': self.params['params_mock_cat.log_amplitude.offset.offset_std']},}
+
+            sign_params = {'fluctuations': {'asperity': self.params['params_mock_cat.sign.fluctuations.asperity'], 
+                                                'flexibility': self.params['params_mock_cat.sign.fluctuations.flexibility'],  
+                                                'fluctuations': self.params['params_mock_cat.sign.fluctuations.fluctuations'], 
+                                                'loglogavgslope': self.params['params_mock_cat.sign.fluctuations.loglogavgslope'], },
+                                'offset': {'offset_mean': self.params['params_mock_cat.sign.offset.offset_mean'], 
+                                        'offset_std': self.params['params_mock_cat.sign.offset.offset_std']},}
+
+            galactic_model = Egf.Faraday2020Sky(sky_domain, **{'log_amplitude_parameters': log_amplitude_params,
+                                                            'sign_parameters': sign_params})
+            
+            gal_mock_position = ift.from_random(galactic_model.get_model().domain, 'normal')
+            gal=galactic_model.get_model()(gal_mock_position)
+
+            plot = ift.Plot()
+            plot.add(gal, vmin=-250, vmax=250)
+            plot.output()
+
+            ### eg contribution ####
+            eg_gal_data = eg_projector(gal)
 
         egal_data_domain = ift.makeDomain(ift.UnstructuredDomain((lerm,)))
 
@@ -125,7 +125,7 @@ class CatalogMaker():
         egal_mock_position = ift.from_random(emodel.get_model().domain, 'normal')
         print(f'mock:{egal_mock_position.val}')
 
-        egal_mock_position = ift.full(emodel.get_model().domain, 0.0)
+        # egal_mock_position = ift.full(emodel.get_model().domain, 0.0)
 
         ### Specify noise
         noise = 0.05
