@@ -168,3 +168,4 @@ output_chi.txt
 output_plt.txt
 
 *.fits
+*.png
