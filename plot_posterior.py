@@ -13,9 +13,6 @@ class Posterior_Plotter():
         self.ecomponents = args['ecomponents']
         self.n_params= args['n_params']
         self.results_path=args['results_path']
-
-        
-
  
     def plot(self):
     

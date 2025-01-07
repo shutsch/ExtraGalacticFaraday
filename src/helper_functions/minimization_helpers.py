@@ -44,7 +44,7 @@ def _get_adapted_n(m_dict, iteration_number, final):
             assert 'n' in m_dict
             i_step = change_dict['increase_step'] if 'increase_step' in change_dict else None
             i_rate = change_dict['increase_rate'] if 'increase_rate' in change_dict else None
-            if i_step=='None' or i_rate=='None':
+            if i_step==None or i_rate==None:
                 factor = 1
             else:
                 factor = max(1, np.floor(iteration_number / i_step) ** i_rate)

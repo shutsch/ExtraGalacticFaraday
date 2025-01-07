@@ -149,14 +149,23 @@ def run_inference(params):
     
     likelihoods={'implicit_likelihood': implicit_likelihood, 'explicit_likelihood': explicit_likelihood}
 
-    Egf.minimization(n_global=params['params.nglobal'], kl_type='SampledKLEnergy', plot_path=params['params.plot_path'],
-                     likelihoods=likelihoods,
-                     sky_maps=sky_models, power_spectra=power_models, #scatter_pairs=scatter_pairs,
-                     plotting_kwargs=plotting_kwargs)
+    minimizer_params = {
+        'n_global': params['params.nglobal'],
+        'kl_type': 'SampledKLEnergy',
+        'plot_path': params['params.plot_path'],
+        'likelihoods': likelihoods,
+        'sky_maps': sky_models,
+        'power_spectra': power_models,
+        'scatter_pairs': None,
+        'plotting_kwargs': plotting_kwargs
+    }
+
+    Egf.Minimizer(minimizer_params, params).minimize()
     
     plot_params = {'ecomponents': ecomponents, 'n_params': params['params.n_eg_params'], 'results_path':  params['params.results_path']}
 
     plotter = Posterior_Plotter(plot_params)
+    plotter.plot()
 
 
 if __name__ == '__main__':
