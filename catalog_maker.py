@@ -118,7 +118,7 @@ class CatalogMaker():
 
         # build the full model and connect it to the likelihood
         # set the extra-galactic model hyper-parameters and initialize the model
-        egal_model_params = {'z': e_z, 'F': e_F, 'n_params': self.params['params.n_eg_params']  }
+        egal_model_params = {'z': e_z, 'F': e_F, 'n_params': self.params['params.n_eg_params']}
         
         emodel = Egf.ExtraGalModel(egal_data_domain, egal_model_params)
 
@@ -136,7 +136,8 @@ class CatalogMaker():
         rand_rm=np.random.normal(0.0, 1.0,len(e_rm))
         egal_contr = emodel.get_model().sqrt()(egal_mock_position).val*rand_rm
 
-        rm_data[z_indices]+=egal_contr
+        if self.params['params_mock_cat.maker_params.eg_on']==1:
+            rm_data[z_indices]+=egal_contr
         print('std',np.std(egal_contr))
         print('mean',np.mean(egal_contr))
 

@@ -1,15 +1,12 @@
 import nifty8 as ift
 import libs as Egf
 import numpy as np
-from plot_posterior import Posterior_Plotter
 from src.helper_functions.parameters_maker import Parameters_maker
 import utilities as U
 
 
 def run_inference(params):
-    
-
-
+  
     # set the HealPix resolution parameter and the sky domain
 
     sky_domain = ift.makeDomain(ift.HPSpace(params['params.nside']))
@@ -52,7 +49,7 @@ def run_inference(params):
     
     # build the full model and connect it to the likelihood
     # set the extra-galactic model hyper-parameters and initialize the model
-    egal_model_params = {'z': e_z, 'F': e_F, 'n_params': params['params.n_eg_params'] }
+    egal_model_params = {'z': e_z, 'F': e_F, 'n_eg_params': params['params.n_eg_params']}
       
     emodel = Egf.ExtraGalModel(egal_data_domain, egal_model_params)
 
@@ -160,13 +157,7 @@ def run_inference(params):
         'plotting_kwargs': plotting_kwargs
     }
 
-    Egf.Minimizer(minimizer_params, params).minimize()
-    
-    plot_params = {'ecomponents': ecomponents, 'n_params': params['params.n_eg_params'], 'results_path':  params['params.results_path']}
-
-    plotter = Posterior_Plotter(plot_params)
-    plotter.plot()
-
+    Egf.Minimizer(minimizer_params, ecomponents, params).minimize()
 
 if __name__ == '__main__':
     params = Parameters_maker().get_parsed_params()

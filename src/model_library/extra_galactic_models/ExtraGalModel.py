@@ -12,7 +12,7 @@ class ExtraGalModel(Model):
 
         self.z = args['z']
         self.F = args['F']
-        self.n_params = args['n_params']
+        self.n_params = args['n_eg_params']
         
         super().__init__(target_domain)
 
