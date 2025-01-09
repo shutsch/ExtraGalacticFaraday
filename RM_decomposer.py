@@ -170,6 +170,7 @@ def run_inference(params):
 
 if __name__ == '__main__':
     params = Parameters_maker().get_parsed_params()
+    # params = Parameters_maker().yaml_values
 
     # print a RuntimeWarning  in case of underflows
     np.seterr(all='raise')
