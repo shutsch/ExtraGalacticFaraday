@@ -1,13 +1,14 @@
 import nifty8 as ift
 from .logger import logger, Format
-
+from plot_posterior import Posterior_Plotter
 from .minimization_helpers import get_controller, get_n_samples
 from .plot.plot import sky_map_plotting, power_plotting, energy_plotting, scatter_plotting_posterior
 import libs as Egf
 
 class Minimizer():
-    def __init__(self, minimizer_params, params):
+    def __init__(self, minimizer_params, ecomponents, params):
         self.minimizer_params = minimizer_params
+        self.ecomponents = ecomponents
         self.params = params
 
     """
@@ -53,9 +54,18 @@ class Minimizer():
                 for key, (sc1, sc2) in minimizer_params['scatter_pairs'].items():
                     scatter_plotting_posterior(sc1, sc2, key, minimizer_params['plot_path'], [s for s in latest_sample_list.iterator()], string=ident,
                                         **minimizer_params['plotting_kwargs'].get(key, {}))
+            
+            plot_params = {
+                'ecomponents': self.ecomponents,
+                'n_eg_params': self.params['params.n_eg_params'],
+                'results_path': self.params['params.results_path'],
+                'plot_path' : self.params['params.plot_path']
+            }
+            
+            Posterior_Plotter(plot_params).plot()
 
         def get_minimizer(i):
-            if i<100: 
+            if i<params['controllers.minimizer.eg_thresh']: 
                 deltaE_threshold = params['controllers.minimizer.deltaE_threshold']
 
                 new_dict = {
@@ -185,7 +195,7 @@ class Minimizer():
             return_final_position=True,
             inspect_callback=plot_cb,
             output_directory=params['params.results_path'],
-            resume=True
+            resume=params['params.resume']
             #dry_run=False
             )
 

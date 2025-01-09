@@ -11,12 +11,13 @@ class Posterior_Plotter():
     def __init__(self, args):
 
         self.ecomponents = args['ecomponents']
-        self.n_params= args['n_params']
+        self.n_params= args['n_eg_params']
         self.results_path=args['results_path']
- 
+        self.plot_path=args['plot_path']
+
     def plot(self):
     
-        if(self.n_params < 4):
+        if(self.n_params >= 4):
 
             samples = ift.ResidualSampleList.load(self.results_path + 'pickle/last')
 
@@ -222,7 +223,7 @@ class Posterior_Plotter():
 
 
 
-        plt.savefig('EG_posterior.png', bbox_inches='tight')
+        plt.savefig(f'{self.plot_path}EG_posterior.png', bbox_inches='tight')
 
         plt.show()
     

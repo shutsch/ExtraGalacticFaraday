@@ -17,6 +17,7 @@ params_mock_cat:
     seed_cat: 2000
     maker_type : "seb23" #"consistent"
     disk_on: 1
+    eg_on: 1
 
   #Sebastian
   log_amplitude:
@@ -67,6 +68,7 @@ params:
   cat_path: "./data/Faraday/catalog_versions/"
   n_eg_params: 4
   n_los: 14500
+  resume: False
 
 file_params:
   fits_file_path: "data/Faraday/catalog_versions/master_catalog_ver"
@@ -93,10 +95,11 @@ controllers:
     n_final: 40
     increase_step: "None"
     increase_rate: "None"
-    deltaE_threshold: 20
+    deltaE_threshold: 0
     deltaE_start: 1.0e-03
     deltaE_end: 1.0e-07
     convergence_level: 2 #sometimes better 2
+    eg_thresh: 100
 
   sampler_eg:
     n: 500
@@ -135,3 +138,17 @@ mean:
   mean_red: -0.5
   mean_env: 0.0
   mean_one: 4.0
+
+prior_std:
+  prior_std_int: 0.5
+  prior_std_lum: 0.5
+  prior_std_red: 0.5
+  prior_std_env: 0.5 
+  prior_std_one: 0.5
+
+mean:
+  prior_mean_int: 5.0
+  prior_mean_lum: 0.0
+  prior_mean_red: -0.5
+  prior_mean_env: 0.0
+  prior_mean_one: 4.0  

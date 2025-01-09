@@ -6,6 +6,8 @@ import matplotlib.pyplot as plt
 import matplotlib
 matplotlib.use('TkAgg')
 import os
+import utilities as U
+from src.helper_functions.parameters_maker import Parameters_maker
 
 def sky_map_plotting(model, plot_obj, name, path, string=None, **kwargs):
     if string is None:
@@ -28,7 +30,7 @@ def sky_map_plotting(model, plot_obj, name, path, string=None, **kwargs):
             kwargs['vmin']= kwargs['vmin_mean']
             kwargs['vmax']= kwargs['vmax_mean']
         except AttributeError:
-            kwargs['cmap'] = getattr(cm, kwargs['cmap'])
+            kwargs['cmap'] = getattr(ncmap, kwargs['cmap'])
 
     plot.add(m, title="mean", **kwargs)
     if len(plot_obj) > 1:
@@ -38,7 +40,7 @@ def sky_map_plotting(model, plot_obj, name, path, string=None, **kwargs):
                 kwargs['vmin']= kwargs['vmin_std']
                 kwargs['vmax']= kwargs['vmax_std']
             except AttributeError:
-                kwargs['cmap'] = getattr(cm, kwargs['cmap_stddev'])
+                kwargs['cmap'] = getattr(ncmap, kwargs['cmap_stddev'])
         plot.add(ift.sqrt(sc.var), **kwargs, title='std')
     if len(plot_obj) == 1:
         nx = 1
@@ -102,8 +104,7 @@ def run_inference():
 
     # build the full model and connect it to the likelihood
     # set the extra-galactic model hyper-parameters and initialize the model
-    egal_model_params = {'z': egal_z,'L': egal_L, 
-         }
+    egal_model_params = {'z': egal_z,'L': egal_L, 'n_params': params['params.n_eg_params']         }
       
     emodel = Egf.ExtraGalModel(egal_data_domain, egal_model_params)
 
@@ -313,6 +314,8 @@ def run_inference():
 
    
 if __name__ == '__main__':
+    params = Parameters_maker().get_parsed_params()
+
     # print a RuntimeWarning  in case of underflows
     np.seterr(under='warn') 
     np.seterr(all='raise')
