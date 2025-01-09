@@ -9,20 +9,21 @@ import matplotlib.pyplot as plt
 import matplotlib
 from src.helper_functions.parameters_maker import Parameters_maker
 matplotlib.use('TkAgg')
-import sys
+import utilities as U
 
 class CatalogMaker():
 
-    def __init__(self, params):
+    def __init__(self, params, base_catalog=None):
         self.params = params
+        self.base_catalog = base_catalog
         ift.random.push_sseq_from_seed(params['params_mock_cat.maker_params.seed_cat'])
 
     def make_catalog(self):
 
         sky_domain = ift.makeDomain(ift.HPSpace(self.params['params.nside']))
 
-        #starting catalog
-        data = Egf.get_rm(filter_pulsars=True, version='custom', default_error_level=0.5)
+        data = self.base_catalog if self.base_catalog is not None else \
+            Egf.get_rm(filter_pulsars=True, version='custom', default_error_level=0.5)
 
         z_indices = ~np.isnan(data['z_best'])
 
@@ -81,34 +82,18 @@ class CatalogMaker():
             plot = ift.Plot()
             plot.add(dm, vmin=-250, vmax=250)
             plot.add(b, vmin=-2.50, vmax=2.50)
-            plot.output()
+            # plot.output()
             plt.savefig('Mock_cat_Seb23_dm_b.png', bbox_inches='tight')
 
         else: #CONSISTENT catalog
-    
-            log_amplitude_params = {'fluctuations': {'asperity': self.params['params_mock_cat.log_amplitude.fluctuations.asperity'], 
-                                                'flexibility': self.params['params_mock_cat.log_amplitude.fluctuations.flexibility'],  
-                                                'fluctuations': self.params['params_mock_cat.log_amplitude.fluctuations.fluctuations'], 
-                                                'loglogavgslope': self.params['params_mock_cat.log_amplitude.fluctuations.loglogavgslope'], },
-                                'offset': {'offset_mean': self.params['params_mock_cat.log_amplitude.offset.offset_mean'], 
-                                        'offset_std': self.params['params_mock_cat.log_amplitude.offset.offset_std']},}
-
-            sign_params = {'fluctuations': {'asperity': self.params['params_mock_cat.sign.fluctuations.asperity'], 
-                                                'flexibility': self.params['params_mock_cat.sign.fluctuations.flexibility'],  
-                                                'fluctuations': self.params['params_mock_cat.sign.fluctuations.fluctuations'], 
-                                                'loglogavgslope': self.params['params_mock_cat.sign.fluctuations.loglogavgslope'], },
-                                'offset': {'offset_mean': self.params['params_mock_cat.sign.offset.offset_mean'], 
-                                        'offset_std': self.params['params_mock_cat.sign.offset.offset_std']},}
-
-            galactic_model = Egf.Faraday2020Sky(sky_domain, **{'log_amplitude_parameters': log_amplitude_params,
-                                                            'sign_parameters': sign_params})
+            galactic_model = U.get_galactic_model(sky_domain, self.params)
             
             gal_mock_position = ift.from_random(galactic_model.get_model().domain, 'normal')
             gal=galactic_model.get_model()(gal_mock_position)
 
             plot = ift.Plot()
             plot.add(gal, vmin=-250, vmax=250)
-            plot.output()
+            # plot.output()
             plt.savefig('Mock_cat_consistent_RM_gal.png', bbox_inches='tight')
 
             ### eg contribution ####
@@ -118,7 +103,7 @@ class CatalogMaker():
 
         # build the full model and connect it to the likelihood
         # set the extra-galactic model hyper-parameters and initialize the model
-        egal_model_params = {'z': e_z, 'F': e_F, 'n_params': self.params['params.n_eg_params']}
+        egal_model_params = {'z': e_z, 'F': e_F, 'n_eg_params': self.params['params.n_eg_params']}
         
         emodel = Egf.ExtraGalModel(egal_data_domain, egal_model_params)
 
@@ -149,7 +134,7 @@ class CatalogMaker():
         plot = ift.Plot()
         plot.add(eg_projector.adjoint(eg_gal_data), vmin=-250, vmax=250)
         plot.add(eg_projector.adjoint(noised_rm_data), vmin=-250, vmax=250)
-        plot.output()
+        # plot.output()
         plt.savefig('Mock_cat_plot_cat.png', bbox_inches='tight')
 
         #Plot 2
@@ -161,7 +146,7 @@ class CatalogMaker():
         axs[0].set_xlabel('Observed Galactic RM ($rad/m^2$)')
         axs[0].set_ylabel('Simulated Galactic RM ($rad/m^2$)')
         axs[0].scatter(data['rm'][~z_indices],noised_rm_data.val[~z_indices])
-        plt.show()
+        # plt.show()
         plt.savefig('Mock_cat_obs_vs_sim.png', bbox_inches='tight')
 
         data['rm'] = np.array(noised_rm_data.val)

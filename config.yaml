@@ -69,6 +69,7 @@ params:
   n_eg_params: 4
   n_los: 14500
   resume: False
+  use_mock: False
 
 file_params:
   fits_file_path: "data/Faraday/catalog_versions/master_catalog_ver"
@@ -146,7 +147,7 @@ prior_std:
   prior_std_env: 0.5 
   prior_std_one: 0.5
 
-mean:
+prior_mean:
   prior_mean_int: 5.0
   prior_mean_lum: 0.0
   prior_mean_red: -0.5
