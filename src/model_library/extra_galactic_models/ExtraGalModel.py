@@ -51,7 +51,7 @@ class ExtraGalModel(Model):
             chi_int_0 = add_mu_int @ multiply_sigma_int @ ift.FieldAdapter(ift.DomainTuple.scalar_domain(), 'chi_int_0') 
             chi_lum = add_mu_lum @ multiply_sigma_lum @ ift.FieldAdapter(ift.DomainTuple.scalar_domain(), 'chi_lum')
 
-
+            #if zero_prior==1:
             #chi_int_0=ift.FieldAdapter(ift.DomainTuple.scalar_domain(), 'chi_int_0')
             #chi_lum=ift.FieldAdapter(ift.DomainTuple.scalar_domain(), 'chi_lum')
             #chi_env_0=ift.FieldAdapter(ift.DomainTuple.scalar_domain(), 'chi_env_0')

@@ -225,7 +225,7 @@ class Posterior_Plotter():
 
         plt.savefig(f'{self.plot_path}EG_posterior.png', bbox_inches='tight')
 
-        plt.show()
+        #plt.show()
     
 
         
