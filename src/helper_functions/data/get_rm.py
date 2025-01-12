@@ -6,13 +6,13 @@ from ..logger import logger, Format
 from ..misc import gal2gal
 
 
-def get_rm(version, filter_pulsars, default_error_level):
+def get_rm(version, filter_pulsars, default_error_level, params=None):
     logger.info(
         "\n" + Format.underline + "DATA LIBRARY:" + Format.end +
         " _faraday: params : \'filter_pulsars\' {}, \'default_error_level\' {}, \'version\' {}"
         .format(filter_pulsars, default_error_level, version))
 
-    cat = read_FITS(Egf.config['file_params']['fits_file_path'] + version + Egf.config['file_params']['fits_ext'])
+    cat = read_FITS(params['file_params.fits_file_path'] + version + params['file_params.fits_ext'])
 
     logger.info("DATA LOADING: load_faraday_new_master: Loading master catalog, "
                 "number of data points: {}".format(str(len(cat['rm']))))

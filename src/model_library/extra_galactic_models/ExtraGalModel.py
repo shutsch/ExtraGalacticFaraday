@@ -12,16 +12,16 @@ class ExtraGalModel(Model):
 
         self.z = args['z']
         self.F = args['F']
-        self.n_params = args['n_eg_params']
+        self.params = args['params']
         
         super().__init__(target_domain)
 
  
     def set_model(self):
 
-        if(self.n_params < 4): #1 param
-            multiply_sigma1 = ift.makeOp(ift.full(ift.DomainTuple.scalar_domain(), Egf.config['std']['std_one']), sampling_dtype=float)
-            add_mu1 = ift.Adder(ift.full(ift.DomainTuple.scalar_domain(), Egf.config['mean']['mean_one']))
+        if(self.params['params.n_eg_params'] < 4): #1 param
+            multiply_sigma1 = ift.makeOp(ift.full(ift.DomainTuple.scalar_domain(), self.params['std.std_one']), sampling_dtype=float)
+            add_mu1 = ift.Adder(ift.full(ift.DomainTuple.scalar_domain(), self.params['mean.mean_one']))
             chi1 = add_mu1 @ multiply_sigma1 @ ift.FieldAdapter(ift.DomainTuple.scalar_domain(), 'chi1') 
 
             expander_chi = ift.VdotOperator(ift.full(self.target_domain, 1.)).adjoint
@@ -37,14 +37,14 @@ class ExtraGalModel(Model):
 
             #chi_lum = InverseGammaOperator(self.target_domain, self.alpha, self.q) @ ift.FieldAdapter(self.target_domain, 'chi_lum')
 
-            multiply_sigma_lum = ift.makeOp(ift.full(ift.DomainTuple.scalar_domain(), Egf.config['std']['std_lum']), sampling_dtype=float)
-            multiply_sigma_int = ift.makeOp(ift.full(ift.DomainTuple.scalar_domain(), Egf.config['std']['std_int']), sampling_dtype=float)
-            multiply_sigma_red = ift.makeOp(ift.full(ift.DomainTuple.scalar_domain(), Egf.config['std']['std_red']), sampling_dtype=float)
-            multiply_sigma_env = ift.makeOp(ift.full(ift.DomainTuple.scalar_domain(), Egf.config['std']['std_env']), sampling_dtype=float)
-            add_mu_lum = ift.Adder(ift.full(ift.DomainTuple.scalar_domain(), Egf.config['mean']['mean_lum']))
-            add_mu_int = ift.Adder(ift.full(ift.DomainTuple.scalar_domain(), Egf.config['mean']['mean_int']))
-            add_mu_red = ift.Adder(ift.full(ift.DomainTuple.scalar_domain(), Egf.config['mean']['mean_red']))
-            add_mu_env = ift.Adder(ift.full(ift.DomainTuple.scalar_domain(), Egf.config['mean']['mean_env']))
+            multiply_sigma_lum = ift.makeOp(ift.full(ift.DomainTuple.scalar_domain(), self.params['std.std_lum']), sampling_dtype=float)
+            multiply_sigma_int = ift.makeOp(ift.full(ift.DomainTuple.scalar_domain(), self.params['std.std_int']), sampling_dtype=float)
+            multiply_sigma_red = ift.makeOp(ift.full(ift.DomainTuple.scalar_domain(), self.params['std.std_red']), sampling_dtype=float)
+            multiply_sigma_env = ift.makeOp(ift.full(ift.DomainTuple.scalar_domain(), self.params['std.std_env']), sampling_dtype=float)
+            add_mu_lum = ift.Adder(ift.full(ift.DomainTuple.scalar_domain(), self.params['mean.mean_lum']))
+            add_mu_int = ift.Adder(ift.full(ift.DomainTuple.scalar_domain(), self.params['mean.mean_int']))
+            add_mu_red = ift.Adder(ift.full(ift.DomainTuple.scalar_domain(), self.params['mean.mean_red']))
+            add_mu_env = ift.Adder(ift.full(ift.DomainTuple.scalar_domain(), self.params['mean.mean_env']))
 
             chi_env_0 = add_mu_env @ multiply_sigma_env @ ift.FieldAdapter(ift.DomainTuple.scalar_domain(), 'chi_env_0')
             chi_red = add_mu_red @ multiply_sigma_red @ ift.FieldAdapter(ift.DomainTuple.scalar_domain(), 'chi_red') 

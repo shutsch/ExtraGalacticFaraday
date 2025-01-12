@@ -13,12 +13,12 @@ def run_inference(params):
     sky_domain = ift.makeDomain(ift.HPSpace(params['params.nside']))
     catalog_version = 'custom'
 
-    data = Egf.get_rm(filter_pulsars=True, version=f'{catalog_version}', default_error_level=0.5)
+    data = Egf.get_rm(filter_pulsars=True, version=f'{catalog_version}', default_error_level=0.5, params=params)
 
     #create mock catalog option
     if(params['params.use_mock']):
         CatalogMaker(params, base_catalog=data).make_catalog()
-        data = Egf.get_rm(filter_pulsars=True, version=f'{catalog_version}_sim', default_error_level=0.5)
+        data = Egf.get_rm(filter_pulsars=True, version=f'{catalog_version}_sim', default_error_level=0.5, params=params)
 
     # filter
     z_indices = ~np.isnan(data['z_best'])
@@ -37,7 +37,7 @@ def run_inference(params):
     
     # build the full model and connect it to the likelihood
     # set the extra-galactic model hyper-parameters and initialize the model
-    egal_model_params = {'z': e_z, 'F': e_F, 'n_eg_params': params['params.n_eg_params']}
+    egal_model_params = {'z': e_z, 'F': e_F, 'params': params}
       
     emodel = Egf.ExtraGalModel(egal_data_domain, egal_model_params)
 
@@ -148,8 +148,7 @@ def run_inference(params):
     Egf.Minimizer(minimizer_params, ecomponents, params).minimize()
 
 if __name__ == '__main__':
-    params = Parameters_maker().get_parsed_params()
-    # params = Parameters_maker().yaml_values
+    params = Parameters_maker().yaml_values
 
     # print a RuntimeWarning  in case of underflows
     np.seterr(all='raise')

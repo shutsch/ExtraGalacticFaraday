@@ -103,7 +103,7 @@ class CatalogMaker():
 
         # build the full model and connect it to the likelihood
         # set the extra-galactic model hyper-parameters and initialize the model
-        egal_model_params = {'z': e_z, 'F': e_F, 'n_eg_params': self.params['params.n_eg_params']}
+        egal_model_params = {'z': e_z, 'F': e_F, 'params': self.params}
         
         emodel = Egf.ExtraGalModel(egal_data_domain, egal_model_params)
 
