@@ -4,6 +4,8 @@ import libs as Egf
 import numpy as np
 from src.helper_functions.parameters_maker import Parameters_maker
 import utilities as U
+import matplotlib
+matplotlib.use('Agg')
 
 
 def run_inference(params):
