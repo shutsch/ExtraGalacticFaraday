@@ -11,7 +11,7 @@ def run_inference(params):
     sky_domain = ift.makeDomain(ift.HPSpace(params['params.nside']))
     catalog_version = 'custom'
 
-    data = Egf.get_rm(filter_pulsars=True, version=f'{catalog_version}', default_error_level=0.5)
+    data = Egf.get_rm(filter_pulsars=True, version=f'{catalog_version}', default_error_level=0.5, params=params)
 
     #create mock catalog option
     if(params['params.use_mock']):
