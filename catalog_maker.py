@@ -16,10 +16,9 @@ class CatalogMaker():
     def __init__(self, params, base_catalog=None):
         self.params = params
         self.base_catalog = base_catalog
-        ift.random.push_sseq_from_seed(params['params_mock_cat.maker_params.seed_cat'])
+        self.rng = np.random.default_rng(seed=params['params_mock_cat.maker_params.seed_cat'])
 
     def make_catalog(self):
-
         sky_domain = ift.makeDomain(ift.HPSpace(self.params['params.nside']))
 
         data = self.base_catalog if self.base_catalog is not None else \
@@ -34,7 +33,8 @@ class CatalogMaker():
         los=self.params['params.n_los']
 
         b_indices=np.where(abs(data['b'])>45.0)[0]
-        z_mock_indices=np.unique(np.random.choice(b_indices, size=los))
+        z_mock_indices=np.unique(self.rng.choice(b_indices, size=los))
+        # z_mock_indices=np.unique(np.random.choice(b_indices, size=los))
 
         histogram_z = rv_histogram(np.histogram(e_z, bins=100), density=False)
         z_mock=histogram_z.rvs(size=z_mock_indices.size)
@@ -121,7 +121,7 @@ class CatalogMaker():
 
 
         if self.params['params_mock_cat.maker_params.eg_on']==1:
-            rand_rm=np.random.normal(0.0, 1.0,len(e_rm))
+            rand_rm=self.rng.normal(0.0, 1.0,len(e_rm))
             egal_contr = emodel.get_model().sqrt()(egal_mock_position).val*rand_rm
             rm_data[z_indices]+=egal_contr
             print('std',np.std(egal_contr))
@@ -156,6 +156,8 @@ class CatalogMaker():
         hdu= fits.open(self.params['params.cat_path']+'master_catalog_vercustom.fits')
         hdu[1].data['rm'][np.where(hdu[1].data['type']!='Pulsar')] = data['rm']
         hdu[1].data['rm_err'][np.where(hdu[1].data['type']!='Pulsar')] =  data['rm_err']
+        hdu[1].data['z_best'][np.where(hdu[1].data['type']!='Pulsar')] =  data['z_best']
+        hdu[1].data['stokesI'][np.where(hdu[1].data['type']!='Pulsar')] =  data['stokesI']
         hdu.writeto(self.params['params.cat_path']+'master_catalog_vercustom_sim.fits', overwrite=True)
         hdu.close()
 
