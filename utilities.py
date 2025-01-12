@@ -1,5 +1,24 @@
 import libs as Egf
 
+def get_galactic_model(sky_domain, params):
+    log_amplitude_params = {'fluctuations': {'asperity': params['params_mock_cat.log_amplitude.fluctuations.asperity'], 
+                                            'flexibility': params['params_mock_cat.log_amplitude.fluctuations.flexibility'],  
+                                            'fluctuations': params['params_mock_cat.log_amplitude.fluctuations.fluctuations'], 
+                                            'loglogavgslope': params['params_mock_cat.log_amplitude.fluctuations.loglogavgslope'], },
+                            'offset': {'offset_mean': params['params_mock_cat.log_amplitude.offset.offset_mean'], 
+                                      'offset_std': params['params_mock_cat.log_amplitude.offset.offset_std']},}
+
+    sign_params = {'fluctuations': {'asperity': params['params_mock_cat.sign.fluctuations.asperity'], 
+                                            'flexibility': params['params_mock_cat.sign.fluctuations.flexibility'],  
+                                            'fluctuations': params['params_mock_cat.sign.fluctuations.fluctuations'], 
+                                            'loglogavgslope': params['params_mock_cat.sign.fluctuations.loglogavgslope'], },
+                            'offset': {'offset_mean': params['params_mock_cat.sign.offset.offset_mean'], 
+                                      'offset_std': params['params_mock_cat.sign.offset.offset_std']},}
+
+    return Egf.Faraday2020Sky(sky_domain, **{'log_amplitude_parameters': log_amplitude_params,
+                                                       'sign_parameters': sign_params})
+
+
 def get_param(keys, params):
     part_dict = Egf.config
     param_name = ""
@@ -77,6 +96,7 @@ def parse_yaml_params(root_param=None):
     get_param(['params','n_samples_posterior'], params)
     get_param(['params','n_single_fit'], params)
     get_param(['params','resume'], params)
+    get_param(['params','use_mock'], params)
     get_param(['controllers','minimizer','n'], params)
     get_param(['controllers','minimizer','n_final'], params)
     get_param(['controllers','minimizer','increase_step'], params)

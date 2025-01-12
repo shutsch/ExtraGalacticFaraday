@@ -1,4 +1,5 @@
 import nifty8 as ift
+from catalog_maker import CatalogMaker
 import libs as Egf
 import numpy as np
 from src.helper_functions.parameters_maker import Parameters_maker
@@ -7,13 +8,15 @@ import utilities as U
 
 def run_inference(params):
   
-    # set the HealPix resolution parameter and the sky domain
-
     sky_domain = ift.makeDomain(ift.HPSpace(params['params.nside']))
+    catalog_version = 'custom'
 
-    # load_the data, define domains, covariance and projection operators
+    data = Egf.get_rm(filter_pulsars=True, version=f'{catalog_version}', default_error_level=0.5)
 
-    data = Egf.get_rm(filter_pulsars=True, version='custom', default_error_level=0.5, params=params)
+    #create mock catalog option
+    if(params['params.use_mock']):
+        CatalogMaker(params, base_catalog=data).make_catalog()
+        data = Egf.get_rm(filter_pulsars=True, version=f'{catalog_version}_sim', default_error_level=0.5, params=params)
 
     # filter
     z_indices = ~np.isnan(data['z_best'])
@@ -23,24 +26,7 @@ def run_inference(params):
     e_z = np.array(data['z_best'][z_indices])
     e_F = np.array(data['stokesI'][z_indices])
 
-    # test parameters
-    log_amplitude_params = {'fluctuations': {'asperity': params['params_mock_cat.log_amplitude.fluctuations.asperity'], 
-                                            'flexibility': params['params_mock_cat.log_amplitude.fluctuations.flexibility'],  
-                                            'fluctuations': params['params_mock_cat.log_amplitude.fluctuations.fluctuations'], 
-                                            'loglogavgslope': params['params_mock_cat.log_amplitude.fluctuations.loglogavgslope'], },
-                            'offset': {'offset_mean': params['params_mock_cat.log_amplitude.offset.offset_mean'], 
-                                      'offset_std': params['params_mock_cat.log_amplitude.offset.offset_std']},}
-
-    sign_params = {'fluctuations': {'asperity': params['params_mock_cat.sign.fluctuations.asperity'], 
-                                            'flexibility': params['params_mock_cat.sign.fluctuations.flexibility'],  
-                                            'fluctuations': params['params_mock_cat.sign.fluctuations.fluctuations'], 
-                                            'loglogavgslope': params['params_mock_cat.sign.fluctuations.loglogavgslope'], },
-                            'offset': {'offset_mean': params['params_mock_cat.sign.offset.offset_mean'], 
-                                      'offset_std': params['params_mock_cat.sign.offset.offset_std']},}
-
-    galactic_model = Egf.Faraday2020Sky(sky_domain, **{'log_amplitude_parameters': log_amplitude_params,
-                                                       'sign_parameters': sign_params})
-
+    galactic_model = U.get_galactic_model(sky_domain, params)
 
     egal_data_domain = ift.makeDomain(ift.UnstructuredDomain((len(e_rm),)))
 
