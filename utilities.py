@@ -15,29 +15,27 @@ def get_param(keys, params):
     elif part_dict != "None" and type(part_dict) == str and ',' in part_dict:
         params[param_name] = [float(s) for s in part_dict.split(',')]
 
-def analyze_node(k, v, yaml_key, all_yaml_keys, father_k):
+yaml_key = []
+all_yaml_keys = []
 
-    if(type(v)==dict):
-        if yaml_key is None: 
-            yaml_key=[] 
-        yaml_key.append(k)
-        for _k,_v in v.items():
-            yaml_key = analyze_node(_k, _v, yaml_key, all_yaml_keys, father_k)
-    else:
-        yaml_key.append(k)
-        if not father_k in yaml_key : yaml_key.insert(0,father_k)
-        all_yaml_keys.append(yaml_key)
-        return yaml_key[:-1]
-
-def get_all_yaml_params():
-    all_yaml_keys = []
-    yaml_key = []
-    y=Egf.config.items()
+def analyze_node(y):
+    global yaml_key
 
     for k,v in y:
-        yaml_key=[]
-        father_k = k
-        analyze_node(k, v, yaml_key, all_yaml_keys, father_k)
+        yaml_key.append(k)
+        if type(v) == dict:
+            analyze_node(v.items())
+        else:
+            all_yaml_keys.append(yaml_key.copy())
+            yaml_key.pop()
+
+    if len(yaml_key)>0: yaml_key.pop()
+
+def get_all_yaml_params():
+    global all_yaml_keys
+    y=Egf.config.items()
+
+    analyze_node(y)
 
     return all_yaml_keys
 
@@ -46,6 +44,8 @@ def parse_all_yaml_params(yaml_params):
 
     for yaml_param in yaml_params:
         get_param(yaml_param, params)
+
+    return params
 
 def parse_yaml_params(root_param=None):
     params = { }
