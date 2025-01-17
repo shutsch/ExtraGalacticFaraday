@@ -19,7 +19,7 @@ class ExtraGalModel(Model):
  
     def set_model(self):
 
-        if(self.params['params.n_eg_params'] < 4): #1 param
+        if(self.params['params.n_eg_params'] < 2): #1 param
             multiply_sigma1 = ift.makeOp(ift.full(ift.DomainTuple.scalar_domain(), self.params['std.std_one']), sampling_dtype=float)
             add_mu1 = ift.Adder(ift.full(ift.DomainTuple.scalar_domain(), self.params['mean.mean_one']))
             chi1 = add_mu1 @ multiply_sigma1 @ ift.FieldAdapter(ift.DomainTuple.scalar_domain(), 'chi1') 
@@ -38,14 +38,11 @@ class ExtraGalModel(Model):
             #chi_lum = InverseGammaOperator(self.target_domain, self.alpha, self.q) @ ift.FieldAdapter(self.target_domain, 'chi_lum')
 
             multiply_sigma_int = ift.makeOp(ift.full(ift.DomainTuple.scalar_domain(), self.params['std.std_int']), sampling_dtype=float)
-            multiply_sigma_red = ift.makeOp(ift.full(ift.DomainTuple.scalar_domain(), self.params['std.std_red']), sampling_dtype=float)
             multiply_sigma_env = ift.makeOp(ift.full(ift.DomainTuple.scalar_domain(), self.params['std.std_env']), sampling_dtype=float)
             add_mu_int = ift.Adder(ift.full(ift.DomainTuple.scalar_domain(), self.params['mean.mean_int']))
-            add_mu_red = ift.Adder(ift.full(ift.DomainTuple.scalar_domain(), self.params['mean.mean_red']))
             add_mu_env = ift.Adder(ift.full(ift.DomainTuple.scalar_domain(), self.params['mean.mean_env']))
 
             chi_env_0 = add_mu_env @ multiply_sigma_env @ ift.FieldAdapter(ift.DomainTuple.scalar_domain(), 'chi_env_0')
-            chi_red = add_mu_red @ multiply_sigma_red @ ift.FieldAdapter(ift.DomainTuple.scalar_domain(), 'chi_red') 
             chi_int_0 = add_mu_int @ multiply_sigma_int @ ift.FieldAdapter(ift.DomainTuple.scalar_domain(), 'chi_int_0') 
 
             #if zero_prior==1:
@@ -99,7 +96,7 @@ class ExtraGalModel(Model):
             # now we proceed as before, just that the operators are defined on the full combined domain
             add_4 = ift.Adder(ift.full(full_domain, 4))
             multiply_1pz = ift.makeOp(z_grid.log(), sampling_dtype=float)
-            fact3 = (multiply_1pz @ add_4 @ expander @ expander_chi @ chi_red).exp()  # expander maps chi_red on the full domain
+            fact3 = (multiply_1pz @ add_4 @ expander ).exp()  # expander maps chi_red on the full domain
             fact4 = ift.makeOp(((light_speed/(H0*(Wm*z_grid**3+Wc*z_grid**2 +Wl)**0.5))*(1/D0)),sampling_dtype=float)
 
             fact5 = fact4 @ fact3
@@ -121,7 +118,7 @@ class ExtraGalModel(Model):
             
         
             self._model = sigmaRm2
-            self._components.update({'chi_red': chi_red, 'chi_int_0': chi_int_0, 'chi_env_0': chi_env_0, })
+            self._components.update({'chi_int_0': chi_int_0, 'chi_env_0': chi_env_0, })
 
         
 
