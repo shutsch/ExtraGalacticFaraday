@@ -37,11 +37,9 @@ class ExtraGalModel(Model):
 
             #chi_lum = InverseGammaOperator(self.target_domain, self.alpha, self.q) @ ift.FieldAdapter(self.target_domain, 'chi_lum')
 
-            multiply_sigma_lum = ift.makeOp(ift.full(ift.DomainTuple.scalar_domain(), self.params['std.std_lum']), sampling_dtype=float)
             multiply_sigma_int = ift.makeOp(ift.full(ift.DomainTuple.scalar_domain(), self.params['std.std_int']), sampling_dtype=float)
             multiply_sigma_red = ift.makeOp(ift.full(ift.DomainTuple.scalar_domain(), self.params['std.std_red']), sampling_dtype=float)
             multiply_sigma_env = ift.makeOp(ift.full(ift.DomainTuple.scalar_domain(), self.params['std.std_env']), sampling_dtype=float)
-            add_mu_lum = ift.Adder(ift.full(ift.DomainTuple.scalar_domain(), self.params['mean.mean_lum']))
             add_mu_int = ift.Adder(ift.full(ift.DomainTuple.scalar_domain(), self.params['mean.mean_int']))
             add_mu_red = ift.Adder(ift.full(ift.DomainTuple.scalar_domain(), self.params['mean.mean_red']))
             add_mu_env = ift.Adder(ift.full(ift.DomainTuple.scalar_domain(), self.params['mean.mean_env']))
@@ -49,7 +47,6 @@ class ExtraGalModel(Model):
             chi_env_0 = add_mu_env @ multiply_sigma_env @ ift.FieldAdapter(ift.DomainTuple.scalar_domain(), 'chi_env_0')
             chi_red = add_mu_red @ multiply_sigma_red @ ift.FieldAdapter(ift.DomainTuple.scalar_domain(), 'chi_red') 
             chi_int_0 = add_mu_int @ multiply_sigma_int @ ift.FieldAdapter(ift.DomainTuple.scalar_domain(), 'chi_int_0') 
-            chi_lum = add_mu_lum @ multiply_sigma_lum @ ift.FieldAdapter(ift.DomainTuple.scalar_domain(), 'chi_lum')
 
             #if zero_prior==1:
             #chi_int_0=ift.FieldAdapter(ift.DomainTuple.scalar_domain(), 'chi_int_0')
@@ -80,11 +77,11 @@ class ExtraGalModel(Model):
             expander_chi = ift.VdotOperator(ift.full(self.target_domain, 1.)).adjoint
 
             
-            norm=(multiply_L @ expander_chi(chi_lum)).exp()
+            #norm=(multiply_L @ expander_chi(chi_lum)).exp()
 
             term= multiply_z @ expander_chi(chi_int_0.exp())
 
-            fact1 = norm * term
+            fact1 = multiply_L @ term
         
             nz = Egf.const['nz']  # number of redshift bins
             normalized_z_domain = ift.RGSpace(nz, 1/nz) # that's the redshift domain. The volume is set to one, as we will manually mutiply with the real z distance later, since it is not the same for each LoS.
@@ -124,7 +121,7 @@ class ExtraGalModel(Model):
             
         
             self._model = sigmaRm2
-            self._components.update({'chi_lum': chi_lum, 'chi_red': chi_red, 'chi_int_0': chi_int_0, 'chi_env_0': chi_env_0, })
+            self._components.update({'chi_red': chi_red, 'chi_int_0': chi_int_0, 'chi_env_0': chi_env_0, })
 
         
 
