@@ -71,7 +71,7 @@ class ExtraGalModel(Model):
 
             multiply_z = ift.makeOp(ift.Field(self.target_domain, 1./(1+self.z)**4),sampling_dtype=float)
 
-            multiply_L = ift.makeOp(ift.Field(self.target_domain, np.log(self.F*4*m.pi*Dl**2*factor/L0)),sampling_dtype=float)
+            multiply_L = ift.makeOp(ift.Field(self.target_domain, (self.F*4*m.pi*Dl**2*factor/L0)),sampling_dtype=float)
 
 
             expander_chi = ift.VdotOperator(ift.full(self.target_domain, 1.)).adjoint
