@@ -134,7 +134,7 @@ std:
   std_one: 0.5
 
 mean:
-  mean_int: 5.0
+  mean_int: 6.5
   mean_lum: 0.0
   mean_red: -0.5
   mean_env: 0.0

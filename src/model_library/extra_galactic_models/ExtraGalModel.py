@@ -170,8 +170,7 @@ class ExtraGalModel(Model):
             self._components.update({'chi_red': chi_red, 'chi_int_0': chi_int_0, 'chi_env_0': chi_env_0, })
 
 
-        else: #4 params
-
+        if(self.params['params.n_eg_params'] == 4): #1 param
             #new formula -> 
             # sigmaRm^2 = (L/L0)^Xlum * sigma_int_0^2/(1+z)^4 + D/D0 * sigma_env_0^2
 
