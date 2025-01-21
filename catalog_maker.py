@@ -16,7 +16,7 @@ class CatalogMaker():
     def __init__(self, params, base_catalog=None):
         self.params = params
         self.base_catalog = base_catalog
-        self.rng = np.random.default_rng(seed=params['params_mock_cat.maker_params.seed_cat'])
+        self.rng = np.random.default_rng(seed=params['params_mock_cat.maker_params.seed'])
 
     def make_catalog(self):
         sky_domain = ift.makeDomain(ift.HPSpace(self.params['params.nside']))
@@ -72,7 +72,7 @@ class CatalogMaker():
 
         if(self.params['params_mock_cat.maker_params.maker_type'] == "seb23"):
 
-            rm_gal, b, dm =seb23(self.params['params_mock_cat.maker_params.seed_cat'])
+            rm_gal, b, dm =seb23(self.params['params_mock_cat.maker_params.seed'])
 
             if self.params['params_mock_cat.maker_params.disk_on']==1:
                 eg_gal_data = eg_projector(rm_gal)

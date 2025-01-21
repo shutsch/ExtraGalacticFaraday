@@ -30,7 +30,7 @@ class ExtraGalModel(Model):
             self._model = sigmaRm2
             self._components.update({'chi1': chi1})
 
-        if(self.params['params.n_eg_params'] == 2): #1 param
+        if(self.params['params.n_eg_params'] == 2): #2 param
             multiply_sigma_int = ift.makeOp(ift.full(ift.DomainTuple.scalar_domain(), self.params['std.std_int']), sampling_dtype=float)
             multiply_sigma_env = ift.makeOp(ift.full(ift.DomainTuple.scalar_domain(), self.params['std.std_env']), sampling_dtype=float)
             add_mu_int = ift.Adder(ift.full(ift.DomainTuple.scalar_domain(), self.params['mean.mean_int']))
@@ -99,7 +99,7 @@ class ExtraGalModel(Model):
             self._components.update({'chi_int_0': chi_int_0, 'chi_env_0': chi_env_0, })
 
 
-        if(self.params['params.n_eg_params'] == 3): #1 param
+        if(self.params['params.n_eg_params'] == 3): #3 param
             multiply_sigma_int = ift.makeOp(ift.full(ift.DomainTuple.scalar_domain(), self.params['std.std_int']), sampling_dtype=float)
             multiply_sigma_red = ift.makeOp(ift.full(ift.DomainTuple.scalar_domain(), self.params['std.std_red']), sampling_dtype=float)
             multiply_sigma_env = ift.makeOp(ift.full(ift.DomainTuple.scalar_domain(), self.params['std.std_env']), sampling_dtype=float)
@@ -170,7 +170,8 @@ class ExtraGalModel(Model):
             self._components.update({'chi_red': chi_red, 'chi_int_0': chi_int_0, 'chi_env_0': chi_env_0, })
 
 
-        if(self.params['params.n_eg_params'] == 4): #1 param
+        if(self.params['params.n_eg_params'] == 4): #4 param
+
             #new formula -> 
             # sigmaRm^2 = (L/L0)^Xlum * sigma_int_0^2/(1+z)^4 + D/D0 * sigma_env_0^2
 

@@ -153,6 +153,6 @@ if __name__ == '__main__':
     # print a RuntimeWarning  in case of underflows
     np.seterr(all='raise')
     # set seed
-    seed = params['params_mock_cat.maker_params.seed_inf']
+    seed = params['params_mock_cat.maker_params.seed']
     ift.random.push_sseq_from_seed(seed)
     run_inference(params)
