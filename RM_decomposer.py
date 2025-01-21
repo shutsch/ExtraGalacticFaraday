@@ -2,6 +2,7 @@ import nifty8 as ift
 from catalog_maker import CatalogMaker
 import libs as Egf
 import numpy as np
+from src.helper_functions.logger import logger
 from src.helper_functions.parameters_maker import Parameters_maker
 import utilities as U
 import matplotlib
@@ -19,6 +20,7 @@ def run_inference(params):
     if(params['params.use_mock']):
         CatalogMaker(params, base_catalog=data).make_catalog()
         data = Egf.get_rm(filter_pulsars=True, version=f'{catalog_version}_sim', default_error_level=0.5, params=params)
+        logger.info("CREATED NEW MOCK CATALOG")        
 
     # filter
     z_indices = ~np.isnan(data['z_best'])

@@ -8,20 +8,32 @@ import math as m
 from ...operators.InverseGamma import InverseGammaOperator
 
 class ExtraGalModel(Model):
-    def __init__(self, target_domain, args):
+    def __init__(self, target_domain, args, use_prior_params=False):
 
         self.z = args['z']
         self.F = args['F']
         self.params = args['params']
+        self.use_prior_params = use_prior_params
         
         super().__init__(target_domain)
 
  
     def set_model(self):
+        mean_one = self.params['prior_mean.prior_mean_one'] if self.use_prior_params else self.params['mean.mean_one']
+        std_one = self.params['prior_std.prior_std_one'] if self.use_prior_params else self.params['std.std_one']
+        mean_int = self.params['prior_mean.prior_mean_int'] if self.use_prior_params else self.params['mean.mean_int']
+        std_int = self.params['prior_std.prior_std_int'] if self.use_prior_params else self.params['std.std_int']
+        mean_env = self.params['prior_mean.prior_mean_env'] if self.use_prior_params else self.params['mean.mean_env']
+        std_env = self.params['prior_std.prior_std_env'] if self.use_prior_params else self.params['std.std_env']
+        mean_lum = self.params['prior_mean.prior_mean_lum'] if self.use_prior_params else self.params['mean.mean_lum']
+        std_lum = self.params['prior_std.prior_std_lum'] if self.use_prior_params else self.params['std.std_lum']
+        mean_red = self.params['prior_mean.prior_mean_red'] if self.use_prior_params else self.params['mean.mean_red']
+        std_red = self.params['prior_std.prior_std_red'] if self.use_prior_params else self.params['std.std_red']
+
 
         if(self.params['params.n_eg_params'] == 1): #1 param
-            multiply_sigma1 = ift.makeOp(ift.full(ift.DomainTuple.scalar_domain(), self.params['std.std_one']), sampling_dtype=float)
-            add_mu1 = ift.Adder(ift.full(ift.DomainTuple.scalar_domain(), self.params['mean.mean_one']))
+            multiply_sigma1 = ift.makeOp(ift.full(ift.DomainTuple.scalar_domain(), std_one), sampling_dtype=float)
+            add_mu1 = ift.Adder(ift.full(ift.DomainTuple.scalar_domain(), mean_one))
             chi1 = add_mu1 @ multiply_sigma1 @ ift.FieldAdapter(ift.DomainTuple.scalar_domain(), 'chi1') 
 
             expander_chi = ift.VdotOperator(ift.full(self.target_domain, 1.)).adjoint
@@ -31,10 +43,10 @@ class ExtraGalModel(Model):
             self._components.update({'chi1': chi1})
 
         if(self.params['params.n_eg_params'] == 2): #2 param
-            multiply_sigma_int = ift.makeOp(ift.full(ift.DomainTuple.scalar_domain(), self.params['std.std_int']), sampling_dtype=float)
-            multiply_sigma_env = ift.makeOp(ift.full(ift.DomainTuple.scalar_domain(), self.params['std.std_env']), sampling_dtype=float)
-            add_mu_int = ift.Adder(ift.full(ift.DomainTuple.scalar_domain(), self.params['mean.mean_int']))
-            add_mu_env = ift.Adder(ift.full(ift.DomainTuple.scalar_domain(), self.params['mean.mean_env']))
+            multiply_sigma_int = ift.makeOp(ift.full(ift.DomainTuple.scalar_domain(), std_int), sampling_dtype=float)
+            multiply_sigma_env = ift.makeOp(ift.full(ift.DomainTuple.scalar_domain(), std_env), sampling_dtype=float)
+            add_mu_int = ift.Adder(ift.full(ift.DomainTuple.scalar_domain(), mean_int))
+            add_mu_env = ift.Adder(ift.full(ift.DomainTuple.scalar_domain(), mean_env))
 
             chi_env_0 = add_mu_env @ multiply_sigma_env @ ift.FieldAdapter(ift.DomainTuple.scalar_domain(), 'chi_env_0')
             chi_int_0 = add_mu_int @ multiply_sigma_int @ ift.FieldAdapter(ift.DomainTuple.scalar_domain(), 'chi_int_0') 
@@ -100,12 +112,12 @@ class ExtraGalModel(Model):
 
 
         if(self.params['params.n_eg_params'] == 3): #3 param
-            multiply_sigma_int = ift.makeOp(ift.full(ift.DomainTuple.scalar_domain(), self.params['std.std_int']), sampling_dtype=float)
-            multiply_sigma_red = ift.makeOp(ift.full(ift.DomainTuple.scalar_domain(), self.params['std.std_red']), sampling_dtype=float)
-            multiply_sigma_env = ift.makeOp(ift.full(ift.DomainTuple.scalar_domain(), self.params['std.std_env']), sampling_dtype=float)
-            add_mu_int = ift.Adder(ift.full(ift.DomainTuple.scalar_domain(), self.params['mean.mean_int']))
-            add_mu_red = ift.Adder(ift.full(ift.DomainTuple.scalar_domain(), self.params['mean.mean_red']))
-            add_mu_env = ift.Adder(ift.full(ift.DomainTuple.scalar_domain(), self.params['mean.mean_env']))
+            multiply_sigma_int = ift.makeOp(ift.full(ift.DomainTuple.scalar_domain(), std_int), sampling_dtype=float)
+            multiply_sigma_red = ift.makeOp(ift.full(ift.DomainTuple.scalar_domain(), std_red), sampling_dtype=float)
+            multiply_sigma_env = ift.makeOp(ift.full(ift.DomainTuple.scalar_domain(), std_env), sampling_dtype=float)
+            add_mu_int = ift.Adder(ift.full(ift.DomainTuple.scalar_domain(), mean_int))
+            add_mu_red = ift.Adder(ift.full(ift.DomainTuple.scalar_domain(), mean_red))
+            add_mu_env = ift.Adder(ift.full(ift.DomainTuple.scalar_domain(), mean_env))
 
             chi_env_0 = add_mu_env @ multiply_sigma_env @ ift.FieldAdapter(ift.DomainTuple.scalar_domain(), 'chi_env_0')
             chi_red = add_mu_red @ multiply_sigma_red @ ift.FieldAdapter(ift.DomainTuple.scalar_domain(), 'chi_red') 
@@ -177,14 +189,14 @@ class ExtraGalModel(Model):
 
             #chi_lum = InverseGammaOperator(self.target_domain, self.alpha, self.q) @ ift.FieldAdapter(self.target_domain, 'chi_lum')
 
-            multiply_sigma_lum = ift.makeOp(ift.full(ift.DomainTuple.scalar_domain(), self.params['std.std_lum']), sampling_dtype=float)
-            multiply_sigma_int = ift.makeOp(ift.full(ift.DomainTuple.scalar_domain(), self.params['std.std_int']), sampling_dtype=float)
-            multiply_sigma_red = ift.makeOp(ift.full(ift.DomainTuple.scalar_domain(), self.params['std.std_red']), sampling_dtype=float)
-            multiply_sigma_env = ift.makeOp(ift.full(ift.DomainTuple.scalar_domain(), self.params['std.std_env']), sampling_dtype=float)
-            add_mu_lum = ift.Adder(ift.full(ift.DomainTuple.scalar_domain(), self.params['mean.mean_lum']))
-            add_mu_int = ift.Adder(ift.full(ift.DomainTuple.scalar_domain(), self.params['mean.mean_int']))
-            add_mu_red = ift.Adder(ift.full(ift.DomainTuple.scalar_domain(), self.params['mean.mean_red']))
-            add_mu_env = ift.Adder(ift.full(ift.DomainTuple.scalar_domain(), self.params['mean.mean_env']))
+            multiply_sigma_lum = ift.makeOp(ift.full(ift.DomainTuple.scalar_domain(), std_lum), sampling_dtype=float)
+            multiply_sigma_int = ift.makeOp(ift.full(ift.DomainTuple.scalar_domain(), std_int), sampling_dtype=float)
+            multiply_sigma_red = ift.makeOp(ift.full(ift.DomainTuple.scalar_domain(), std_red), sampling_dtype=float)
+            multiply_sigma_env = ift.makeOp(ift.full(ift.DomainTuple.scalar_domain(), std_env), sampling_dtype=float)
+            add_mu_lum = ift.Adder(ift.full(ift.DomainTuple.scalar_domain(), mean_lum))
+            add_mu_int = ift.Adder(ift.full(ift.DomainTuple.scalar_domain(), mean_int))
+            add_mu_red = ift.Adder(ift.full(ift.DomainTuple.scalar_domain(), mean_red))
+            add_mu_env = ift.Adder(ift.full(ift.DomainTuple.scalar_domain(), mean_env))
 
             chi_env_0 = add_mu_env @ multiply_sigma_env @ ift.FieldAdapter(ift.DomainTuple.scalar_domain(), 'chi_env_0')
             chi_red = add_mu_red @ multiply_sigma_red @ ift.FieldAdapter(ift.DomainTuple.scalar_domain(), 'chi_red') 

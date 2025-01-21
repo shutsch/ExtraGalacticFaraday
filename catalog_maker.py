@@ -105,7 +105,7 @@ class CatalogMaker():
         # set the extra-galactic model hyper-parameters and initialize the model
         egal_model_params = {'z': e_z, 'F': e_F, 'params': self.params}
         
-        emodel = Egf.ExtraGalModel(egal_data_domain, egal_model_params)
+        emodel = Egf.ExtraGalModel(egal_data_domain, egal_model_params, use_prior_params=True)
 
         #egal_mock_position = ift.from_random(emodel.get_model().domain, 'normal')
         egal_mock_position = ift.full(emodel.get_model().domain, 0.0)
