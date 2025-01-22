@@ -62,8 +62,8 @@ class Posterior_Plotter_3():
         axs[1,0].scatter(cr_array, ce0_array, color='k')
         axs[1,0].set_ylabel('$\chi_{env,0}$')
         axs[1,0].set_xlabel('$\chi_{red}$')
-        axs[1,0].set_ylim(mr.val-5*sr,mr.val+5*sr)
-        axs[1,0].set_xlim(me0.val-5*se0,me0.val+5*se0)
+        axs[1,0].set_xlim(mr.val-5*sr,mr.val+5*sr)
+        axs[1,0].set_ylim(me0.val-5*se0,me0.val+5*se0)
         #axs[0,1].axis('off')
 
 
