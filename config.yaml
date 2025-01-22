@@ -65,7 +65,7 @@ params:
   plot_path: "./runs/demo/results/"
   results_path: "./runs/demo/results/"
   cat_path: "./data/Faraday/catalog_versions/"
-  n_eg_params: 2
+  n_eg_params: 4
   n_los: 14500
   resume: False
   use_mock: True
@@ -147,8 +147,8 @@ prior_std:
   prior_std_one: 0.5
 
 prior_mean:
-  prior_mean_int: 5.0
+  prior_mean_int: 0.0
   prior_mean_lum: 0.0
-  prior_mean_red: -0.5
+  prior_mean_red: 0.0
   prior_mean_env: 0.0
-  prior_mean_one: 4.0  
+  prior_mean_one: 0.0  

@@ -10,11 +10,9 @@ matplotlib.use('TkAgg')
 class Posterior_Plotter_4():
     def __init__(self, samples, args):
 
-        self.ecomponents = args['ecomponents']
-        self.n_params= args['n_eg_params']
-        self.results_path=args['results_path']
-        self.plot_path=args['plot_path']
         self.samples = samples
+        self.ecomponents = args['ecomponents']
+        self.params = args['params']
 
     def plot(self):
         samples = self.samples
@@ -126,12 +124,12 @@ class Posterior_Plotter_4():
         axs[2,0].add_patch(ellipse6_2sigma)
         axs[2,0].add_patch(ellipse6_3sigma)
 
-        ellipse_prior1 = Ellipse(xy=(0.0, 0.0), width=2*1.0, height=2*1.0, edgecolor='red', fc='None', lw=1)
-        ellipse_prior2 = Ellipse(xy=(0.0, 0.0), width=2*1.0, height=2*1.0, edgecolor='red', fc='None', lw=1)
-        ellipse_prior3 = Ellipse(xy=(0.0, 0.0), width=2*1.0, height=2*1.0, edgecolor='red', fc='None', lw=1)
-        ellipse_prior4 = Ellipse(xy=(0.0, 0.0), width=2*1.0, height=2*3.0, edgecolor='red', fc='None', lw=1)
-        ellipse_prior5 = Ellipse(xy=(0.0, 0.0), width=2*1.0, height=2*3.0, edgecolor='red', fc='None', lw=1)
-        ellipse_prior6 = Ellipse(xy=(0.0, 0.0), width=2*1.0, height=2*3.0, edgecolor='red', fc='None', lw=1)
+        ellipse_prior1 = Ellipse(xy=(self.params['prior_mean.prior_mean_red'], self.params['prior_mean.prior_mean_lum']), width=2*self.params['prior_std.prior_std_red'], height=2*self.params['prior_std.prior_std_lum'], edgecolor='red', fc='None', lw=1)
+        ellipse_prior2 = Ellipse(xy=(self.params['prior_mean.prior_mean_red'], self.params['prior_mean.prior_mean_env']), width=2*self.params['prior_std.prior_std_red'], height=2*self.params['prior_std.prior_std_env'], edgecolor='red', fc='None', lw=1)
+        ellipse_prior3 = Ellipse(xy=(self.params['prior_mean.prior_mean_lum'], self.params['prior_mean.prior_mean_env']), width=2*self.params['prior_std.prior_std_lum'], height=2*self.params['prior_std.prior_std_env'], edgecolor='red', fc='None', lw=1)
+        ellipse_prior4 = Ellipse(xy=(self.params['prior_mean.prior_mean_env'], self.params['prior_mean.prior_mean_int']), width=2*self.params['prior_std.prior_std_env'], height=2*self.params['prior_std.prior_std_int'], edgecolor='red', fc='None', lw=1)
+        ellipse_prior5 = Ellipse(xy=(self.params['prior_mean.prior_mean_red'], self.params['prior_mean.prior_mean_int']), width=2*self.params['prior_std.prior_std_red'], height=2*self.params['prior_std.prior_std_int'], edgecolor='red', fc='None', lw=1)
+        ellipse_prior6 = Ellipse(xy=(self.params['prior_mean.prior_mean_lum'], self.params['prior_mean.prior_mean_int']), width=2*self.params['prior_std.prior_std_lum'], height=2*self.params['prior_std.prior_std_int'], edgecolor='red', fc='None', lw=1)
 
         axs[2,0].add_patch(ellipse_prior1)
         axs[1,0].add_patch(ellipse_prior2)
@@ -142,20 +140,20 @@ class Posterior_Plotter_4():
 
         plt.subplots_adjust(wspace=0, hspace=0)
 
-        axs[0,0].axhline(y = 5.0, color = 'b', linestyle = '--') 
-        axs[0,0].axvline(x = -0.5, color = 'b', linestyle='--')
+        axs[0,0].axhline(y = self.params['mean.mean_int'], color = 'b', linestyle = '--') 
+        axs[0,0].axvline(x = self.params['mean.mean_red'], color = 'b', linestyle='--')
 
-        axs[1,0].axhline(y = 0.0, color = 'b', linestyle = '--') 
-        axs[1,0].axvline(x = -0.5, color = 'b', linestyle='--')
+        axs[1,0].axhline(y = self.params['mean.mean_env'], color = 'b', linestyle = '--') 
+        axs[1,0].axvline(x = self.params['mean.mean_red'], color = 'b', linestyle='--')
 
-        axs[2,0].axhline(y = 0.0, color = 'b', linestyle = '--') 
-        axs[2,0].axvline(x = -0.5, color = 'b', linestyle='--')
+        axs[2,0].axhline(y = self.params['mean.mean_lum'], color = 'b', linestyle = '--') 
+        axs[2,0].axvline(x = self.params['mean.mean_red'], color = 'b', linestyle='--')
 
-        axs[0,1].axhline(y = 5.0, color = 'b', linestyle = '--') 
-        axs[0,1].axvline(x = 0.0, color = 'b', linestyle='--')
+        axs[0,1].axhline(y = self.params['mean.mean_int'], color = 'b', linestyle = '--') 
+        axs[0,1].axvline(x = self.params['mean.mean_lum'], color = 'b', linestyle='--')
 
-        axs[1,1].axhline(y = 0.0, color = 'b', linestyle = '--') 
-        axs[1,1].axvline(x = 0.0, color = 'b', linestyle='--')
+        axs[1,1].axhline(y = self.params['mean.mean_lum'], color = 'b', linestyle = '--') 
+        axs[1,1].axvline(x = self.params['mean.mean_env'], color = 'b', linestyle='--')
 
-        axs[0,2].axhline(y = 5.0, color = 'b', linestyle = '--') 
-        axs[0,2].axvline(x = 0.0, color = 'b', linestyle='--')
+        axs[0,2].axhline(y = self.params['mean.mean_int'], color = 'b', linestyle = '--') 
+        axs[0,2].axvline(x = self.params['mean.mean_env'], color = 'b', linestyle='--')

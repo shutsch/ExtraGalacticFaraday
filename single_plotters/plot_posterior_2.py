@@ -10,11 +10,9 @@ matplotlib.use('TkAgg')
 class Posterior_Plotter_2():
     def __init__(self, samples, args):
 
-        self.ecomponents = args['ecomponents']
-        self.n_params= args['n_eg_params']
-        self.results_path=args['results_path']
-        self.plot_path=args['plot_path']
         self.samples = samples
+        self.ecomponents = args['ecomponents']
+        self.params = args['params']
 
     def plot(self):
         samples = self.samples
@@ -58,7 +56,7 @@ class Posterior_Plotter_2():
 
 
 
-        ellipse_prior1 = Ellipse(xy=(0.0, 0.0), width=2*1.0, height=2*1.0, edgecolor='red', fc='None', lw=1)
+        ellipse_prior1 = Ellipse(xy=(self.params['prior_mean.prior_mean_env'], self.params['prior_mean.prior_mean_int']), width=2*self.params['prior_std.prior_std_env'], height=2*self.params['prior_std.prior_std_int'], edgecolor='red', fc='None', lw=1)
 
         axs.add_patch(ellipse_prior1)
 
@@ -67,5 +65,5 @@ class Posterior_Plotter_2():
 
 
 
-        axs.axhline(y = 5.0, color = 'b', linestyle = '--') 
-        axs.axvline(x = 0.0, color = 'b', linestyle='--')
+        axs.axhline(y = self.params['mean.mean_int'], color = 'b', linestyle = '--') 
+        axs.axvline(x = self.params['mean.mean_env'], color = 'b', linestyle='--')

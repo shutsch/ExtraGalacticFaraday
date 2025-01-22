@@ -57,9 +57,7 @@ class Minimizer():
             
             plot_params = {
                 'ecomponents': self.ecomponents,
-                'n_eg_params': self.params['params.n_eg_params'],
-                'results_path': self.params['params.results_path'],
-                'plot_path' : self.params['params.plot_path']
+                'params': params,
             }
             
             Posterior_Plotter(plot_params).plot()

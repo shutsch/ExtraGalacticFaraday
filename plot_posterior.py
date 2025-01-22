@@ -14,26 +14,23 @@ matplotlib.use('TkAgg')
 
 class Posterior_Plotter():
     def __init__(self, args):
-
         self.args = args
-        self.n_params= args['n_eg_params']
-        self.results_path=args['results_path']
-        self.plot_path=args['plot_path']
+        self.params = args['params']
 
     def plot(self):
 
-        samples = ift.ResidualSampleList.load(self.results_path + 'pickle/last')
+        samples = ift.ResidualSampleList.load(f'{self.params["params.results_path"]}pickle/last')
 
-        if self.n_params == 1:
+        if self.params['params.n_eg_params'] == 1:
             Posterior_Plotter_1(samples=samples, args=self.args).plot()
-        elif self.n_params == 2:
+        elif self.params['params.n_eg_params'] == 2:
             Posterior_Plotter_2(samples=samples, args=self.args).plot()
-        elif self.n_params == 3:
+        elif self.params['params.n_eg_params'] == 3:
             Posterior_Plotter_3(samples=samples, args=self.args).plot()
-        elif self.n_params == 4:
+        elif self.params['params.n_eg_params'] == 4:
             Posterior_Plotter_4(samples=samples, args=self.args).plot()
     
-        plt.savefig(f'{self.plot_path}EG_posterior.png', bbox_inches='tight')
+        plt.savefig(f'{self.params["params.plot_path"]}EG_posterior.png', bbox_inches='tight')
     
 
         

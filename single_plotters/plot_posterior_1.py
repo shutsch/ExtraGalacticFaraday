@@ -10,11 +10,9 @@ matplotlib.use('TkAgg')
 class Posterior_Plotter_1():
     def __init__(self, samples, args):
 
-        self.ecomponents = args['ecomponents']
-        self.n_params= args['n_eg_params']
-        self.results_path=args['results_path']
-        self.plot_path=args['plot_path']
         self.samples = samples
+        self.ecomponents = args['ecomponents']
+        self.params = args['params']
 
     def plot(self):
         samples = self.samples
@@ -44,6 +42,6 @@ class Posterior_Plotter_1():
 
         plt.axvline(x = 4.0, color = 'black', linestyle='-')
 
-        chi1= 4.0
-        plt.axvline(x = chi1+0.5, color = 'red', linestyle='-')
-        plt.axvline(x = chi1-0.5, color = 'red', linestyle='-')
+        
+        plt.axvline(x = self.params['prior_mean.prior_mean_one']+self.params['prior_std.prior_std_one'], color = 'red', linestyle='-')
+        plt.axvline(x = self.params['prior_mean.prior_mean_one']-self.params['prior_std.prior_std_one'], color = 'red', linestyle='-')
