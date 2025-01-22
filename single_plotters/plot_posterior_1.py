@@ -45,3 +45,5 @@ class Posterior_Plotter_1():
         
         plt.axvline(x = self.params['prior_mean.prior_mean_one']+self.params['prior_std.prior_std_one'], color = 'red', linestyle='-')
         plt.axvline(x = self.params['prior_mean.prior_mean_one']-self.params['prior_std.prior_std_one'], color = 'red', linestyle='-')
+
+        plt.xlim(m1.val-5*s1,m1.val+5*s1)

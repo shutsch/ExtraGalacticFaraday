@@ -50,12 +50,14 @@ class Posterior_Plotter_3():
         
         axs[0,0].scatter(cr_array, ci0_array, color='k')
         axs[0,0].set_ylabel('$\chi_{int,0}$')
-        axs[0,0].set_ylim(-3,8)
+        axs[0,0].set_ylim(mi0.val-5*si0,mi0.val+5*si0)
+        axs[1,1].set_xlim(mr.val-5*sr,mr.val+5*sr)
 
         axs[0,1].scatter(ce0_array, ci0_array, color='k')
         axs[0,1].set_xlabel('$\chi_{env,0}$')
         axs[0,1].set_yticklabels([])
-        axs[0,1].set_ylim(-3,8)
+        axs[0,0].set_ylim(mi0.val-5*si0,mi0.val+5*si0)
+        axs[0,1].set_xlim(me0.val-5*se0,me0.val+5*se0)
 
         axs[1,0].scatter(cr_array, ce0_array, color='k')
         axs[1,0].set_ylabel('$\chi_{env,0}$')

@@ -43,8 +43,8 @@ class Posterior_Plotter_2():
         axs.scatter(ce0_array, ci0_array, color='k')
         axs.set_xlabel('$\chi_{env,0}$')
         axs.set_ylabel('$\chi_{int,0}$')
-
-
+        axs.set_xlim(me0.val-5*se0,me0.val+5*se0)
+        axs.set_ylim(mi0.val-5*si0,mi0.val+5*si0)
 
         ellipse_1sigma = Ellipse(xy=(me0.val, mi0.val), width=1*2*se0, height=1*2*si0, edgecolor='green', fc='None', lw=2)
         ellipse_2sigma = Ellipse(xy=(me0.val, mi0.val), width=2*2*se0, height=2*2*si0, edgecolor='cyan', fc='None', lw=2)

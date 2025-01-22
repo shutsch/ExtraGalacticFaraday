@@ -37,29 +37,30 @@ params_mock_cat:
     offset:
       offset_mean: 0.
       offset_std: "5., 4."
+
   #tests no disk
-  #log_amplitude:
-  #  fluctuations:
-  #    asperity: "None"
-  #    flexibility: "1.e-5,1.e-6"
-  #    fluctuations: "1.0e-5, 1.0e-6"
-  #    loglogavgslope: "-3., 1."
-  #  offset:
-  #    offset_mean: 0.
-  #    offset_std: "1.e-5, 1.e-6"
-  #sign:
-  #  fluctuations:
-  #    asperity: "None"
-  #    flexibility: "1., 1."
-  #    fluctuations: "5.0, 4.0"
-  #    loglogavgslope: "-3., 1."
-  #  offset:
-  #    offset_mean: 0.
-  #    offset_std: "5., 4."
+  log_amplitude_consistent:
+    fluctuations:
+      asperity: "None"
+      flexibility: "1.e-5,1.e-6"
+      fluctuations: "1.0e-5, 1.0e-6"
+      loglogavgslope: "-3., 1."
+    offset:
+      offset_mean: 0.
+      offset_std: "1.e-5, 1.e-6"
+  sign_consistent:
+    fluctuations:
+      asperity: "None"
+      flexibility: "1., 1."
+      fluctuations: "5.0, 4.0"
+      loglogavgslope: "-3., 1."
+    offset:
+      offset_mean: 0.
+      offset_std: "5., 4."
 
 params:
   nside: 256
-  nglobal: 95
+  nglobal: 90
   n_samples_posterior: 100
   n_single_fit: 200
   plot_path: "./runs/demo/results/"
@@ -83,15 +84,15 @@ sample_params:
 
 controllers:
   sampler:
-    n: 5
-    n_final: 5
+    n: 500
+    n_final: 500
     increase_step:  "None"
     increase_rate:  "None"
     deltaE: 1.0e-07
     convergence_level: 2
   
   minimizer:
-    n: 1
+    n: 25
     n_final: 40
     increase_step: "None"
     increase_rate: "None"

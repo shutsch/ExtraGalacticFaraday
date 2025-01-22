@@ -57,27 +57,39 @@ class Posterior_Plotter_4():
         
         axs[0,0].scatter(cr_array, ci0_array, color='k')
         axs[0,0].set_ylabel('$\chi_{int,0}$')
+        axs[0,0].set_ylim(mi0.val-5*si0,mi0.val+5*si0)
+        axs[0,0].set_xlim(mr.val-5*sr,mr.val+5*sr)
 
 
         axs[0,1].scatter(cl_array, ci0_array, color='k')
         axs[0,1].set_yticklabels([])
+        axs[0,1].set_ylim(mi0.val-5*si0,mi0.val+5*si0)
+        axs[0,1].set_xlim(ml.val-5*sl,ml.val+5*sl)
 
         axs[0,2].scatter(ce0_array, ci0_array, color='k')
         axs[0,2].set_xlabel('$\chi_{env,0}$')
         axs[0,2].set_yticklabels([])
+        axs[0,2].set_ylim(mi0.val-5*si0,mi0.val+5*si0)
+        axs[0,2].set_xlim(me0.val-5*se0,me0.val+5*se0)
 
         axs[1,0].scatter(cr_array, ce0_array, color='k')
         axs[1,0].set_ylabel('$\chi_{env,0}$')
+        axs[1,0].set_xlim(mr.val-5*sr,mr.val+5*sr)
+        axs[1,0].set_ylim(me0.val-5*se0,me0.val+5*se0)
 
         axs[1,1].scatter(cl_array, ce0_array, color='k')
         axs[1,1].set_xlabel('$\chi_{lum}$')
         axs[1,1].set_yticklabels([])
+        axs[1,1].set_xlim(ml.val-5*sl,ml.val+5*sl)
+        axs[1,1].set_ylim(me0.val-5*se0,me0.val+5*se0)
 
         axs[1,2].axis('off')
 
         axs[2,0].scatter(cr_array, cl_array, color='k')
         axs[2,0].set_xlabel('$\chi_{red}$')
         axs[2,0].set_ylabel('$\chi_{lum}$')
+        axs[0,0].set_xlim(mr.val-5*sr,mr.val+5*sr)
+        axs[0,0].set_ylim(ml.val-5*sl,ml.val+5*sl)
 
         axs[2,1].axis('off')
         axs[2,2].axis('off')
