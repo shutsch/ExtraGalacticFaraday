@@ -55,7 +55,6 @@ class Posterior_Plotter_3():
 
         axs[0,1].scatter(ce0_array, ci0_array, color='k')
         axs[0,1].set_xlabel('$\chi_{env,0}$')
-        axs[0,1].set_yticklabels([])
         axs[0,1].set_ylim(mi0.val-5*si0,mi0.val+5*si0)
         axs[0,1].set_xlim(me0.val-5*se0,me0.val+5*se0)
 
@@ -64,10 +63,7 @@ class Posterior_Plotter_3():
         axs[1,0].set_xlabel('$\chi_{red}$')
         axs[1,0].set_xlim(mr.val-5*sr,mr.val+5*sr)
         axs[1,0].set_ylim(me0.val-5*se0,me0.val+5*se0)
-        #axs[0,1].axis('off')
 
-
-        #axs[1,0].axis('off')
         axs[1,1].axis('off')
 
         ellipse1_1sigma = Ellipse(xy=(mr.val, mi0.val), width=1*2*sr, height=1*2*si0, edgecolor='green', fc='None', lw=2)
@@ -111,3 +107,15 @@ class Posterior_Plotter_3():
 
         axs[0,1].axhline(y = self.params['mean.mean_int'], color = 'b', linestyle = '--') 
         axs[0,1].axvline(x = self.params['mean.mean_env'], color = 'b', linestyle='--')
+
+
+        axs[1,0].sharex(axs[0,0])
+        axs[0,1].sharex(axs[1,1])
+        axs[0,1].sharey(axs[0,0])
+        axs[1,1].sharey(axs[1,0])
+
+        axs[1,0].tick_params(labelbottom=True, direction='in')
+        axs[0,1].tick_params(labelbottom=True, direction='in')
+        axs[0,1].tick_params(labelleft=False, direction='in')
+        axs[1,1].tick_params(labelleft=False, direction='in')
+        axs[0,0].tick_params(labelleft=True, labelbottom=False, direction='in')

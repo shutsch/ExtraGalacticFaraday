@@ -13,7 +13,7 @@ params_mock_cat:
   #  k0: 5.0
   #  gamma: -8.0
   maker_params:
-    seed: 1000
+    seed: 8500
     maker_type : "seb23" #"consistent"
     disk_on: 1
     eg_on: 1
@@ -84,15 +84,15 @@ sample_params:
 
 controllers:
   sampler:
-    n: 500
-    n_final: 500
+    n: 5
+    n_final: 5
     increase_step:  "None"
     increase_rate:  "None"
     deltaE: 1.0e-07
     convergence_level: 2
   
   minimizer:
-    n: 25
+    n: 1
     n_final: 40
     increase_step: "None"
     increase_rate: "None"
@@ -100,7 +100,6 @@ controllers:
     deltaE_start: 1.0e-03
     deltaE_end: 1.0e-07
     convergence_level: 2 #sometimes better 2
-    eg_thresh: 100
 
   sampler_eg:
     n: 500
@@ -134,9 +133,9 @@ std:
   std_one: 0.5
 
 mean:
-  mean_int: 5
+  mean_int: 5.0
   mean_lum: 1.5
-  mean_red: -0.5
+  mean_red: -1.0
   mean_env: 1.0
   mean_one: 4.0
 
@@ -152,4 +151,4 @@ prior_mean:
   prior_mean_lum: 0.0
   prior_mean_red: 0.0
   prior_mean_env: 0.0
-  prior_mean_one: 0.0  
+  prior_mean_one: -5.0 

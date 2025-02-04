@@ -54,7 +54,7 @@ class Posterior_Plotter_4():
         ce0_array=np.array(ce0_list)
 
         fig, axs = plt.subplots(3, 3)
-        
+
         axs[0,0].scatter(cr_array, ci0_array, color='k')
         axs[0,0].set_ylabel('$\chi_{int,0}$')
         axs[0,0].set_ylim(mi0.val-5*si0,mi0.val+5*si0)
@@ -62,13 +62,11 @@ class Posterior_Plotter_4():
 
 
         axs[0,1].scatter(cl_array, ci0_array, color='k')
-        axs[0,1].set_yticklabels([])
         axs[0,1].set_ylim(mi0.val-5*si0,mi0.val+5*si0)
         axs[0,1].set_xlim(ml.val-5*sl,ml.val+5*sl)
 
         axs[0,2].scatter(ce0_array, ci0_array, color='k')
         axs[0,2].set_xlabel('$\chi_{env,0}$')
-        axs[0,2].set_yticklabels([])
         axs[0,2].set_ylim(mi0.val-5*si0,mi0.val+5*si0)
         axs[0,2].set_xlim(me0.val-5*se0,me0.val+5*se0)
 
@@ -79,7 +77,6 @@ class Posterior_Plotter_4():
 
         axs[1,1].scatter(cl_array, ce0_array, color='k')
         axs[1,1].set_xlabel('$\chi_{lum}$')
-        axs[1,1].set_yticklabels([])
         axs[1,1].set_xlim(ml.val-5*sl,ml.val+5*sl)
         axs[1,1].set_ylim(me0.val-5*se0,me0.val+5*se0)
 
@@ -164,8 +161,24 @@ class Posterior_Plotter_4():
         axs[0,1].axhline(y = self.params['mean.mean_int'], color = 'b', linestyle = '--') 
         axs[0,1].axvline(x = self.params['mean.mean_lum'], color = 'b', linestyle='--')
 
-        axs[1,1].axhline(y = self.params['mean.mean_lum'], color = 'b', linestyle = '--') 
-        axs[1,1].axvline(x = self.params['mean.mean_env'], color = 'b', linestyle='--')
+        axs[1,1].axhline(y = self.params['mean.mean_env'], color = 'b', linestyle = '--') 
+        axs[1,1].axvline(x = self.params['mean.mean_lum'], color = 'b', linestyle='--')
 
         axs[0,2].axhline(y = self.params['mean.mean_int'], color = 'b', linestyle = '--') 
         axs[0,2].axvline(x = self.params['mean.mean_env'], color = 'b', linestyle='--')
+
+        axs[1,0].sharex(axs[0,0])
+        axs[2,0].sharex(axs[0,0])
+        axs[0,1].sharex(axs[1,1])
+        axs[0,1].sharey(axs[0,0])
+        axs[0,2].sharey(axs[0,0])
+        axs[1,1].sharey(axs[1,0])
+
+        axs[1,0].tick_params(labelbottom=True, direction='in')
+        axs[0,1].tick_params(labelbottom=True, direction='in')
+        axs[0,1].tick_params(labelleft=False, direction='in')
+        axs[0,2].tick_params(labelleft=False, direction='in')
+        axs[1,1].tick_params(labelleft=False, direction='in')
+        axs[0,0].tick_params(labelbottom=True, direction='in')
+        axs[2,0].tick_params(labelbottom=True, labelleft=True, direction='in')
+

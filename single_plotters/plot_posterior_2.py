@@ -67,3 +67,4 @@ class Posterior_Plotter_2():
 
         axs.axhline(y = self.params['mean.mean_int'], color = 'b', linestyle = '--') 
         axs.axvline(x = self.params['mean.mean_env'], color = 'b', linestyle='--')
+        axs.tick_params(labelbottom=True, labelleft=True, direction='in')

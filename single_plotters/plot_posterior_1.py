@@ -26,24 +26,28 @@ class Posterior_Plotter_1():
         for i in range(0,len(c1)):
             c1_list.append(c1[i].val)
         c1_array=np.array(c1_list)
-    
-        plt.hist(c1_array, density=True, bins=10)
-        plt.ylabel('#')
-        plt.xlabel('$\chi_{1}$')
 
-        plt.axvline(x = m1.val+s1, color = 'green', linestyle='--')
-        plt.axvline(x = m1.val-s1, color = 'green', linestyle='--')
+        fig, ax = plt.subplots()
+        ax.hist(c1_array, density=True, bins=10)
+        ax.set_ylabel('#')
+        ax.set_xlabel('$\chi_{1}$')
 
-        plt.axvline(x = m1.val+2*s1, color = 'cyan', linestyle='--')
-        plt.axvline(x = m1.val-2*s1, color = 'cyan', linestyle='--')
+        ax.axvline(x = m1.val+s1, color = 'green', linestyle='--')
+        ax.axvline(x = m1.val-s1, color = 'green', linestyle='--')
 
-        plt.axvline(x = m1.val+3*s1, color = 'blue', linestyle='--')
-        plt.axvline(x = m1.val-3*s1, color = 'blue', linestyle='--')
+        ax.axvline(x = m1.val+2*s1, color = 'cyan', linestyle='--')
+        ax.axvline(x = m1.val-2*s1, color = 'cyan', linestyle='--')
 
-        plt.axvline(x = 4.0, color = 'black', linestyle='-')
+        ax.axvline(x = m1.val+3*s1, color = 'blue', linestyle='--')
+        ax.axvline(x = m1.val-3*s1, color = 'blue', linestyle='--')
+
+        ax.axvline(x = 4.0, color = 'black', linestyle='-')
 
         
-        plt.axvline(x = self.params['prior_mean.prior_mean_one']+self.params['prior_std.prior_std_one'], color = 'red', linestyle='-')
-        plt.axvline(x = self.params['prior_mean.prior_mean_one']-self.params['prior_std.prior_std_one'], color = 'red', linestyle='-')
+        ax.axvline(x = self.params['prior_mean.prior_mean_one']+self.params['prior_std.prior_std_one'], color = 'red', linestyle='-')
+        ax.axvline(x = self.params['prior_mean.prior_mean_one']-self.params['prior_std.prior_std_one'], color = 'red', linestyle='-')
 
-        plt.xlim(m1.val-5*s1,m1.val+5*s1)
+        ax.set_xlim(m1.val-5*s1,m1.val+5*s1)
+        
+        ax.tick_params(axis='y',direction='in')
+        ax.tick_params(axis='x',direction='in')

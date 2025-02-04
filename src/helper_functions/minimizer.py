@@ -1,6 +1,6 @@
 import nifty8 as ift
 from .logger import logger, Format
-from plot_posterior import Posterior_Plotter
+from posterior_plotter import Posterior_Plotter
 from .minimization_helpers import get_controller, get_n_samples
 from .plot.plot import sky_map_plotting, power_plotting, energy_plotting, scatter_plotting_posterior
 import libs as Egf
@@ -60,10 +60,10 @@ class Minimizer():
                 'params': params,
             }
             
-            Posterior_Plotter(plot_params).plot()
+            Posterior_Plotter(plot_params).plot(figname='EG_posterior.png')
 
         def get_minimizer(i):
-            if i<params['controllers.minimizer.eg_thresh']: 
+            if i<params['params.n_single_fit']: 
                 deltaE_threshold = params['controllers.minimizer.deltaE_threshold']
 
                 new_dict = {
