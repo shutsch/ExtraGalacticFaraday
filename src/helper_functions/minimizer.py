@@ -60,7 +60,7 @@ class Minimizer():
                 'params': params,
             }
             
-            Posterior_Plotter(plot_params).plot(figname='EG_posterior.png')
+            Posterior_Plotter(plot_params).plot(figname=f'EG_posterior_{i}.png')
 
         def get_minimizer(i):
             if i<params['params.n_single_fit']: 
