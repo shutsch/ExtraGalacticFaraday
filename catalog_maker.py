@@ -112,7 +112,9 @@ class CatalogMaker():
         print(f'mock:{egal_mock_position.val}')
 
         ### Specify noise
-        noise = 0.05
+        noise = self.params['params.noise']
+        print('Noise std =',noise)
+
         N = ift.ScalingOperator(ift.UnstructuredDomain(ltheta), noise, np.float64)
 
         ### rm data assembly ###

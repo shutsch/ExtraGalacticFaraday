@@ -66,8 +66,9 @@ params:
   plot_path: "./runs/demo/results/"
   results_path: "./runs/demo/results/"
   cat_path: "./data/Faraday/catalog_versions/"
-  n_eg_params: 2
+  n_eg_params: 4
   n_los: 14500
+  noise: 0.05
   resume: False
   use_mock: True
 
