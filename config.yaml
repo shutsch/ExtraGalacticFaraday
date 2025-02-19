@@ -60,7 +60,7 @@ params_mock_cat:
 
 params:
   nside: 256
-  nglobal: 90
+  nglobal: 100
   n_samples_posterior: 100
   n_single_fit: 200
   plot_path: "./runs/demo/results/"
@@ -79,21 +79,21 @@ file_params:
 sample_params:
   n: 2
   n_prior: 2
-  n_final: 2
-  increase_step: 10
-  increase_rate: 1.7
+  n_final: 20
+  increase_step: 8
+  increase_rate: 1
 
 controllers:
   sampler:
-    n: 5
-    n_final: 5
+    n: 500
+    n_final: 500
     increase_step:  "None"
     increase_rate:  "None"
     deltaE: 1.0e-07
     convergence_level: 2
   
   minimizer:
-    n: 1
+    n: 40
     n_final: 40
     increase_step: "None"
     increase_rate: "None"
