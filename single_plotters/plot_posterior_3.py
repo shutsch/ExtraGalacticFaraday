@@ -110,7 +110,7 @@ class Posterior_Plotter_3():
 
 
         axs[1,0].sharex(axs[0,0])
-        axs[0,1].sharex(axs[1,1])
+        #axs[0,1].sharex(axs[1,1])
         axs[0,1].sharey(axs[0,0])
         axs[1,1].sharey(axs[1,0])
 

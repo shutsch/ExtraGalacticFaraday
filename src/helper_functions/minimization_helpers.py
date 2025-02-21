@@ -55,4 +55,4 @@ def _get_adapted_n(m_dict, iteration_number, final):
                 n = m_dict['n'] * factor
     else:
         n = m_dict['n']
-    return n
+    return int(n)

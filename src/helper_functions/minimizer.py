@@ -166,7 +166,7 @@ class Minimizer():
         # draw position
         position = 0.1*ift.from_random(likelihood.domain)
 
-        n_samples= lambda i: get_n_samples(sample_parameters, 0, False) if i< n_global-1 \
+        n_samples= lambda i: get_n_samples(sample_parameters, i, False) if i< n_global-1 \
             else params['params.n_samples_posterior']
 
 
