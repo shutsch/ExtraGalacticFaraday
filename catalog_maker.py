@@ -16,7 +16,7 @@ class CatalogMaker():
     def __init__(self, params, base_catalog=None):
         self.params = params
         self.base_catalog = base_catalog
-        self.rng = np.random.default_rng(seed=params['params_mock_cat.maker_params.seed'])
+        #self.rng = np.random.default_rng(seed=params['params_mock_cat.maker_params.seed'])
 
     def make_catalog(self):
         sky_domain = ift.makeDomain(ift.HPSpace(self.params['params.nside']))
@@ -33,8 +33,11 @@ class CatalogMaker():
         los=self.params['params.n_los']
 
         b_indices=np.where(abs(data['b'])>45.0)[0]
-        z_mock_indices=np.unique(self.rng.choice(b_indices, size=los))
-        # z_mock_indices=np.unique(np.random.choice(b_indices, size=los))
+        np.random.seed(seed=self.params['params_mock_cat.maker_params.seed'])
+        z_mock_indices=np.unique(np.random.choice(b_indices, size=los))
+        #z_mock_indices=np.unique(self.rng.choice(b_indices, size=los))
+        print('Number of LOS', len(z_mock_indices) )
+
 
         histogram_z = rv_histogram(np.histogram(e_z, bins=100), density=False)
         z_mock=histogram_z.rvs(size=z_mock_indices.size)
@@ -112,26 +115,33 @@ class CatalogMaker():
         print(f'mock:{egal_mock_position.val}')
 
         ### Specify noise
-        noise = self.params['params.noise']
-        print('Noise std =',noise)
+        noise_eg = self.params['params.noise_eg']
+        noise_gal = self.params['params.noise_gal']
+        print('EG Noise std =', noise_eg)
+        print('Gal Noise std =', noise_gal)
 
-        N = ift.ScalingOperator(ift.UnstructuredDomain(ltheta), noise, np.float64)
+        N_eg = ift.ScalingOperator(ift.UnstructuredDomain(lerm), noise_eg, np.float64)
+        N_gal = ift.ScalingOperator(ift.UnstructuredDomain(ltheta-lerm), noise_gal, np.float64)
 
         ### rm data assembly ###
         rm_data=np.array(eg_gal_data.val)
+        rm_data[np.isnan(data['z_best'])] +=  N_gal.draw_sample().val
         print(rm_data.min(), rm_data.max(), rm_data.mean())
 
 
         if self.params['params_mock_cat.maker_params.eg_on']==1:
-            rand_rm=self.rng.normal(0.0, 1.0,len(e_rm))
+            np.random.seed(seed=self.params['params_mock_cat.maker_params.seed'])
+            rand_rm=np.random.normal(0.0, 1.0,len(e_rm))
+            #rand_rm=self.rng.normal(0.0, 1.0,len(e_rm))
             egal_contr = emodel.get_model().sqrt()(egal_mock_position).val*rand_rm
-            rm_data[z_indices]+=egal_contr
+            rm_data[z_indices]+=egal_contr + N_eg.draw_sample().val
             print('std',np.std(egal_contr))
             print('mean',np.mean(egal_contr))
 
-        rm_data_field=ift.makeField(ift.UnstructuredDomain(ltheta), rm_data)
+        #rm_data_field=ift.makeField(ift.UnstructuredDomain(ltheta), rm_data)
+        noised_rm_data=ift.makeField(ift.UnstructuredDomain(ltheta), rm_data)
 
-        noised_rm_data = rm_data_field + N.draw_sample()
+        #noised_rm_data = rm_data_field + N.draw_sample()
 
         #Plot 1
         plot = ift.Plot()
@@ -153,7 +163,8 @@ class CatalogMaker():
         plt.savefig('Mock_cat_obs_vs_sim.png', bbox_inches='tight')
 
         data['rm'] = np.array(noised_rm_data.val)
-        data['rm_err'] =  noise*np.ones(np.array(noised_rm_data.val).size)
+        data['rm_err'][np.isnan(data['z_best'])] =  noise_gal*np.ones(ltheta-lerm)
+        data['rm_err'][~np.isnan(data['z_best'])] =  noise_eg*np.ones(lerm)
         
         hdu= fits.open(self.params['params.cat_path']+'master_catalog_vercustom.fits')
         hdu[1].data['rm'][np.where(hdu[1].data['type']!='Pulsar')] = data['rm']

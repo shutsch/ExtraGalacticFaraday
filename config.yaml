@@ -5,15 +5,15 @@ params_mock_cat:
     #k0: 34
     #gamma: -2.4 
   # values used in the tests 
-    P0: 1.5
-    k0: 5.0
-    gamma: -2.5
-  # values for a Gal RM on large scales
-  #  P0: 3.8
+  #  P0: 1.5
   #  k0: 5.0
-  #  gamma: -8.0
+  #  gamma: -2.5
+  # values for a Gal RM on large scales
+    P0: 3.8
+    k0: 5.0
+    gamma: -8.0
   maker_params:
-    seed: 8500
+    seed: 1000
     maker_type : "seb23" #"consistent"
     disk_on: 1
     eg_on: 1
@@ -67,8 +67,9 @@ params:
   results_path: "./runs/demo/results/"
   cat_path: "./data/Faraday/catalog_versions/"
   n_eg_params: 4
-  n_los: 14500
-  noise: 0.05
+  n_los: 14500 #1030
+  noise_gal: 11.5
+  noise_eg: 0.06
   resume: False
   use_mock: True
 
@@ -135,21 +136,21 @@ std:
 
 mean:
   mean_int: 5.0
-  mean_lum: 1.5
-  mean_red: -1.0
-  mean_env: 1.0
+  mean_lum: 0.0
+  mean_red: -0.5
+  mean_env: 0.0
   mean_one: 4.0
 
 prior_std:
-  prior_std_int: 0.5
-  prior_std_lum: 0.5
-  prior_std_red: 0.5
-  prior_std_env: 0.5 
-  prior_std_one: 0.5
+  prior_std_int: 2.5
+  prior_std_lum: 1.0
+  prior_std_red: 1.0
+  prior_std_env: 1.0 
+  prior_std_one: 1.0
 
 prior_mean:
   prior_mean_int: 0.0
   prior_mean_lum: 0.0
   prior_mean_red: 0.0
   prior_mean_env: 0.0
-  prior_mean_one: -5.0 
+  prior_mean_one: 0.0 
