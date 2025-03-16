@@ -15,13 +15,13 @@ class Settings_Maker():
     def run_settings(self):
         params= self.params
 
-        sky_domain = ift.makeDomain(ift.HPSpace(params['params.nside']))
+        sky_domain = ift.makeDomain(ift.HPSpace(params['params_inference.nside']))
         catalog_version = 'custom'
 
         data = Egf.get_rm(filter_pulsars=True, version=f'{catalog_version}', default_error_level=0.5, params=params)
 
         #create mock catalog option
-        if(params['params.use_mock']):
+        if(params['params_mock_cat.maker_params.use_mock']):
             CatalogMaker(params, base_catalog=data).make_catalog()
             data = Egf.get_rm(filter_pulsars=True, version=f'{catalog_version}_sim', default_error_level=0.5, params=params)
             logger.info("CREATED NEW MOCK CATALOG")        
@@ -96,29 +96,36 @@ class Settings_Maker():
                                             domain=sky_domain, target=gal_data_domain)
 
 
-
+        #to use when inference on the noise factors is necessary
+        if self.params['params_mock_cat.maker_params.npi']==1:
         # Possible all sky variation of alpha, requires pygedm package 
-        #alpha = 2.5
-        #log_ymw = np.log(Egf.load_ymw_sky('./data/', nside=Egf.config['params']['nside'], model='ymw16', mode='mc'))
-        #log_ymw /= log_ymw.min()
-        #log_ymw *= 5
-        #alpha = implicit_response(ift.Field(ift.makeDomain(implicit_response.domain), log_ymw)).val
+            alpha = 2.5
+            log_ymw = np.log(Egf.load_ymw_sky('./data/', nside=params['params_inference.nside'], model='ymw16', mode='mc'))
+            log_ymw /= log_ymw.min()
+            log_ymw *= 5
+            alpha = implicit_response(ift.Field(ift.makeDomain(implicit_response.domain), log_ymw)).val
 
+            implicit_noise = Egf.SimpleVariableNoise(gal_data_domain, alpha=alpha, q='mode', noise_cov=gal_stddev**2).get_model()
+        # build the full model and connect it to the likelihood
 
-        #implicit_noise = Egf.SimpleVariableNoise(gal_data_domain, alpha=alpha, q='mode', noise_cov=gal_stddev**2).get_model()
-        implicit_noise = Egf.StaticNoise(gal_data_domain, gal_stddev**2, True)
+            implicit_model = implicit_response @ galactic_model.get_model()
+            residual = ift.Adder(-gal_rm) @ implicit_model
+            new_dom = ift.MultiDomain.make({'icov': implicit_noise.target, 'residual': residual.target})
+            n_res = ift.FieldAdapter(new_dom, 'icov')(implicit_noise.reciprocal()) + \
+                ift.FieldAdapter(new_dom, 'residual')(residual)
+            implicit_likelihood = ift.VariableCovarianceGaussianEnergy(domain=gal_data_domain, residual_key='residual',
+                                                                inverse_covariance_key='icov',
+                                                                   sampling_dtype=np.dtype(np.float64)) @ n_res
+
+        else:
+        #to use with perfect noise knowledge
+            implicit_noise = Egf.StaticNoise(gal_data_domain, gal_stddev**2, True)
 
         # build the full model and connect it to the likelihood
 
-        implicit_model = implicit_response @ galactic_model.get_model()
-        residual = ift.Adder(-gal_rm) @ implicit_model
-        #new_dom = ift.MultiDomain.make({'icov': implicit_noise.target, 'residual': residual.target})
-        #n_res = ift.FieldAdapter(new_dom, 'icov')(implicit_noise.reciprocal()) + \
-        #    ift.FieldAdapter(new_dom, 'residual')(residual)
-        #implicit_likelihood = ift.VariableCovarianceGaussianEnergy(domain=gal_data_domain, residual_key='residual',
-        #                                                           inverse_covariance_key='icov',
-        #                                                           sampling_dtype=np.dtype(np.float64)) @ n_res
-        implicit_likelihood = ift.GaussianEnergy(inverse_covariance=implicit_noise.get_model(),
+            implicit_model = implicit_response @ galactic_model.get_model()
+            residual = ift.Adder(-gal_rm) @ implicit_model
+            implicit_likelihood = ift.GaussianEnergy(inverse_covariance=implicit_noise.get_model(),
                                                 sampling_dtype=float) @ residual
 
         # set run parameters and start the inference
@@ -142,9 +149,9 @@ class Settings_Maker():
         likelihoods={'implicit_likelihood': implicit_likelihood, 'explicit_likelihood': explicit_likelihood}
 
         minimizer_params = {
-            'n_global': params['params.nglobal'],
+            'n_global': params['params_inference.nglobal'],
             'kl_type': 'SampledKLEnergy',
-            'plot_path': params['params.plot_path'],
+            'plot_path': params['params_inference.plot_path'],
             'likelihoods': likelihoods,
             'sky_maps': sky_models,
             'power_spectra': power_models,

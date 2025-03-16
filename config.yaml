@@ -1,4 +1,6 @@
 params_mock_cat:
+
+
   power_spec:
   # parameters of the power spectrum as defined in Hustschenreuter et al. 2022
     #P0: 1.1e+14
@@ -12,11 +14,20 @@ params_mock_cat:
     P0: 3.8
     k0: 5.0
     gamma: -8.0
+
+
   maker_params:
     seed: 1000
-    maker_type : "seb23" #"consistent"
+    use_mock: True
     disk_on: 1
+    maker_type : "seb23" #"consistent"
     eg_on: 1
+    n_eg_params: 4
+    n_los: 14500 #1030
+    noise_eg: 0.06
+    noise_gal: 11.5
+    npi: 1
+    npi_los: 1000
 
   #Sebastian
   log_amplitude:
@@ -58,20 +69,15 @@ params_mock_cat:
       offset_mean: 0.
       offset_std: "5., 4."
 
-params:
+params_inference:
   nside: 256
   nglobal: 100
-  n_samples_posterior: 100
   n_single_fit: 200
+  n_samples_posterior: 100
+  resume: False
   plot_path: "./runs/demo/results/"
   results_path: "./runs/demo/results/"
   cat_path: "./data/Faraday/catalog_versions/"
-  n_eg_params: 4
-  n_los: 14500 #1030
-  noise_gal: 11.5
-  noise_eg: 0.06
-  resume: False
-  use_mock: True
 
 file_params:
   fits_file_path: "data/Faraday/catalog_versions/master_catalog_ver"

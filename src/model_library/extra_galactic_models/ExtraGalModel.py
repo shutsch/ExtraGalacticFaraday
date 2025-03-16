@@ -63,14 +63,14 @@ class ExtraGalModel(Model):
 
         expander_chi = ift.VdotOperator(ift.full(self.target_domain, 1.)).adjoint
 
-        if(self.params['params.n_eg_params'] == 1): #1 param
+        if(self.params['params_mock_cat.maker_params.n_eg_params'] == 1): #1 param
 
 
             sigmaRm2=(expander_chi @ chi1).exp() 
             self._model = sigmaRm2
             self._components.update({'chi1': chi1})
 
-        if(self.params['params.n_eg_params'] == 2): #2 param
+        if(self.params['params_mock_cat.maker_params.n_eg_params'] == 2): #2 param
 
             multiply_z = ift.makeOp(ift.Field(self.target_domain, 1./(1+self.z)**4),sampling_dtype=float)
             multiply_L = ift.makeOp(ift.Field(self.target_domain, np.log(self.F*4*m.pi*Dl**2*factor/L0)),sampling_dtype=float)
@@ -89,7 +89,7 @@ class ExtraGalModel(Model):
          
            
         
-        if(self.params['params.n_eg_params'] == 3): #3 param
+        if(self.params['params_mock_cat.maker_params.n_eg_params'] == 3): #3 param
         
 
             multiply_z = ift.makeOp(ift.Field(self.target_domain, 1./(1+self.z)**4),sampling_dtype=float)
@@ -109,7 +109,7 @@ class ExtraGalModel(Model):
 
 
 
-        if(self.params['params.n_eg_params'] == 4): #4 param
+        if(self.params['params_mock_cat.maker_params.n_eg_params'] == 4): #4 param
 
             #new formula -> 
             # sigmaRm^2 = (L/L0)^Xlum * sigma_int_0^2/(1+z)^4 + D/D0 * sigma_env_0^2

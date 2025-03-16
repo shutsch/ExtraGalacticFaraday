@@ -63,7 +63,7 @@ class Minimizer():
             Posterior_Plotter(plot_params).plot(figname=f'EG_posterior_{i}.png')
 
         def get_minimizer(i):
-            if i<params['params.n_single_fit']: 
+            if i<params['params_inference.n_single_fit']: 
                 deltaE_threshold = params['controllers.minimizer.deltaE_threshold']
 
                 new_dict = {
@@ -167,16 +167,16 @@ class Minimizer():
         position = 0.1*ift.from_random(likelihood.domain)
 
         n_samples= lambda i: get_n_samples(sample_parameters, i, False) if i< n_global-1 \
-            else params['params.n_samples_posterior']
+            else params['params_inference.n_samples_posterior']
 
 
-        constants = lambda i: [] if i< params['params.n_single_fit'] \
+        constants = lambda i: [] if i< params['params_inference.n_single_fit'] \
             else ( ['log_profile_flexibility', 'log_profile_fluctuations', 'log_profile_loglogavgslope', 'log_profile_spectrum', 'log_profile_xi', 'log_profile_zeromode', 'sign_flexibility', 'sign_fluctuations', 'sign_loglogavgslope', 'sign_spectrum', 'sign_xi', 'sign_zeromode'])
 
-        point_estimates = lambda i: [] if i< params['params.n_single_fit'] \
+        point_estimates = lambda i: [] if i< params['params_inference.n_single_fit'] \
             else (['log_profile_flexibility', 'log_profile_fluctuations', 'log_profile_loglogavgslope', 'log_profile_spectrum', 'log_profile_xi', 'log_profile_zeromode', 'sign_flexibility', 'sign_fluctuations', 'sign_loglogavgslope', 'sign_spectrum', 'sign_xi', 'sign_zeromode'])
         
-        get_sampler = lambda i : controllers['Sampler'] if i< params['params.n_single_fit'] else controllers['Sampler_eg']
+        get_sampler = lambda i : controllers['Sampler'] if i< params['params_inference.n_single_fit'] else controllers['Sampler_eg']
     
         op_output = {}
         sample_list, mean = ift.optimize_kl(
@@ -192,8 +192,8 @@ class Minimizer():
             initial_position=position,
             return_final_position=True,
             inspect_callback=plot_cb,
-            output_directory=params['params.results_path'],
-            resume=params['params.resume']
+            output_directory=params['params_inference.results_path'],
+            resume=params['params_inference.resume']
             #dry_run=False
             )
 
