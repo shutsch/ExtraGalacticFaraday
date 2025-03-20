@@ -27,7 +27,7 @@ params_mock_cat:
     noise_eg: 0.06
     noise_gal: 11.5
     npi: 1
-    npi_los: 1000
+    npi_los: 1500
 
   #Sebastian
   log_amplitude:

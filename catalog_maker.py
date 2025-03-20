@@ -85,8 +85,8 @@ class CatalogMaker():
             plot = ift.Plot()
             plot.add(dm, vmin=-250, vmax=250)
             plot.add(b, vmin=-2.50, vmax=2.50)
-            # plot.output()
-            plt.savefig('Mock_cat_Seb23_dm_b.png', bbox_inches='tight')
+            plot.output(name='Mock_cat_Seb23_dm_b.png')
+            #plt.savefig('Mock_cat_Seb23_dm_b.png', bbox_inches='tight')
 
         else: #CONSISTENT catalog
             galactic_model = U.get_galactic_model(sky_domain, self.params)
@@ -96,7 +96,7 @@ class CatalogMaker():
 
             plot = ift.Plot()
             plot.add(gal, vmin=-250, vmax=250)
-            # plot.output()
+            plot.output()
             plt.savefig('Mock_cat_consistent_RM_gal.png', bbox_inches='tight')
 
             ### eg contribution ####
@@ -129,7 +129,14 @@ class CatalogMaker():
             npi_indices=np.unique(np.random.choice(b_indices, size=self.params['params_mock_cat.maker_params.npi_los']))
             print(npi_indices)
             print(npi_indices.size)
-            rm_data[npi_indices] += 14000*np.exp(-np.abs(eg_b[npi_indices]))
+            
+            mask=np.full(len(rm_data),False,dtype=bool)
+            mask[npi_indices]=True
+            rm_data[mask] += 14000*np.exp(-np.abs(eg_b[npi_indices]))
+            np.random.seed(seed=self.params['params_mock_cat.maker_params.seed'])
+            delta_rm=np.random.normal(1.4, 0.5,len(rm_data[~mask].size))
+            rm_data[~mask] += delta_rm
+
            # y = rm_data
            # for i in (npi_indices):
            #     rm_data[i]+=14000*np.exp(-eg_b[i])
@@ -161,8 +168,8 @@ class CatalogMaker():
         plot = ift.Plot()
         plot.add(eg_projector.adjoint(eg_gal_data), vmin=-250, vmax=250)
         plot.add(eg_projector.adjoint(noised_rm_data), vmin=-250, vmax=250)
-        # plot.output()
-        plt.savefig('Mock_cat_plot_cat.png', bbox_inches='tight')
+        plot.output(name='Mock_cat_plot_cat.png')
+        #plt.savefig('Mock_cat_plot_cat.png', bbox_inches='tight')
 
         #Plot 2
         fig, axs = plt.subplots(1, 2)
