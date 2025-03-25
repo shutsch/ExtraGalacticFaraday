@@ -13,7 +13,7 @@ params_mock_cat:
   # values for a Gal RM on large scales
     P0: 3.8
     k0: 5.0
-    gamma: -8.0
+    gamma: -2.5
 
 
   maker_params:
@@ -26,7 +26,7 @@ params_mock_cat:
     n_los: 14500 #1030
     noise_eg: 0.06
     noise_gal: 11.5
-    npi: 1
+    npi: 0
     npi_los: 12000
 
   #Sebastian

@@ -150,9 +150,9 @@ class CatalogMaker():
                 #    eta_list.append(delta_rm)
 
 
-        delta_rm_array=np.array(delta_rm_list)
-        plt.scatter(np.abs(eg_b[npi_indices]), delta_rm_array)
-        plt.savefig('Delta_rm.png', bbox_inches='tight')
+            delta_rm_array=np.array(delta_rm_list)
+            plt.scatter(np.abs(eg_b[npi_indices]), delta_rm_array)
+            plt.savefig('Delta_rm.png', bbox_inches='tight')
 
         N_eg = ift.ScalingOperator(ift.UnstructuredDomain(lerm), noise_eg, np.float64)
         N_gal = ift.ScalingOperator(ift.UnstructuredDomain(ltheta-lerm), noise_gal, np.float64)
