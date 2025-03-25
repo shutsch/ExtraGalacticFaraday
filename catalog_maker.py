@@ -10,6 +10,7 @@ import matplotlib
 from src.helper_functions.parameters_maker import Parameters_maker
 matplotlib.use('TkAgg')
 import utilities as U
+import random
 
 class CatalogMaker():
 
@@ -137,12 +138,14 @@ class CatalogMaker():
                         delta_rm_list.append(delta_rm)
                     if np.abs(eg_b[item])>=0.0 and np.abs(eg_b[item])<10.0:
                         delta_rm=np.sqrt(4.0e6*np.exp(-(eg_b[item])**2/8.0)/np.sqrt(8.0*np.pi)+2.5)
-                        rm_data[item] += delta_rm
-                        delta_rm_list.append(delta_rm)
-                    if np.abs(eg_b[item])>-10.0 and np.abs(eg_b[item])<0.0:
-                        delta_rm=np.sqrt(4.0e6*np.exp(-(eg_b[item])**2/8.0)/np.sqrt(8.0*np.pi)+2.5)
-                        rm_data[item] += -delta_rm
-                        delta_rm_list.append(delta_rm)
+                        print(delta_rm)
+                        if random.choice('+-')=='-':
+                            rm_data[item] -= delta_rm
+                            delta_rm_list.append(-delta_rm)
+                        else:
+                            rm_data[item] += delta_rm
+                            delta_rm_list.append(delta_rm)
+
                 #else:
                 #    np.random.seed(seed=self.params['params_mock_cat.maker_params.seed'])
                 #    delta_rm=np.random.normal(0, 90-np.abs(eg_b[item]))
@@ -150,8 +153,9 @@ class CatalogMaker():
                 #    eta_list.append(delta_rm)
 
 
+                
             delta_rm_array=np.array(delta_rm_list)
-            plt.scatter(np.abs(eg_b[npi_indices]), delta_rm_array)
+            plt.scatter(eg_b[npi_indices], delta_rm_array)
             plt.savefig('Delta_rm.png', bbox_inches='tight')
 
         N_eg = ift.ScalingOperator(ift.UnstructuredDomain(lerm), noise_eg, np.float64)
