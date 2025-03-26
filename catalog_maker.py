@@ -130,21 +130,38 @@ class CatalogMaker():
             npi_indices=np.unique(np.random.choice(b_indices, size=self.params['params_mock_cat.maker_params.npi_los']))
             print(npi_indices)
             print(npi_indices.size)
+            print(ltheta-lerm)
             for item in b_indices:
                 if item in npi_indices:
-                    if np.abs(eg_b[item])>=10.0:
-                        delta_rm=np.sqrt(2.5)
+                    if np.abs(eg_b[item])>=25.0:
+                        mu_rm=0.0 #(2.5)
+                        sigma_rm=25.0
+                        delta_rm=np.random.normal(mu_rm, sigma_rm)
                         rm_data[item] += delta_rm
                         delta_rm_list.append(delta_rm)
-                    if np.abs(eg_b[item])>=0.0 and np.abs(eg_b[item])<10.0:
-                        delta_rm=np.sqrt(4.0e6*np.exp(-(eg_b[item])**2/8.0)/np.sqrt(8.0*np.pi)+2.5)
-                        print(delta_rm)
+                    else:
+                        sigma_rm= 800.0*np.exp(-np.abs(eg_b[item])**(1/3.0)) #250.0-5.0*np.exp(-np.abs(eg_b[item]))
+                        mu_rm=0.0 #np.sqrt(4.0e6*np.exp(-(eg_b[item])**2/(2*4))/np.sqrt(2*np.pi*4)+2.5)
+                        delta_rm=np.random.normal(mu_rm, sigma_rm)
                         if random.choice('+-')=='-':
                             rm_data[item] -= delta_rm
                             delta_rm_list.append(-delta_rm)
                         else:
                             rm_data[item] += delta_rm
-                            delta_rm_list.append(delta_rm)
+                            delta_rm_list.append(delta_rm) 
+                    #if np.abs(eg_b[item])>=10.0:
+                    #    delta_rm=np.sqrt(2.5)
+                    #    rm_data[item] += delta_rm
+                    #    delta_rm_list.append(delta_rm)
+                    #if np.abs(eg_b[item])>=0.0 and np.abs(eg_b[item])<10.0:
+                    #    delta_rm=np.sqrt(4.0e6*np.exp(-(eg_b[item])**2/8.0)/np.sqrt(8.0*np.pi)+2.5)
+                    #    print(delta_rm)
+                    #    if random.choice('+-')=='-':
+                    #        rm_data[item] -= delta_rm
+                    #        delta_rm_list.append(-delta_rm)
+                    #    else:
+                    #        rm_data[item] += delta_rm
+                    #        delta_rm_list.append(delta_rm)
 
                 #else:
                 #    np.random.seed(seed=self.params['params_mock_cat.maker_params.seed'])

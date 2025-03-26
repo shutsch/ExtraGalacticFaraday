@@ -17,7 +17,7 @@ params_mock_cat:
 
 
   maker_params:
-    seed: 1000
+    seed: 2000
     use_mock: True
     disk_on: 1
     maker_type : "seb23" #"consistent"
@@ -27,7 +27,7 @@ params_mock_cat:
     noise_eg: 0.06
     noise_gal: 11.5
     npi: 1
-    npi_los: 12000
+    npi_los: 600000
 
   #Sebastian
   log_amplitude:
