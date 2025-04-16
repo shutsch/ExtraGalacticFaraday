@@ -99,11 +99,12 @@ class Settings_Maker():
         #to use when inference on the noise factors is necessary
         if self.params['params_mock_cat.maker_params.npi']==1:
         # Possible all sky variation of alpha, requires pygedm package 
-            alpha = 2.5
-            log_ymw = np.log(Egf.load_ymw_sky('./data/', nside=params['params_inference.nside'], model='ymw16', mode='mc'))
-            log_ymw /= log_ymw.min()
-            log_ymw *= 5
-            alpha = implicit_response(ift.Field(ift.makeDomain(implicit_response.domain), log_ymw)).val
+            #alpha = 2.5
+            #log_ymw = np.log(Egf.load_ymw_sky('./data/', nside=params['params_inference.nside'], model='ymw16', mode='mc'))
+            #log_ymw /= log_ymw.min()
+            #log_ymw *= 5
+            #alpha = implicit_response(ift.Field(ift.makeDomain(implicit_response.domain), log_ymw)).val
+            alpha = 1.0 
 
             implicit_noise = Egf.SimpleVariableNoise(gal_data_domain, alpha=alpha, q='mode', noise_cov=gal_stddev**2).get_model()
         # build the full model and connect it to the likelihood

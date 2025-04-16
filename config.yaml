@@ -7,27 +7,30 @@ params_mock_cat:
     #k0: 34
     #gamma: -2.4 
   # values used in the tests 
-    P0: 1.5
-    k0: 5.0
-    gamma: -2.5
-  # values for a Gal RM on large scales
-  #  P0: 3.8
+  #  P0: 1.5
   #  k0: 5.0
   #  gamma: -2.5
-
+  # values for a Gal RM on large scales
+    P0: 5.5
+    k0: 5.0
+    gamma: -8.0
+    
 
   maker_params:
     seed: 2000
     use_mock: True
     disk_on: 1
-    maker_type : "seb23" #"consistent"
+    maker_type: "seb23" #"consistent"
     eg_on: 1
     n_eg_params: 4
     n_los: 14500 #1030
     noise_eg: 0.06
     noise_gal: 11.5
     npi: 1
-    npi_los: 600000
+    npi_los: 50
+    #using Y. K. Ma et al. (2019)
+    mu_nvss: 605.0
+    sigma_nvss: 65.0
 
   #Sebastian
   log_amplitude:
@@ -152,7 +155,7 @@ prior_std:
   prior_std_lum: 1.0
   prior_std_red: 1.0
   prior_std_env: 1.0 
-  prior_std_one: 1.0
+  prior_std_one: 2.0
 
 prior_mean:
   prior_mean_int: 0.0
