@@ -45,6 +45,11 @@ class Minimizer():
                     if sky_name not in minimizer_params['power_spectra']:
                         power_plotting(sky, [s for s in latest_sample_list.iterator()], sky_name, minimizer_params['plot_path'], string=ident,
                                         from_power_model=False, **minimizer_params['plotting_kwargs'].get(sky_name, {}))
+            
+            if minimizer_params['eta'] is not None:
+                for sky_name, sky in minimizer_params['eta'].items():
+                    ift.plot(sky)
+            
             if minimizer_params['power_spectra'] is not None:
                 for power_name, power in minimizer_params['power_spectra'].items():
                     power_plotting(power, [s for s in latest_sample_list.iterator()], power_name, minimizer_params['plot_path'], string=ident,

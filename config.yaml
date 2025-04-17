@@ -11,9 +11,9 @@ params_mock_cat:
   #  k0: 5.0
   #  gamma: -2.5
   # values for a Gal RM on large scales
-    P0: 5.5
+    P0: 3.5
     k0: 5.0
-    gamma: -8.0
+    gamma: -3.6666666666666665
     
 
   maker_params:
@@ -24,9 +24,9 @@ params_mock_cat:
     eg_on: 1
     n_eg_params: 4
     n_los: 14500 #1030
-    noise_eg: 0.06
-    noise_gal: 11.5
-    npi: 1
+    cat_gal: "2009ApJ...702.1230T"
+    cat_eg: "LoTSS DR2 (O'Sullivan et al. 2022)"
+    npi: 0
     npi_los: 50
     #using Y. K. Ma et al. (2019)
     mu_nvss: 605.0
@@ -144,10 +144,10 @@ std:
   std_one: 0.5
 
 mean:
-  mean_int: 5.0
-  mean_lum: 0.0
+  mean_int: 1.5
+  mean_lum: -0.5
   mean_red: -0.5
-  mean_env: 0.0
+  mean_env: 3.0
   mean_one: 4.0
 
 prior_std:

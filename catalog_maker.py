@@ -36,7 +36,6 @@ class CatalogMaker():
         b45_indices=np.where(abs(data['b'])>45.0)[0]
         np.random.seed(seed=self.params['params_mock_cat.maker_params.seed'])
         z_mock_indices=np.unique(np.random.choice(b45_indices, size=los))
-        #z_mock_indices=np.unique(self.rng.choice(b45_indices, size=los))
         print('Number of LOS', len(z_mock_indices) )
 
 
@@ -87,7 +86,6 @@ class CatalogMaker():
             plot.add(dm, vmin=-250, vmax=250)
             plot.add(b, vmin=-2.50, vmax=2.50)
             plot.output(name='Mock_cat_Seb23_dm_b.png')
-            #plt.savefig('Mock_cat_Seb23_dm_b.png', bbox_inches='tight')
 
         else: #CONSISTENT catalog
             galactic_model = U.get_galactic_model(sky_domain, self.params)
@@ -111,16 +109,10 @@ class CatalogMaker():
         
         emodel = Egf.ExtraGalModel(egal_data_domain, egal_model_params)
 
-        #egal_mock_position = ift.from_random(emodel.get_model().domain, 'normal')
         egal_mock_position = ift.full(emodel.get_model().domain, 0.0)
         print(f'mock:{egal_mock_position.val}')
 
-        ### Specify noise
-        noise_eg = self.params['params_mock_cat.maker_params.noise_eg']
-        noise_gal = self.params['params_mock_cat.maker_params.noise_gal']
-
-        print('EG Noise std =', noise_eg)
-        print('Gal Noise std =', noise_gal)
+ 
 
         rm_data=np.array(eg_gal_data.val)
         delta_rm_list=[]
@@ -142,32 +134,30 @@ class CatalogMaker():
                     else:
                         rm_data[item] += delta_rm
                         delta_rm_list.append(delta_rm)
-                    #if np.abs(eg_b[item])>=25.0:
-                    #    mu_rm=0.0 #(2.5)
-                    #    sigma_rm=25.0
-                    #    delta_rm=np.random.normal(mu_rm, sigma_rm)
-                    #    rm_data[item] += delta_rm
-                    #    delta_rm_list.append(delta_rm)
-                    #else:
-                    #    sigma_rm= 800.0*np.exp(-np.abs(eg_b[item])**(1/3.0)) 
-                    #    mu_rm=0.0 
-                    #    delta_rm=np.random.normal(mu_rm, sigma_rm)
-                    #    if random.choice('+-')=='-':
-                    #        rm_data[item] -= delta_rm
-                    #        delta_rm_list.append(-delta_rm)
-                    #    else:
-                    #        rm_data[item] += delta_rm
-                    #        delta_rm_list.append(delta_rm) 
-
-
-
                 
             delta_rm_array=np.array(delta_rm_list)
             plt.scatter(eg_b[npi_indices], delta_rm_array)
             plt.savefig('Delta_rm.png', bbox_inches='tight')
 
-        N_eg = ift.ScalingOperator(ift.UnstructuredDomain(lerm), noise_eg, np.float64)
-        N_gal = ift.ScalingOperator(ift.UnstructuredDomain(ltheta-lerm), noise_gal, np.float64)
+        
+
+        #creating mock sigma gal
+        #NVSS cat 2009ApJ...702.1230T
+        #LoTSS cat "LoTSS DR2 (O'Sullivan et al. 2022)"
+        cat_index_gal=np.where(data['catalog']==self.params['params_mock_cat.maker_params.cat_gal'])[0][~np.isnan(np.where(data['catalog']==self.params['params_mock_cat.maker_params.cat_gal'])[0])]
+        sigma_gal = data['rm_err'][cat_index_gal]
+        histogram_sigma_gal = rv_histogram(np.histogram(sigma_gal, bins=10000), density=False)
+        sigma_gal_mock=histogram_sigma_gal.rvs(size=ltheta-lerm)
+        sigma_gal_mock_field=ift.Field.from_raw(ift.UnstructuredDomain(ltheta-lerm),np.array(sigma_gal_mock))
+        N_gal = ift.DiagonalOperator(sigma_gal_mock_field**2, domain=ift.UnstructuredDomain(ltheta-lerm), sampling_dtype=np.float64)
+
+        #creating mock sigma eg
+        cat_index_eg=np.where(data['catalog']==self.params['params_mock_cat.maker_params.cat_eg'])[0][~np.isnan(np.where(data['catalog']==self.params['params_mock_cat.maker_params.cat_eg'])[0])]
+        sigma_eg = data['rm_err'][cat_index_eg]
+        histogram_sigma_eg = rv_histogram(np.histogram(sigma_eg, bins=100), density=False)
+        sigma_eg_mock=histogram_sigma_eg.rvs(size=lerm)
+        sigma_eg_mock_field=ift.Field.from_raw(ift.UnstructuredDomain(lerm),np.array(sigma_eg_mock))
+        N_eg = ift.DiagonalOperator(sigma_eg_mock_field**2, domain=ift.UnstructuredDomain(lerm), sampling_dtype=np.float64)
 
         ### rm data assembly ###
         rm_data[np.isnan(data['z_best'])] +=  N_gal.draw_sample().val
@@ -177,16 +167,15 @@ class CatalogMaker():
         if self.params['params_mock_cat.maker_params.eg_on']==1:
             np.random.seed(seed=self.params['params_mock_cat.maker_params.seed'])
             rand_rm=np.random.normal(0.0, 1.0,len(e_rm))
-            #rand_rm=self.rng.normal(0.0, 1.0,len(e_rm))
             egal_contr = emodel.get_model().sqrt()(egal_mock_position).val*rand_rm
             rm_data[z_indices]+=egal_contr + N_eg.draw_sample().val
             print('std',np.std(egal_contr))
             print('mean',np.mean(egal_contr))
 
-        #rm_data_field=ift.makeField(ift.UnstructuredDomain(ltheta), rm_data)
         noised_rm_data=ift.makeField(ift.UnstructuredDomain(ltheta), rm_data)
-
-        #noised_rm_data = rm_data_field + N.draw_sample()
+        #Print noise
+        print('Gal noise', N_gal.draw_sample().val.std())
+        print('Egal noise', N_eg.draw_sample().val.std())
 
         #Plot 1
         plot = ift.Plot()
@@ -208,8 +197,8 @@ class CatalogMaker():
         plt.savefig('Mock_cat_obs_vs_sim.png', bbox_inches='tight')
 
         data['rm'] = np.array(noised_rm_data.val)
-        data['rm_err'][np.isnan(data['z_best'])] =  noise_gal*np.ones(ltheta-lerm)
-        data['rm_err'][~np.isnan(data['z_best'])] =  noise_eg*np.ones(lerm)
+        data['rm_err'][np.isnan(data['z_best'])] =  sigma_gal_mock*np.ones(ltheta-lerm)
+        data['rm_err'][~np.isnan(data['z_best'])] =  sigma_eg_mock*np.ones(lerm)
         
         hdu= fits.open(self.params['params_inference.cat_path']+'master_catalog_vercustom.fits')
         hdu[1].data['rm'][np.where(hdu[1].data['type']!='Pulsar')] = data['rm']

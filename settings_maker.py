@@ -95,17 +95,17 @@ class Settings_Maker():
                                             phi=data['phi'][~z_indices],
                                             domain=sky_domain, target=gal_data_domain)
 
+       
 
         #to use when inference on the noise factors is necessary
         if self.params['params_mock_cat.maker_params.npi']==1:
         # Possible all sky variation of alpha, requires pygedm package 
-            #alpha = 2.5
-            #log_ymw = np.log(Egf.load_ymw_sky('./data/', nside=params['params_inference.nside'], model='ymw16', mode='mc'))
-            #log_ymw /= log_ymw.min()
-            #log_ymw *= 5
-            #alpha = implicit_response(ift.Field(ift.makeDomain(implicit_response.domain), log_ymw)).val
-            alpha = 1.0 
-
+            alpha = 2.5
+            log_ymw = np.log(Egf.load_ymw_sky('./data/', nside=params['params_inference.nside'], model='ymw16', mode='mc'))
+            log_ymw /= log_ymw.min()
+            log_ymw *= 5
+            alpha = implicit_response(ift.Field(ift.makeDomain(implicit_response.domain), log_ymw)).val
+            
             implicit_noise = Egf.SimpleVariableNoise(gal_data_domain, alpha=alpha, q='mode', noise_cov=gal_stddev**2).get_model()
         # build the full model and connect it to the likelihood
 
@@ -117,6 +117,7 @@ class Settings_Maker():
             implicit_likelihood = ift.VariableCovarianceGaussianEnergy(domain=gal_data_domain, residual_key='residual',
                                                                 inverse_covariance_key='icov',
                                                                    sampling_dtype=np.dtype(np.float64)) @ n_res
+           
 
         else:
         #to use with perfect noise knowledge
