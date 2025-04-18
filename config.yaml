@@ -26,7 +26,7 @@ params_mock_cat:
     n_los: 1030 #1030
     cat_gal: "2009ApJ...702.1230T"
     cat_eg: "2023MNRAS.519.5723O" #"LoTSS DR2 (O'Sullivan et al. 2022)"
-    npi: 1
+    npi: True
     npi_los: 50
     #using Y. K. Ma et al. (2019)
     mu_nvss: 605.0

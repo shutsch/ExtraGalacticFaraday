@@ -3,7 +3,7 @@ from .logger import logger, Format
 from posterior_plotter import Posterior_Plotter
 from .minimization_helpers import get_controller, get_n_samples
 from .plot.plot import sky_map_plotting, power_plotting, energy_plotting, scatter_plotting_posterior
-import libs as Egf
+import numpy as np
 
 class Minimizer():
     def __init__(self, minimizer_params, ecomponents, params):
@@ -43,6 +43,18 @@ class Minimizer():
             #op.force(samples).val
             #This can be appended to an empty list l, with l.append(op.force(samples).val.
             # Eventually, l_ar = np.array(l) produces a plottable data structure
+
+            samples=[]
+            latest_samples = [s for s in latest_sample_list.iterator()]
+            eta_op = minimizer_params['eta']
+            res = [eta_op.force(s) for s in latest_samples]
+            samples.append(res)
+            plo = ift.Plot()
+            plo.add(samples, title="eta samples", linewidth=1, color='b')
+            plo.output(name="eta samples.png")
+
+            # if minimizer_params['eta'] is not None:
+            #     eta_plotting(eta_op, samples)
 
             if minimizer_params['sky_maps'] is not None:
                 for sky_name, sky in minimizer_params['sky_maps'].items():

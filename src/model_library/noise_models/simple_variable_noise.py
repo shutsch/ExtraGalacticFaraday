@@ -32,4 +32,4 @@ class SimpleVariableNoise(Model):
         eta = InverseGammaOperator(self.target_domain, self.alpha, self.q) @ excitations
 
         self._model = self.noise_cov @ eta
-        self._components = {'eta': eta}
+        self._components.update({'eta': eta})

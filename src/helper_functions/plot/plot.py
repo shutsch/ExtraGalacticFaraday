@@ -7,8 +7,6 @@ from matplotlib import cm
 import matplotlib
 matplotlib.use('Agg') 
 
-
-
 def energy_plotting(array_dict, path):
     path += 'energy/'
     if not os.path.exists(path):
@@ -217,3 +215,6 @@ def _density_estimation(m1, m2, xmin, xmax, ymin, ymax, nbins):
     z = np.reshape(kernel(positions).T, x.shape)
     return x, y, z
 
+def eta_plotting(model, plot_obj):
+
+    pass

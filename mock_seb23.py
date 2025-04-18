@@ -15,7 +15,7 @@ def seb23(num_seed):
     N=256  #number of pixels
     A = 0.81    # Constant in front of the RM integral in order to have rad/m^2. In that case B is in muG, n is in cm^-3 and the distance in parsec
     
-    data = fits.open('DM_mean_std_Sebastian.fits')
+    data = fits.open('data/Faraday/catalog_versions/DM_mean_std_Sebastian.fits')
 
     dm_new_ar=data[1].data['mean']
 
