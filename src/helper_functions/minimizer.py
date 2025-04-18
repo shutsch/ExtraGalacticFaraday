@@ -38,6 +38,12 @@ class Minimizer():
             energy_plotting(energy_dict, minimizer_params['plot_path'])
             ident = str(i)
             
+            #TODO: samples = [s for s in latest_sample_list.iterator()] is the input
+            #add a minimizer param with eta operator op, to be instanced with
+            #op.force(samples).val
+            #This can be appended to an empty list l, with l.append(op.force(samples).val.
+            # Eventually, l_ar = np.array(l) produces a plottable data structure
+
             if minimizer_params['sky_maps'] is not None:
                 for sky_name, sky in minimizer_params['sky_maps'].items():
                     sky_map_plotting(sky, [s for s in latest_sample_list.iterator()], sky_name, minimizer_params['plot_path'], string=ident,

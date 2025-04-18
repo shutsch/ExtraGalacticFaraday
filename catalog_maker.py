@@ -143,7 +143,7 @@ class CatalogMaker():
 
         #creating mock sigma gal
         #NVSS cat 2009ApJ...702.1230T
-        #LoTSS cat "LoTSS DR2 (O'Sullivan et al. 2022)"
+        #LoTSS cat "LoTSS DR2 (O'Sullivan et al. 2022) "
         cat_index_gal=np.where(data['catalog']==self.params['params_mock_cat.maker_params.cat_gal'])[0][~np.isnan(np.where(data['catalog']==self.params['params_mock_cat.maker_params.cat_gal'])[0])]
         sigma_gal = data['rm_err'][cat_index_gal]
         histogram_sigma_gal = rv_histogram(np.histogram(sigma_gal, bins=10000), density=False)

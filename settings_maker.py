@@ -149,6 +149,7 @@ class Settings_Maker():
                         'environmental': {'x_label': 'chi_red', 'y_label': 'sigma_env_0'}}
         
         likelihoods={'implicit_likelihood': implicit_likelihood, 'explicit_likelihood': explicit_likelihood}
+        
 
         minimizer_params = {
             'n_global': params['params_inference.nglobal'],
@@ -158,7 +159,7 @@ class Settings_Maker():
             'sky_maps': sky_models,
             'power_spectra': power_models,
             'scatter_pairs': None,
-            'plotting_kwargs': plotting_kwargs
+            'plotting_kwargs': plotting_kwargs            
         }
 
         return {'minimizer_params': minimizer_params, 'ecomponents': ecomponents}
