@@ -156,20 +156,20 @@ class CatalogMaker():
         rm_data[np.isnan(data['z_best'])] +=  N_gal.draw_sample().val
         print(rm_data.min(), rm_data.max(), rm_data.mean())
 
-
+        #creating mock sigma eg
+        cat_index_eg=np.where(data['catalog']==self.params['params_mock_cat.maker_params.cat_eg'])[0][~np.isnan(np.where(data['catalog']==self.params['params_mock_cat.maker_params.cat_eg'])[0])]
+        sigma_eg = data['rm_err'][cat_index_eg]
+        histogram_sigma_eg = rv_histogram(np.histogram(sigma_eg, bins=100), density=False)
+        sigma_eg_mock=histogram_sigma_eg.rvs(size=lerm)
+        sigma_eg_mock_field=ift.Field.from_raw(ift.UnstructuredDomain(lerm),np.array(sigma_eg_mock))
+        N_eg = ift.DiagonalOperator(sigma_eg_mock_field**2, domain=ift.UnstructuredDomain(lerm), sampling_dtype=np.float64)
+        rm_data[z_indices]+=N_eg.draw_sample().val
+        
         if self.params['params_mock_cat.maker_params.eg_on']==1:
-            #creating mock sigma eg
-            cat_index_eg=np.where(data['catalog']==self.params['params_mock_cat.maker_params.cat_eg'])[0][~np.isnan(np.where(data['catalog']==self.params['params_mock_cat.maker_params.cat_eg'])[0])]
-            sigma_eg = data['rm_err'][cat_index_eg]
-            histogram_sigma_eg = rv_histogram(np.histogram(sigma_eg, bins=100), density=False)
-            sigma_eg_mock=histogram_sigma_eg.rvs(size=lerm)
-            sigma_eg_mock_field=ift.Field.from_raw(ift.UnstructuredDomain(lerm),np.array(sigma_eg_mock))
-            N_eg = ift.DiagonalOperator(sigma_eg_mock_field**2, domain=ift.UnstructuredDomain(lerm), sampling_dtype=np.float64)
-
             np.random.seed(seed=self.params['params_mock_cat.maker_params.seed'])
             rand_rm=np.random.normal(0.0, 1.0,len(e_rm))
             egal_contr = emodel.get_model().sqrt()(egal_mock_position).val*rand_rm
-            rm_data[z_indices]+=egal_contr + N_eg.draw_sample().val
+            rm_data[z_indices]+=egal_contr 
             print('std',np.std(egal_contr))
             print('mean',np.mean(egal_contr))
 
