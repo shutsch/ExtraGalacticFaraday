@@ -2,7 +2,7 @@ import nifty8 as ift
 from .logger import logger, Format
 from posterior_plotter import Posterior_Plotter
 from .minimization_helpers import get_controller, get_n_samples
-from .plot.plot import sky_map_plotting, power_plotting, energy_plotting, scatter_plotting_posterior
+from .plot.plot import sky_map_plotting, power_plotting, energy_plotting, scatter_plotting_posterior, eta_plotting
 import numpy as np
 
 class Minimizer():
@@ -38,22 +38,24 @@ class Minimizer():
             energy_plotting(energy_dict, minimizer_params['plot_path'])
             ident = str(i)
 
-            noise_exc_vals = []
-            it = latest_sample_list.iterator(lambda x: x)
-            for idx, v in enumerate(it):
-                noise_exc_vals.append(v.val['noise_excitations'])
 
-            dom = ift.makeDomain(ift.UnstructuredDomain((len(noise_exc_vals[0]),)))
-            ne_field_1 = ift.Field.from_raw(dom, noise_exc_vals[0])
-            ne_field_2 = ift.Field.from_raw(dom, noise_exc_vals[1])
-            ne_field_3 = ift.Field.from_raw(dom, noise_exc_vals[2])
-            ne_field_4 = ift.Field.from_raw(dom, noise_exc_vals[3])
-            plo = ift.Plot()
-            plo.add(ne_field_1, title="eta_samples1", linewidth=1, color='b')
-            plo.add(ne_field_2, title="eta_samples2", linewidth=1, color='b')
-            plo.add(ne_field_3, title="eta_samples3", linewidth=1, color='b')
-            plo.add(ne_field_4, title="eta_samples4", linewidth=1, color='b')
-            plo.output(name=f"plots/eta_samples_{i}.png")
+            eta_plotting('noise_excitations',[s for s in latest_sample_list.iterator()], minimizer_params['plot_path'], string=ident)
+            #noise_exc_vals = []
+            #it = latest_sample_list.iterator(lambda x: x)
+            #for idx, v in enumerate(it):
+            #    noise_exc_vals.append(v.val['noise_excitations'])
+
+            #dom = ift.makeDomain(ift.UnstructuredDomain((len(noise_exc_vals[0]),)))
+            #ne_field_1 = ift.Field.from_raw(dom, noise_exc_vals[0])
+            #ne_field_2 = ift.Field.from_raw(dom, noise_exc_vals[1])
+            #ne_field_3 = ift.Field.from_raw(dom, noise_exc_vals[2])
+            #ne_field_4 = ift.Field.from_raw(dom, noise_exc_vals[3])
+            #plo = ift.Plot()
+            #plo.add(ne_field_1, title="eta_samples1", linewidth=1, color='b')
+            #plo.add(ne_field_2, title="eta_samples2", linewidth=1, color='b')
+            #plo.add(ne_field_3, title="eta_samples3", linewidth=1, color='b')
+            #plo.add(ne_field_4, title="eta_samples4", linewidth=1, color='b')
+            #plo.output(name=f"plots/eta_samples_{i}.png")
 
             # if minimizer_params['eta'] is not None:
             #     eta_plotting(eta_op, samples)

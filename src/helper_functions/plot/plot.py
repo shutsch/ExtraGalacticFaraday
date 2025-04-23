@@ -215,6 +215,23 @@ def _density_estimation(m1, m2, xmin, xmax, ymin, ymax, nbins):
     z = np.reshape(kernel(positions).T, x.shape)
     return x, y, z
 
-def eta_plotting(model, plot_obj):
-
-    pass
+def eta_plotting(name, plot_obj, path, string=None, **kwargs):
+    if string is None:
+        string = ''
+    eta_path = path + 'eta/'+ '/'
+    if not os.path.exists(eta_path):
+        os.makedirs(eta_path)
+    plot = ift.Plot()
+    if isinstance(plot_obj, list):
+        sc = ift.StatCalculator()
+        for sample in plot_obj:
+            sc.add(sample[name])
+        m = sc.mean
+        print(m.val)
+    else:
+        m =plot_obj
+    
+    plot.add(m, title="mean", **kwargs)
+    
+    plot.output(name=eta_path + name +'_' + string + ".png")
+    
