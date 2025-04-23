@@ -37,21 +37,23 @@ class Minimizer():
             
             energy_plotting(energy_dict, minimizer_params['plot_path'])
             ident = str(i)
-            
-            #TODO: samples = [s for s in latest_sample_list.iterator()] is the input
-            #add a minimizer param with eta operator op, to be instanced with
-            #op.force(samples).val
-            #This can be appended to an empty list l, with l.append(op.force(samples).val.
-            # Eventually, l_ar = np.array(l) produces a plottable data structure
 
-            samples=[]
-            latest_samples = [s for s in latest_sample_list.iterator()]
-            eta_op = minimizer_params['eta']
-            res = [eta_op.force(s) for s in latest_samples]
-            samples.append(res)
+            noise_exc_vals = []
+            it = latest_sample_list.iterator(lambda x: x)
+            for idx, v in enumerate(it):
+                noise_exc_vals.append(v.val['noise_excitations'])
+
+            dom = ift.makeDomain(ift.UnstructuredDomain((len(noise_exc_vals[0]),)))
+            ne_field_1 = ift.Field.from_raw(dom, noise_exc_vals[0])
+            ne_field_2 = ift.Field.from_raw(dom, noise_exc_vals[1])
+            ne_field_3 = ift.Field.from_raw(dom, noise_exc_vals[2])
+            ne_field_4 = ift.Field.from_raw(dom, noise_exc_vals[3])
             plo = ift.Plot()
-            plo.add(samples, title="eta samples", linewidth=1, color='b')
-            plo.output(name="eta samples.png")
+            plo.add(ne_field_1, title="eta_samples1", linewidth=1, color='b')
+            plo.add(ne_field_2, title="eta_samples2", linewidth=1, color='b')
+            plo.add(ne_field_3, title="eta_samples3", linewidth=1, color='b')
+            plo.add(ne_field_4, title="eta_samples4", linewidth=1, color='b')
+            plo.output(name=f"plots/eta_samples_{i}.png")
 
             # if minimizer_params['eta'] is not None:
             #     eta_plotting(eta_op, samples)
