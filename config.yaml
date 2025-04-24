@@ -1,6 +1,5 @@
 params_mock_cat:
 
-
   power_spec:
   # parameters of the power spectrum as defined in Hustschenreuter et al. 2022
     #P0: 1.1e+14
@@ -11,9 +10,9 @@ params_mock_cat:
   #  k0: 5.0
   #  gamma: -2.5
   # values for a Gal RM on large scales
-    P0: 3.5
+    P0: 5.5
     k0: 5.0
-    gamma: -3.6666666666666665
+    gamma: -8.0
     
 
   maker_params:
@@ -23,10 +22,10 @@ params_mock_cat:
     maker_type: "seb23" #"consistent"
     eg_on: 1
     n_eg_params: 4
-    n_los: 1030 #1030
+    n_los: 14500 #1030
     cat_gal: "2009ApJ...702.1230T"
     cat_eg: "2023MNRAS.519.5723O" #"LoTSS DR2 (O'Sullivan et al. 2022)"
-    npi: True
+    npi: False
     npi_los: 50
     #using Y. K. Ma et al. (2019)
     mu_nvss: 605.0
@@ -95,16 +94,16 @@ sample_params:
 
 controllers:
   sampler:
-    n: 5
-    n_final: 5
+    n: 500
+    n_final: 500
     increase_step:  "None"
     increase_rate:  "None"
     deltaE: 1.0e-07
     convergence_level: 2
   
   minimizer:
-    n: 1
-    n_final: 1
+    n: 40
+    n_final: 40
     increase_step: "None"
     increase_rate: "None"
     deltaE_threshold: 0
@@ -151,10 +150,10 @@ mean:
   mean_one: 4.0
 
 prior_std:
-  prior_std_int: 2.5
-  prior_std_lum: 1.0
-  prior_std_red: 1.0
-  prior_std_env: 1.0 
+  prior_std_int: 1.0
+  prior_std_lum: 0.5
+  prior_std_red: 0.5
+  prior_std_env: 1.5 
   prior_std_one: 2.0
 
 prior_mean:
