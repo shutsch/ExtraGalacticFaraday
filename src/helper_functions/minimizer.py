@@ -38,8 +38,8 @@ class Minimizer():
             energy_plotting(energy_dict, minimizer_params['plot_path'])
             ident = str(i)
 
-
-            eta_plotting('noise_excitations',[s for s in latest_sample_list.iterator()], minimizer_params['plot_path'], string=ident)
+            if self.params['params_mock_cat.maker_params.npi']==True:
+                eta_plotting('noise_excitations',[s for s in latest_sample_list.iterator()], minimizer_params['plot_path'], string=ident)
             #noise_exc_vals = []
             #it = latest_sample_list.iterator(lambda x: x)
             #for idx, v in enumerate(it):
