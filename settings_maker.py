@@ -100,7 +100,7 @@ class Settings_Maker():
         if self.params['params_mock_cat.maker_params.npi']==True:
         # Possible all sky variation of alpha, requires pygedm package 
             alpha = 2.5
-            log_ymw = np.log(Egf.load_ymw_sky('./data/', nside=params['params_inference.nside'], model='ymw16', mode='mc'))
+            log_ymw = np.log(Egf.load_ymw_sky('ymw16', 'mc', params))
             log_ymw /= log_ymw.min()
             log_ymw *= 5
             alpha = implicit_response(ift.Field(ift.makeDomain(implicit_response.domain), log_ymw)).val

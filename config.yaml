@@ -21,11 +21,11 @@ params_mock_cat:
     use_mock: True
     disk_on: 1
     maker_type : "seb23" #"consistent"
-    eg_on: 1
+    eg_on: True
     n_eg_params: 4
     n_los: 14500 #1030
-    noise_eg: 0.06
-    noise_gal: 11.5
+    cat_gal: "2009ApJ...702.1230T"
+    cat_eg: "2023MNRAS.519.5723O" #"LoTSS DR2 (O'Sullivan et al. 2022)"
     npi: False
     npi_los: 1000
 
@@ -78,6 +78,7 @@ params_inference:
   plot_path: "./runs/demo/results/"
   results_path: "./runs/demo/results/"
   cat_path: "./data/Faraday/catalog_versions/"
+  dm_path: "./data/Faraday/dispersion_measure/"
 
 file_params:
   fits_file_path: "data/Faraday/catalog_versions/master_catalog_ver"
