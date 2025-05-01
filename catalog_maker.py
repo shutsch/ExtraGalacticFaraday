@@ -123,7 +123,7 @@ class CatalogMaker():
 
         rm_data=np.array(eg_gal_data.val)
 
-        if self.params['params_mock_cat.maker_params.npi']==1:
+        if self.params['params_mock_cat.maker_params.npi']==True:
             b_indices=np.where(np.isnan(data['z_best']))[0]
             np.random.seed(seed=self.params['params_mock_cat.maker_params.seed'])
             npi_indices=np.unique(np.random.choice(b_indices, size=self.params['params_mock_cat.maker_params.npi_los']))
@@ -135,8 +135,8 @@ class CatalogMaker():
            #     rm_data[i]+=14000*np.exp(-eg_b[i])
 
 
-        N_eg = ift.ScalingOperator(ift.UnstructuredDomain(lerm), noise_eg, np.float64)
-        N_gal = ift.ScalingOperator(ift.UnstructuredDomain(ltheta-lerm), noise_gal, np.float64)
+        N_eg = ift.ScalingOperator(ift.UnstructuredDomain(lerm), noise_eg**2, np.float64)
+        N_gal = ift.ScalingOperator(ift.UnstructuredDomain(ltheta-lerm), noise_gal**2, np.float64)
 
         ### rm data assembly ###
         rm_data[np.isnan(data['z_best'])] +=  N_gal.draw_sample().val

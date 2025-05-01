@@ -97,7 +97,7 @@ class Settings_Maker():
 
 
         #to use when inference on the noise factors is necessary
-        if self.params['params_mock_cat.maker_params.npi']==1:
+        if self.params['params_mock_cat.maker_params.npi']==True:
         # Possible all sky variation of alpha, requires pygedm package 
             alpha = 2.5
             log_ymw = np.log(Egf.load_ymw_sky('./data/', nside=params['params_inference.nside'], model='ymw16', mode='mc'))

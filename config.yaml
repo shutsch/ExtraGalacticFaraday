@@ -26,7 +26,7 @@ params_mock_cat:
     n_los: 14500 #1030
     noise_eg: 0.06
     noise_gal: 11.5
-    npi: 1
+    npi: False
     npi_los: 1000
 
   #Sebastian
