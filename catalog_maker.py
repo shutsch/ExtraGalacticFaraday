@@ -148,7 +148,7 @@ class CatalogMaker():
         cat_index_gal=np.where(data['catalog']==self.params['params_mock_cat.maker_params.cat_gal'])[0][~np.isnan(np.where(data['catalog']==self.params['params_mock_cat.maker_params.cat_gal'])[0])]
         sigma_gal = data['rm_err'][cat_index_gal]
         histogram_sigma_gal = rv_histogram(np.histogram(sigma_gal, bins=10000), density=False)
-        sigma_gal_mock=histogram_sigma_gal.rvs(size=ltheta-lerm)
+        sigma_gal_mock=0.06**2*np.ones(ltheta-lerm) #histogram_sigma_gal.rvs(size=ltheta-lerm)
         sigma_gal_mock_field=ift.Field.from_raw(ift.UnstructuredDomain(ltheta-lerm),np.array(sigma_gal_mock))
         N_gal = ift.DiagonalOperator(sigma_gal_mock_field**2, domain=ift.UnstructuredDomain(ltheta-lerm), sampling_dtype=np.float64)
 
@@ -161,7 +161,7 @@ class CatalogMaker():
         cat_index_eg=np.where(data['catalog']==self.params['params_mock_cat.maker_params.cat_eg'])[0][~np.isnan(np.where(data['catalog']==self.params['params_mock_cat.maker_params.cat_eg'])[0])]
         sigma_eg = data['rm_err'][cat_index_eg]
         histogram_sigma_eg = rv_histogram(np.histogram(sigma_eg, bins=100), density=False)
-        sigma_eg_mock=histogram_sigma_eg.rvs(size=lerm)
+        sigma_eg_mock=0.06**2*np.ones(lerm) #histogram_sigma_eg.rvs(size=lerm)
         sigma_eg_mock_field=ift.Field.from_raw(ift.UnstructuredDomain(lerm),np.array(sigma_eg_mock))
         N_eg = ift.DiagonalOperator(sigma_eg_mock_field**2, domain=ift.UnstructuredDomain(lerm), sampling_dtype=np.float64)
         rm_data[z_indices]+= N_eg.draw_sample().val
