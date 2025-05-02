@@ -21,16 +21,17 @@ params_mock_cat:
     maker_type : "seb23" #"consistent"
     eg_on: True
     n_eg_params: 4
-    n_los: 500000 #14500 #1030
+    n_los: 50000 #14500 #1030
     cat_gal: "2009ApJ...702.1230T"
     cat_eg: "2023MNRAS.519.5723O" #"LoTSS DR2 (O'Sullivan et al. 2022)", Fra 2025A&A...694A.125L
+    elev_th: 45.0
     npi: False
     npi_los: 1000
     surveys:
       make_survey: True
       delta_low: -90.0 #deg
-      delta_high: 0.0 #deg
-      los: 300000
+      delta_high: -45.0 #deg
+      los: 5000
       phi_low: 0.0
       phi_high: 2.0
       name: 'SKA-MID'

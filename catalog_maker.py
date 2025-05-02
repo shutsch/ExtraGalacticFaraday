@@ -42,11 +42,11 @@ class CatalogMaker():
 
 
         if self.params['params_mock_cat.maker_params.surveys.make_survey2'] == True:
-            b45_indices=np.where(abs(dest_data['b'][np.where(dest_data['catalog']==self.params['params_mock_cat.maker_params.surveys.name'])[0]])>45.0)[0] 
+            bel_indices=np.where(abs(dest_data['b'][np.where(dest_data['catalog']==self.params['params_mock_cat.maker_params.surveys.name'])[0]])>self.params['params_mock_cat.maker_params.elev_th'])[0] 
         else:
-            b45_indices=np.where(abs(dest_data['b'])>45.0)[0] 
+            bel_indices=np.where(abs(dest_data['b'])>self.params['params_mock_cat.maker_params.elev_th'])[0] 
         np.random.seed(seed=self.params['params_mock_cat.maker_params.seed'])
-        z_mock_indices=np.unique(np.random.choice(b45_indices, size=los))
+        z_mock_indices=np.unique(np.random.choice(bel_indices, size=los))
         print('Number of LOS with redshift', len(z_mock_indices) )
 
 
