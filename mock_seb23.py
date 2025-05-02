@@ -12,7 +12,7 @@ def seb23(params):
     seed = params['params_mock_cat.maker_params.seed']
     ift.random.push_sseq_from_seed(seed)    
 
-    N=256  #number of pixels
+    N=params['params_inference.nside']  #number of pixels
     A = 0.81    # Constant in front of the RM integral in order to have rad/m^2. In that case B is in muG, n is in cm^-3 and the distance in parsec
     
     data = fits.open(params['params_inference.dm_path']+'DM_mean_std_Sebastian.fits')
@@ -20,7 +20,7 @@ def seb23(params):
     dm_new_ar=data[1].data['mean']
 
     s_space = ift.HPSpace(N)
-    s_space_domain = ift.makeDomain(ift.HPSpace(N))
+    s_space_domain = ift.makeDomain(s_space)
     h_space = s_space.get_default_codomain()
 
     dm_new_field=ift.Field(s_space_domain, dm_new_ar)

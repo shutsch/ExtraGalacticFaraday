@@ -1,6 +1,4 @@
 params_mock_cat:
-
-
   power_spec:
   # parameters of the power spectrum as defined in Hustschenreuter et al. 2022
     #P0: 1.1e+14
@@ -23,11 +21,26 @@ params_mock_cat:
     maker_type : "seb23" #"consistent"
     eg_on: True
     n_eg_params: 4
-    n_los: 14500 #1030
+    n_los: 500000 #14500 #1030
     cat_gal: "2009ApJ...702.1230T"
-    cat_eg: "2023MNRAS.519.5723O" #"LoTSS DR2 (O'Sullivan et al. 2022)"
+    cat_eg: "2023MNRAS.519.5723O" #"LoTSS DR2 (O'Sullivan et al. 2022)", Fra 2025A&A...694A.125L
     npi: False
     npi_los: 1000
+    surveys:
+      make_survey: True
+      delta_low: -90.0 #deg
+      delta_high: 0.0 #deg
+      los: 300000
+      phi_low: 0.0
+      phi_high: 2.0
+      name: 'SKA-MID'
+      make_survey2: True
+      delta_low2: 0.0 #deg
+      delta_high2: 90.0 #deg
+      los2: 20000
+      phi_low2: 0.0
+      phi_high2: 2.0
+      name2: 'NVSS'
 
   #Sebastian
   log_amplitude:

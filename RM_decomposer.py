@@ -8,7 +8,7 @@ from src.helper_functions.parameters_maker import Parameters_maker
 import utilities as U
 import matplotlib
 matplotlib.use('Agg')
-
+import matplotlib.pyplot as plt
 
 
 def run_inference(params, settings_params):

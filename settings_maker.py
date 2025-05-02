@@ -3,6 +3,7 @@ from catalog_maker import CatalogMaker
 import libs as Egf
 import numpy as np
 from src.helper_functions.logger import logger
+from survey_maker import SurveyMaker
 import utilities as U
 import matplotlib
 matplotlib.use('Agg')
@@ -22,7 +23,12 @@ class Settings_Maker():
 
         #create mock catalog option
         if(params['params_mock_cat.maker_params.use_mock']):
-            CatalogMaker(params, base_catalog=data).make_catalog()
+            if self.params['params_mock_cat.maker_params.surveys.make_survey']==True:
+                survey_data=SurveyMaker(params).make_survey()
+                CatalogMaker(params, src_catalog=data, dest_catalog=survey_data).make_catalog()
+            else:
+                CatalogMaker(params, src_catalog=data).make_catalog()
+    
             data = Egf.get_rm(filter_pulsars=True, version=f'{catalog_version}_sim', default_error_level=0.5, params=params)
             logger.info("CREATED NEW MOCK CATALOG")        
 
