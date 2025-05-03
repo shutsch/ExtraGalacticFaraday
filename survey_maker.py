@@ -159,7 +159,7 @@ class SurveyMaker():
             fits.Column(name='complex_test', format='80A', array=complex_test, unit=''),
             fits.Column(name='rm_method', format='40A', array=rm_method, unit=''),
             fits.Column(name='ionosphere', format='40A', array=ionosphere, unit=''),
-            fits.Column(name='Ncomp', format='K', array=Ncomp, unit=''),
+            fits.Column(name='Ncomp', format='D', array=Ncomp, unit=''),
             fits.Column(name='stokesI', format='D', array=stokesI, unit='Jy'),
             fits.Column(name='stokesI_err', format='D', array=stokesI_err, unit='Jy'),
             fits.Column(name='spectral_index', format='D', array=spectral_index, unit=''),

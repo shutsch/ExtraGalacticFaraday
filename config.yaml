@@ -25,29 +25,29 @@ params_mock_cat:
     cat_gal: "2009ApJ...702.1230T"
     cat_eg: "2023MNRAS.519.5723O" #"LoTSS DR2 (O'Sullivan et al. 2022)", Fra 2025A&A...694A.125L
 
-    polar_caps: True
+    polar_caps: False
     elev_th: 45.0
 
-    make_fraction: False
-    fraction: 1.0
+    make_fraction: True
+    fraction: 0.5
     
     npi: False
     npi_los: 1000
     
     surveys:
-      make_survey: False
+      make_survey: True
       delta_low: -90.0 #deg
-      delta_high: -45.0 #deg
-      los: 5000
+      delta_high: 0.0 #deg
+      los: 200000
       phi_low: 0.0
       phi_high: 2.0
       name: 'SKA-MID'
-      cat: "2023MNRAS.519.5723O"  #"2025A&A...694A.125L"  #
+      cat: "2025A&A...694A.125L"  #"2023MNRAS.519.5723O"  #"2025A&A...694A.125L"  #
      
-      make_survey2: False
-      delta_low2: 0.0 #deg
+      make_survey2: True
+      delta_low2: -40.0 #deg
       delta_high2: 90.0 #deg
-      los2: 20000
+      los2: 37543
       phi_low2: 0.0
       phi_high2: 2.0
       name2: 'NVSS'
