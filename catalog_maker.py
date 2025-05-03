@@ -46,10 +46,11 @@ class CatalogMaker():
             else:
                 b_sel_indices=np.where(abs(dest_data['b'])>self.params['params_mock_cat.maker_params.elev_th'])[0] 
         if self.params['params_mock_cat.maker_params.make_fraction'] == True:
-            los=int(self.params['params_mock_cat.maker_params.fraction']*dest_data['b'].size)
             if self.params['params_mock_cat.maker_params.surveys.make_survey'] == True:
+                los=int(self.params['params_mock_cat.maker_params.fraction']*self.params['params_mock_cat.maker_params.surveys.los'])
                 b_sel_indices=np.where(dest_data['catalog']==self.params['params_mock_cat.maker_params.surveys.name'])[0] 
             else:
+                los=int(self.params['params_mock_cat.maker_params.fraction']*dest_data['b'].size)
                 b_sel_indices=np.arange(0,dest_data['b'].size) 
         
         np.random.seed(seed=self.params['params_mock_cat.maker_params.seed'])

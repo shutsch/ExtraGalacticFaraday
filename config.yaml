@@ -38,7 +38,7 @@ params_mock_cat:
       make_survey: True
       delta_low: -90.0 #deg
       delta_high: 0.0 #deg
-      los: 200000
+      los: 5000
       phi_low: 0.0
       phi_high: 2.0
       name: 'SKA-MID'
