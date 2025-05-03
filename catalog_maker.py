@@ -22,7 +22,7 @@ class CatalogMaker():
             Egf.get_rm(filter_pulsars=True, version='custom', default_error_level=0.5)
 
         self.dest_data = self.dest_catalog if self.dest_catalog is not None else \
-            Egf.get_rm(filter_pulsars=True, version='custom', default_error_level=0.5)     
+            self.src_catalog     
 
         
 
@@ -40,13 +40,20 @@ class CatalogMaker():
 
         los=self.params['params_mock_cat.maker_params.n_los']
 
-
-        if self.params['params_mock_cat.maker_params.surveys.make_survey2'] == True:
-            bel_indices=np.where(abs(dest_data['b'][np.where(dest_data['catalog']==self.params['params_mock_cat.maker_params.surveys.name'])[0]])>self.params['params_mock_cat.maker_params.elev_th'])[0] 
-        else:
-            bel_indices=np.where(abs(dest_data['b'])>self.params['params_mock_cat.maker_params.elev_th'])[0] 
+        if self.params['params_mock_cat.maker_params.polar_caps'] == True:
+            if self.params['params_mock_cat.maker_params.surveys.make_survey'] == True:
+                b_sel_indices=np.where(abs(dest_data['b'][np.where(dest_data['catalog']==self.params['params_mock_cat.maker_params.surveys.name'])[0]])>self.params['params_mock_cat.maker_params.elev_th'])[0] 
+            else:
+                b_sel_indices=np.where(abs(dest_data['b'])>self.params['params_mock_cat.maker_params.elev_th'])[0] 
+        if self.params['params_mock_cat.maker_params.make_fraction'] == True:
+            los=np.int(self.params['params_mock_cat.maker_params.fraction']*dest_data['b'].size)
+            if self.params['params_mock_cat.maker_params.surveys.make_survey'] == True:
+                b_sel_indices=np.where(dest_data['catalog']==self.params['params_mock_cat.maker_params.surveys.name'])[0] 
+            else:
+                b_sel_indices=np.arange(0,dest_data['b'].size) 
+        
         np.random.seed(seed=self.params['params_mock_cat.maker_params.seed'])
-        z_mock_indices=np.unique(np.random.choice(bel_indices, size=los))
+        z_mock_indices=np.unique(np.random.choice(b_sel_indices, size=los))
         print('Number of LOS with redshift', len(z_mock_indices) )
 
 
@@ -55,6 +62,7 @@ class CatalogMaker():
 
         dest_data['z_best'][:] = np.nan
         dest_data['z_best'][z_mock_indices] = z_mock
+
 
         F_all = np.array(src_data['stokesI'])
         F_indices = np.where(F_all>0)[0]
@@ -124,31 +132,60 @@ class CatalogMaker():
 
         rm_data=np.array(eg_gal_data.val)
 
-        #creating mock sigma gal
-        #NVSS cat 2009ApJ...702.1230T
-        #LoTSS cat "LoTSS DR2 (O'Sullivan et al. 2022) "
-        cat_index_gal=np.where(src_data['catalog']==self.params['params_mock_cat.maker_params.cat_gal'])[0][~np.isnan(np.where(src_data['catalog']==self.params['params_mock_cat.maker_params.cat_gal'])[0])]
-        sigma_gal = src_data['rm_err'][cat_index_gal]
-        histogram_sigma_gal = rv_histogram(np.histogram(sigma_gal, bins=10000), density=False)
-        sigma_gal_mock=histogram_sigma_gal.rvs(size=ltheta-lerm)
-        sigma_gal_mock_field=ift.Field.from_raw(ift.UnstructuredDomain(ltheta-lerm),np.array(sigma_gal_mock))
-        N_gal = ift.DiagonalOperator(sigma_gal_mock_field**2, domain=ift.UnstructuredDomain(ltheta-lerm), sampling_dtype=np.float64)
+
+        if self.params['params_mock_cat.maker_params.surveys.make_survey'] == True:
+          
+            cat_index_1=np.where(dest_data['catalog']==self.params['params_mock_cat.maker_params.surveys.name'])[0]
+            sigma_1 = src_data['rm_err'][np.where(src_data['catalog']==self.params['params_mock_cat.maker_params.surveys.cat'])[0]]
+            histogram_sigma_1 = rv_histogram(np.histogram(sigma_1, bins=100), density=False)
+            sigma_1_mock=histogram_sigma_1.rvs(size=cat_index_1.size)
+            sigma_mock=np.empty(dest_data['catalog'].size)
+            sigma_mock[cat_index_1]=sigma_1_mock
+            print('sigma_mock cat1', sigma_1_mock.mean())
+
+            if self.params['params_mock_cat.maker_params.surveys.make_survey2'] == True:
+                cat_index_2=np.where(dest_data['catalog']==self.params['params_mock_cat.maker_params.surveys.name2'])[0]
+                sigma_2 = src_data['rm_err'][np.where(src_data['catalog']==self.params['params_mock_cat.maker_params.surveys.cat2'])[0]]
+                histogram_sigma_2 = rv_histogram(np.histogram(sigma_2, bins=100), density=False)
+                sigma_2_mock=histogram_sigma_2.rvs(size=cat_index_2.size)
+                sigma_mock[cat_index_2]=sigma_2_mock
+                print('sigma_mock cat2', sigma_2_mock.mean())
+                
+            sigma_mock_field=ift.Field.from_raw(ift.UnstructuredDomain(dest_data['catalog'].size),np.array(sigma_mock))
+            N = ift.DiagonalOperator(sigma_mock_field**2, domain=ift.UnstructuredDomain(sigma_mock_field.size), sampling_dtype=np.float64)
+
+            rm_data+= N.draw_sample().val
+            
+            
+
+        else:
+
+            #creating mock sigma gal
+            #NVSS cat 2009ApJ...702.1230T
+            #LoTSS cat "LoTSS DR2 (O'Sullivan et al. 2022) "
+            cat_index_gal=np.where(src_data['catalog']==self.params['params_mock_cat.maker_params.cat_gal'])[0][~np.isnan(np.where(src_data['catalog']==self.params['params_mock_cat.maker_params.cat_gal'])[0])]
+            sigma_gal = src_data['rm_err'][cat_index_gal]
+            histogram_sigma_gal = rv_histogram(np.histogram(sigma_gal, bins=10000), density=False)
+            sigma_gal_mock=histogram_sigma_gal.rvs(size=ltheta-lerm)
 
 
-        ### rm data assembly ###
-        rm_data[np.isnan(dest_data['z_best'])] +=  N_gal.draw_sample().val
-        print(rm_data.min(), rm_data.max(), rm_data.mean())
-
-        #creating mock sigma eg
-        cat_index_eg=np.where(src_data['catalog']==self.params['params_mock_cat.maker_params.cat_eg'])[0][~np.isnan(np.where(src_data['catalog']==self.params['params_mock_cat.maker_params.cat_eg'])[0])]
-        sigma_eg = src_data['rm_err'][cat_index_eg]
-        histogram_sigma_eg = rv_histogram(np.histogram(sigma_eg, bins=100), density=False)
-        sigma_eg_mock=histogram_sigma_eg.rvs(size=lerm)
-        sigma_eg_mock_field=ift.Field.from_raw(ift.UnstructuredDomain(lerm),np.array(sigma_eg_mock))
-        N_eg = ift.DiagonalOperator(sigma_eg_mock_field**2, domain=ift.UnstructuredDomain(lerm), sampling_dtype=np.float64)
-        rm_data[z_indices]+= N_eg.draw_sample().val
+            #creating mock sigma eg
+            cat_index_eg=np.where(src_data['catalog']==self.params['params_mock_cat.maker_params.cat_eg'])[0][~np.isnan(np.where(src_data['catalog']==self.params['params_mock_cat.maker_params.cat_eg'])[0])]
+            sigma_eg = src_data['rm_err'][cat_index_eg]
+            histogram_sigma_eg = rv_histogram(np.histogram(sigma_eg, bins=100), density=False)
+            sigma_eg_mock=histogram_sigma_eg.rvs(size=lerm)
 
 
+
+            sigma_mock=np.empty(ltheta)
+            sigma_mock[np.isnan(dest_data['z_best'])] = sigma_gal_mock
+            sigma_mock[z_indices] = sigma_eg_mock
+            sigma_mock_field=ift.Field.from_raw(ift.UnstructuredDomain(ltheta),np.array(sigma_mock))
+            N = ift.DiagonalOperator(sigma_mock_field**2, domain=ift.UnstructuredDomain(ltheta), sampling_dtype=np.float64)
+
+            rm_data+= N.draw_sample().val
+            print('sigma_mock eg', sigma_eg_mock.mean())
+            print('sigma_mock gal', sigma_gal_mock.mean())
 
         if self.params['params_mock_cat.maker_params.eg_on']==True:
             np.random.seed(seed=self.params['params_mock_cat.maker_params.seed'])
@@ -160,9 +197,7 @@ class CatalogMaker():
             print('mean',np.mean(egal_contr))
 
         noised_rm_data=ift.makeField(ift.UnstructuredDomain(ltheta), rm_data)
-        #Print noise
-        print('Gal noise', N_gal.draw_sample().val.std())
-        print('Egal noise', N_eg.draw_sample().val.std())
+
 
 
 
@@ -185,8 +220,9 @@ class CatalogMaker():
         plt.savefig('Mock_cat_obs_vs_sim.png', bbox_inches='tight')
 
         dest_data['rm'] = np.array(noised_rm_data.val)
-        dest_data['rm_err'][np.isnan(dest_data['z_best'])] =  sigma_gal_mock*np.ones(ltheta-lerm)
-        dest_data['rm_err'][~np.isnan(dest_data['z_best'])] =  sigma_eg_mock*np.ones(lerm)
+        dest_data['rm_err'] =  sigma_mock
+        #dest_data['rm_err'][np.isnan(dest_data['z_best'])] =  sigma_gal_mock*np.ones(ltheta-lerm)
+        #dest_data['rm_err'][~np.isnan(dest_data['z_best'])] =  sigma_eg_mock*np.ones(lerm)
         
         if self.params['params_mock_cat.maker_params.surveys.make_survey']==True:
             hdu= fits.open(self.params['params_inference.cat_path']+ self.params['params_mock_cat.maker_params.surveys.name']+'_catalog.fits')

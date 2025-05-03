@@ -27,7 +27,7 @@ class Settings_Maker():
                 survey_data=SurveyMaker(params).make_survey()
                 CatalogMaker(params, src_catalog=data, dest_catalog=survey_data).make_catalog()
             else:
-                CatalogMaker(params, src_catalog=data).make_catalog()
+                CatalogMaker(params, src_catalog=data, dest_catalog=None).make_catalog()
     
             data = Egf.get_rm(filter_pulsars=True, version=f'{catalog_version}_sim', default_error_level=0.5, params=params)
             logger.info("CREATED NEW MOCK CATALOG")        

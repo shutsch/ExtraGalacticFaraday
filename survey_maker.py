@@ -76,7 +76,7 @@ class SurveyMaker():
         dataref=np.empty(size_cat)
         cat_id=np.empty(size_cat)
         types=np.empty(size_cat)
-        notes=np.empty(size_cat)
+        notes=np.empty(size_cat, dtype='S10')
         z_best=np.empty(size_cat)
 
 
@@ -123,12 +123,20 @@ class SurveyMaker():
             all_indices[survey_indices2]=2
             catalog[params['params_mock_cat.maker_params.surveys.los']:]=params['params_mock_cat.maker_params.surveys.name2']
 
+            l=np.concatenate([l1,l2])
+            b=np.concatenate([b1,b2])
+            ra=np.concatenate([ra_deg1,ra_deg2])
+            dec=np.concatenate([dec_deg1,dec_deg2])
+
+        else:
+
+            l=l1
+            b=b1
+            ra=ra_deg1
+            dec=dec_deg1
+
         survey_indices_field=ift.Field(s_space_domain, all_indices)
 
-        l=np.concatenate([l1,l2])
-        b=np.concatenate([b1,b2])
-        ra=np.concatenate([ra_deg1,ra_deg2])
-        dec=np.concatenate([dec_deg1,dec_deg2])
 
         plot = ift.Plot()
         plot.add(survey_indices_field)
