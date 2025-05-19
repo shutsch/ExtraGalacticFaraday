@@ -61,6 +61,8 @@ class ExtraGalModel(Model):
         Dl=cosmo.luminosity_distance(self.z).value
         factor = float(Egf.const['factor'])
 
+        nz = Egf.const['nz']
+      
         expander_chi = ift.VdotOperator(ift.full(self.target_domain, 1.)).adjoint
 
         if(self.params['params_mock_cat.maker_params.n_eg_params'] == 1): #1 param
@@ -88,7 +90,43 @@ class ExtraGalModel(Model):
 
          
            
+        if(self.params['params_mock_cat.maker_params.n_eg_params'] == 22): #4 param
+
         
+            #nz = Egf.const['nz']  # number of redshift bins
+            normalized_z_domain = ift.RGSpace(nz, 1/nz) # that's the redshift domain. The volume is set to one, as we will manually mutiply with the real z distance later, since it is not the same for each LoS.
+            
+            full_domain = ift.DomainTuple.make((self.target_domain[0], normalized_z_domain,))
+            integrator = ift.ContractionOperator(full_domain, spaces=1) # this is the integration operator, mapping the full domain on the target_domain via a sum
+            expander = integrator.adjoint # the adjoint of this operator projects a field in the target_domain onto the full_domain
+            
+            # constructing the z_grid field
+            z_grid = np.empty(full_domain.shape) 
+            for i, z in enumerate(self.z):
+                z_grid[i] = np.linspace(1, 1 + z, nz) 
+            z_grid = ift.Field(full_domain, z_grid)
+        
+            # now we proceed as before, just that the operators are defined on the full combined domain
+            add_4 = ift.Adder(ift.full(full_domain, 4))
+            multiply_1pz = ift.makeOp(z_grid.log(), sampling_dtype=float)
+            fact3 = (multiply_1pz @ add_4 @ expander @ expander_chi @ chi_red).exp()  # expander maps chi_red on the full domain
+            fact4 = ift.makeOp(((light_speed/(H0*(Wm*z_grid**3+Wc*z_grid**2 +Wl)**0.5))*(1/D0)),sampling_dtype=float)
+
+            fact5 = fact4 @ fact3
+
+            z_weights = ift.makeOp(ift.Field(self.target_domain, self.z / nz),sampling_dtype=float) # these are the z_weights to rescale the integral accordingly
+            fact6 = z_weights @ integrator @ (fact5 * (expander @ expander_chi @ chi_env_0.exp()))
+
+            
+            sigmaRm2 = fact6
+
+
+            
+        
+            self._model = sigmaRm2
+            self._components.update({'chi_red': chi_red, 'chi_env_0': chi_env_0, })
+
+
         if(self.params['params_mock_cat.maker_params.n_eg_params'] == 3): #3 param
         
 
@@ -124,7 +162,7 @@ class ExtraGalModel(Model):
 
             fact1 = norm * term
         
-            nz = Egf.const['nz']  # number of redshift bins
+            #nz = Egf.const['nz']  # number of redshift bins
             normalized_z_domain = ift.RGSpace(nz, 1/nz) # that's the redshift domain. The volume is set to one, as we will manually mutiply with the real z distance later, since it is not the same for each LoS.
             
             full_domain = ift.DomainTuple.make((self.target_domain[0], normalized_z_domain,))
