@@ -22,7 +22,7 @@ params_mock_cat:
     disk_on: 1
     maker_type : "seb23" #"consistent"
     eg_on: True
-    n_eg_params: 4
+    n_eg_params: 22
     n_los: 14500 #1030
     cat_gal: "2009ApJ...702.1230T"
     cat_eg: "2023MNRAS.519.5723O" #"LoTSS DR2 (O'Sullivan et al. 2022)"
