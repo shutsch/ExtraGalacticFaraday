@@ -18,7 +18,7 @@ class Posterior_Plotter_22():
         samples = self.samples
 
         ce0=np.array([s for s in samples.iterator(self.ecomponents['chi_env_0'])])
-        me0, ve0 = samples.sample_stat(self.ecomponents['env'])
+        me0, ve0 = samples.sample_stat(self.ecomponents['chi_env_0'])
 
         cr=np.array([s for s in samples.iterator(self.ecomponents['chi_red'])])
         mr, vr = samples.sample_stat(self.ecomponents['chi_red'])
