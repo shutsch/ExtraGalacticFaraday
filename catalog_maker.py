@@ -85,8 +85,9 @@ class CatalogMaker():
             plot = ift.Plot()
             plot.add(dm, vmin=-250, vmax=250)
             plot.add(b, vmin=-2.50, vmax=2.50)
-            # plot.output()
-            plt.savefig('Mock_cat_Seb23_dm_b.png', bbox_inches='tight')
+            plot.add(0.81*dm*b, vmin=-250, vmax=250)
+            plot.output(name='Mock_cat_Seb23_dm_b.png')
+            #plt.savefig('Mock_cat_Seb23_dm_b.png', bbox_inches='tight')
 
         else: #CONSISTENT catalog
             galactic_model = U.get_galactic_model(sky_domain, self.params)
@@ -96,8 +97,8 @@ class CatalogMaker():
 
             plot = ift.Plot()
             plot.add(gal, vmin=-250, vmax=250)
-            # plot.output()
-            plt.savefig('Mock_cat_consistent_RM_gal.png', bbox_inches='tight')
+            plot.output(name='Mock_cat_consistent_RM_gal.png')
+            #plt.savefig('Mock_cat_consistent_RM_gal.png', bbox_inches='tight')
 
             ### eg contribution ####
             eg_gal_data = eg_projector(gal)
@@ -163,8 +164,8 @@ class CatalogMaker():
         plot = ift.Plot()
         plot.add(eg_projector.adjoint(eg_gal_data), vmin=-250, vmax=250)
         plot.add(eg_projector.adjoint(noised_rm_data), vmin=-250, vmax=250)
-        # plot.output()
-        plt.savefig('Mock_cat_plot_cat.png', bbox_inches='tight')
+        plot.output(name='Mock_cat_plot_cat.png')
+        #plt.savefig('Mock_cat_plot_cat.png', bbox_inches='tight')
 
         #Plot 2
         fig, axs = plt.subplots(1, 2)
