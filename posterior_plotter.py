@@ -1,6 +1,4 @@
 import nifty8 as ift
-import libs as Egf
-import numpy as np
 from matplotlib.patches import Ellipse
 import matplotlib.pyplot as plt
 import matplotlib
@@ -9,6 +7,7 @@ from single_plotters.plot_posterior_1 import Posterior_Plotter_1
 from single_plotters.plot_posterior_2 import Posterior_Plotter_2
 from single_plotters.plot_posterior_22 import Posterior_Plotter_22
 from single_plotters.plot_posterior_3 import Posterior_Plotter_3
+from single_plotters.plot_posterior_33 import Posterior_Plotter_33
 from single_plotters.plot_posterior_4 import Posterior_Plotter_4
 matplotlib.use('TkAgg')
 

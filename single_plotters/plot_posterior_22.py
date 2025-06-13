@@ -1,7 +1,8 @@
-import nifty8 as ift
-import libs as Egf
 import numpy as np
+from src.helper_functions.plot.plot import _density_estimation
+from astropy.modeling.models import Gaussian1D
 from matplotlib.patches import Ellipse
+from matplotlib import cm
 import matplotlib.pyplot as plt
 import matplotlib
 matplotlib.use('TkAgg')
@@ -37,34 +38,94 @@ class Posterior_Plotter_22():
         ce0_array=np.array(ce0_list)
         cr_array=np.array(cr_list)
 
-        fig, axs = plt.subplots(1, 1)
+        fig, axs = plt.subplots(4, 4, figsize=(15, 15))
         
-
-        axs.scatter(cr_array, ce0_array, color='k')
-        axs.set_xlabel('$\chi_{red}$')
-        axs.set_ylabel('$\chi_{env,0}$')
-        axs.set_xlim(mr.val-5*sr,mr.val+5*sr)
-        axs.set_ylim(me0.val-5*se0,me0.val+5*se0)
-
-        ellipse_1sigma = Ellipse(xy=(mr.val, me0.val), width=1*2*sr, height=1*2*se0, edgecolor='green', fc='None', lw=2)
-        ellipse_2sigma = Ellipse(xy=(mr.val, me0.val), width=2*2*sr, height=2*2*se0, edgecolor='cyan', fc='None', lw=2)
-        ellipse_3sigma = Ellipse(xy=(mr.val, me0.val), width=3*2*sr, height=3*2*se0, edgecolor='blue', fc='None', lw=2)
-        axs.add_patch(ellipse_1sigma)
-        axs.add_patch(ellipse_2sigma)
-        axs.add_patch(ellipse_3sigma)
-
-
-
-
-        ellipse_prior1 = Ellipse(xy=(self.params['prior_mean.prior_mean_red'], self.params['prior_mean.prior_mean_env']), width=2*self.params['prior_std.prior_std_red'], height=2*self.params['prior_std.prior_std_env'], edgecolor='red', fc='None', lw=1)
-
-        axs.add_patch(ellipse_prior1)
-
-
         plt.subplots_adjust(wspace=0, hspace=0)
 
+        xxx, yyy, zzz = _density_estimation(cr_array, ce0_array, mr.val-5*sr,mr.val+5*sr, me0.val-5*se0,me0.val+5*se0, 100)
+        axs[0,0].imshow(np.rot90(zzz), cmap=plt.cm.gist_earth_r, extent=[mr.val-5*sr,mr.val+5*sr, me0.val-5*se0,me0.val+5*se0], aspect="auto")
+        axs[0,0].scatter(cr_array, ce0_array, color='k', s=self.params['plot.markersize'])
+        axs[0,0].set_xlabel('$\\chi_{red}$', fontsize = self.params['plot.fontsize'])
+        axs[0,0].set_ylabel('$\\chi_{env,0}$', fontsize = self.params['plot.fontsize'])
+        axs[0,0].set_xlim(mr.val-5*sr,mr.val+5*sr)
+        axs[0,0].set_ylim(me0.val-5*se0,me0.val+5*se0)
 
 
-        axs.axhline(y = self.params['mean.mean_env'], color = 'b', linestyle = '--') 
-        axs.axvline(x = self.params['mean.mean_red'], color = 'b', linestyle='--')
-        axs.tick_params(labelbottom=True, labelleft=True, direction='in')
+
+
+
+        axs[0,0].axhline(y = self.params['mean.mean_int'], color = 'k', linestyle = '-') 
+        axs[0,0].axvline(x = self.params['mean.mean_lum'], color = 'k', linestyle='-')
+        axs[0,0].tick_params(labelbottom=True, labelleft=False, direction='in')
+
+
+
+        axs[1,0].hist(cr_array, bins=self.params['plot.bins'], color='lightgray')
+        axs[1,0].set_xlabel('$\\chi_{red}$', fontsize = self.params['plot.fontsize'])
+        axs[1,0].tick_params('y', labelleft=False)
+        axs[1,0].set_xlim(mr.val-5*sr,mr.val+5*sr)
+
+        axs[1,0].axvline(x = mr.val+sr, color = 'green', linestyle='--', label='1-$\\sigma$')
+        axs[1,0].axvline(x = mr.val-sr, color = 'green', linestyle='--')
+
+        axs[1,0].axvline(x = mr.val+2*sr, color = 'orange', linestyle='--', label='2-$\\sigma$')
+        axs[1,0].axvline(x = mr.val-2*sr, color = 'orange', linestyle='--')
+
+        axs[1,0].axvline(x = mr.val+3*sr, color = 'red', linestyle='--', label='3-$\\sigma$')
+        axs[1,0].axvline(x = mr.val-3*sr, color = 'red', linestyle='--')
+
+        axs[1,0].axvline(x = self.params['mean.mean_red'], color = 'k', linestyle = '-', label='Mock') 
+       
+
+
+        x = np.linspace(mr.val-5*sr,mr.val+5*sr, 1000)
+        #amplitude might need to be adjusted
+        y = Gaussian1D(amplitude=self.params['plot.amplitude'], mean=self.params['prior_mean.prior_mean_red'], stddev= self.params['prior_std.prior_std_red'])
+      
+        axs[1,0].plot(x, y(x), 'b-', label='Prior')
+
+
+
+        axs[0,1].hist(ce0_array, bins=self.params['plot.bins'], color='lightgray')
+        axs[0,1].set_xlabel('$\\chi_{env}$', fontsize = self.params['plot.fontsize'])
+        axs[0,1].tick_params('y', labelleft=False)
+        axs[0,1].set_xlim(me0.val-5*se0,me0.val+5*se0)
+
+        axs[0,1].axvline(x = me0.val+se0, color = 'green', linestyle='--', label='1-$\\sigma$')
+        axs[0,1].axvline(x = me0.val-se0, color = 'green', linestyle='--')
+        
+        axs[0,1].axvline(x = me0.val+2*se0, color = 'orange', linestyle='--', label='2-$\\sigma$')
+        axs[0,1].axvline(x = me0.val-2*se0, color = 'orange', linestyle='--')
+
+        axs[0,1].axvline(x = me0.val+3*se0, color = 'red', linestyle='--', label='3-$\\sigma$')
+        axs[0,1].axvline(x = me0.val-3*se0, color = 'red', linestyle='--')
+
+        axs[0,1].axvline(x = self.params['mean.mean_env'], color = 'k', linestyle = '-', label='Mock') 
+       
+
+        x = np.linspace(me0.val-5*se0,me0.val+5*se0, 1000)
+        #amplitude might need to be adjusted
+        y = Gaussian1D(amplitude=self.params['plot.amplitude'], mean=self.params['prior_mean.prior_mean_env'], stddev= self.params['prior_std.prior_std_env'])
+      
+        axs[0,1].plot(x, y(x), 'b-', label='Prior')
+
+        axs[1,1].axis('off')
+        axs[0,2].axis('off')
+        axs[0,3].axis('off')
+        axs[1,2].axis('off')
+        axs[1,3].axis('off')
+        axs[2,0].axis('off')
+        axs[2,1].axis('off')
+        axs[2,2].axis('off')
+        axs[2,3].axis('off')
+        axs[3,0].axis('off')
+        axs[3,1].axis('off')
+        axs[3,2].axis('off')
+        axs[3,3].axis('off')
+        
+        lines = []
+        labels = []
+        Line, Label = axs[0,1].get_legend_handles_labels()
+        lines.extend(Line)
+        labels.extend(Label)
+        fig.legend(lines, labels, bbox_to_anchor=(0.05, 0.888), fontsize = self.params['plot.legend_fontsize'])
