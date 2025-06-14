@@ -29,6 +29,8 @@ class Posterior_Plotter():
             Posterior_Plotter_22(samples=samples, args=self.args).plot()
         elif self.params['params_mock_cat.maker_params.n_eg_params'] == 3:
             Posterior_Plotter_3(samples=samples, args=self.args).plot()
+        elif self.params['params_mock_cat.maker_params.n_eg_params'] == 33:
+            Posterior_Plotter_33(samples=samples, args=self.args).plot()
         elif self.params['params_mock_cat.maker_params.n_eg_params'] == 4:
             Posterior_Plotter_4(samples=samples, args=self.args).plot()
     
