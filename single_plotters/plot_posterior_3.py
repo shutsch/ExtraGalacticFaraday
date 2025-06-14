@@ -106,7 +106,7 @@ class Posterior_Plotter_3():
 
 
         axs[2,0].hist(cl_array, bins=self.params['plot.bins'], color='lightgray')
-        axs[2,0].set_xlabel('$\chi_{lum}$', fontsize = self.params['plot.fontsize'])
+        axs[2,0].set_xlabel('$\\chi_{lum}$', fontsize = self.params['plot.fontsize'])
         axs[2,0].tick_params('y', labelleft=False)
         axs[2,0].set_xlim(ml.val-5*sl,ml.val+5*sl)
 
