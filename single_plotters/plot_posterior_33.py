@@ -93,7 +93,7 @@ class Posterior_Plotter_33():
 
         axs[1,0].sharex(axs[0,0])
         axs[0,1].sharey(axs[0,0])
-        axs[1,1].sharey(axs[1,0])
+        #axs[1,1].sharey(axs[1,0])
 
         axs[1,0].tick_params(labelbottom=True, direction='in')
         axs[0,1].tick_params(labelbottom=False, direction='in')

@@ -31,7 +31,7 @@ class Posterior_Plotter_1():
 
         axs[0,0].hist(c1_array, bins=self.params['plot.bins'], color='lightgray')
         #ax.set_ylabel('#')
-        axs[0,0].set_xlabel('$\\chi_{1}$', fontsize = self.params['plot.fontsize'])
+        axs[0,0].set_xlabel('$\\chi_{eg}$', fontsize = self.params['plot.fontsize'])
 
         axs[0,0].axvline(x = m1.val+s1, color = 'green', linestyle='--', label='1-$\\sigma$')
         axs[0,0].axvline(x = m1.val-s1, color = 'green', linestyle='--')

@@ -17,13 +17,13 @@ params_mock_cat:
 
 
   maker_params:
-    seed: 1000
+    seed: 3000
     use_mock: True
     disk_on: 1
     maker_type : "seb23" #"consistent"
     eg_on: True
     n_eg_params: 33
-    n_los: 14500 #1030
+    n_los: 1030
     cat_gal: "2009ApJ...702.1230T"
     cat_eg: "2023MNRAS.519.5723O" #"LoTSS DR2 (O'Sullivan et al. 2022)"
     npi: False
@@ -85,24 +85,24 @@ file_params:
   fits_ext: ".fits"
 
 sample_params:
-  n: 10
-  n_prior: 10
+  n: 2
+  n_prior: 2
   n_final: 20
   increase_step: 8
   increase_rate: 1
 
 controllers:
   sampler:
-    n: 2
-    n_final: 2
+    n: 500
+    n_final: 500
     increase_step:  "None"
     increase_rate:  "None"
     deltaE: 1.0e-07
     convergence_level: 2
   
   minimizer:
-    n: 1
-    n_final: 1
+    n: 40
+    n_final: 40
     increase_step: "None"
     increase_rate: "None"
     deltaE_threshold: 0
@@ -142,14 +142,14 @@ std:
   std_one: 0.5
 
 mean:
-  mean_int: 5.0
+  mean_int: 3.5
   mean_lum: 0.0
   mean_red: -0.5
-  mean_env: 0.0
+  mean_env: 2.0
   mean_one: 4.0
 
 prior_std:
-  prior_std_int: 2.5
+  prior_std_int: 1.0
   prior_std_lum: 1.0
   prior_std_red: 1.0
   prior_std_env: 1.0 
