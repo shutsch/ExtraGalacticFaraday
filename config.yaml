@@ -17,7 +17,7 @@ params_mock_cat:
 
 
   maker_params:
-    seed: 3000
+    seed: 5896
     use_mock: True
     disk_on: 1
     maker_type : "seb23" #"consistent"
@@ -142,10 +142,10 @@ std:
   std_one: 0.5
 
 mean:
-  mean_int: 3.5
+  mean_int: -2.5
   mean_lum: 0.0
   mean_red: -0.5
-  mean_env: 2.0
+  mean_env: 0.0
   mean_one: 4.0
 
 prior_std:

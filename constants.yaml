@@ -1,5 +1,5 @@
 L0: 1.0e27 #in order to have the luminosity in units of W/Hz
-D0: 5000. #i.e., D in units of Gpc
+D0: 5000. #i.e., D in units of Mpc
 c: 299792.4580 #km/s
 factor: 9.52e18 #1.0e-26*(3.0857*1.0e22)**2
 nz: 100  # number of redshift bins
