@@ -2,8 +2,8 @@ import nifty8 as ift
 from .logger import logger, Format
 from posterior_plotter import Posterior_Plotter
 from .minimization_helpers import get_controller, get_n_samples
-from .plot.plot import sky_map_plotting, power_plotting, energy_plotting, scatter_plotting_posterior
-import libs as Egf
+from .plot.plot import sky_map_plotting, power_plotting, energy_plotting, scatter_plotting_posterior, eta_plotting
+#import libs as Egf
 
 class Minimizer():
     def __init__(self, minimizer_params, ecomponents, params):
@@ -37,7 +37,9 @@ class Minimizer():
             
             energy_plotting(energy_dict, minimizer_params['plot_path'])
             ident = str(i)
-            
+            if self.params['params_mock_cat.maker_params.npi']==True:
+                eta_plotting('noise_excitations',[s for s in latest_sample_list.iterator()], minimizer_params['plot_path'], string=ident)
+
             if minimizer_params['sky_maps'] is not None:
                 for sky_name, sky in minimizer_params['sky_maps'].items():
                     sky_map_plotting(sky, [s for s in latest_sample_list.iterator()], sky_name, minimizer_params['plot_path'], string=ident,

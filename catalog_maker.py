@@ -10,6 +10,7 @@ import matplotlib
 from src.helper_functions.parameters_maker import Parameters_maker
 matplotlib.use('TkAgg')
 import utilities as U
+import random
 
 class CatalogMaker():
 
@@ -118,6 +119,33 @@ class CatalogMaker():
 
         rm_data=np.array(eg_gal_data.val)
 
+
+        #modification of RM values to mimic wrong estimates present in the data and difficult to predict
+        delta_rm_list=[]
+        if self.params['params_mock_cat.maker_params.npi.use_npi']==True:
+            b_indices=np.where(np.isnan(data['z_best']))[0]
+            np.random.seed(seed=self.params['params_mock_cat.maker_params.seed'])
+            npi_indices=np.unique(np.random.choice(b_indices, size=self.params['params_mock_cat.maker_params.npi.npi_los']))
+            print(npi_indices)
+            print(npi_indices.size)
+            print(ltheta-lerm)
+            for item in b_indices:
+                if item in npi_indices:
+                    mu_nvss=self.params['params_mock_cat.maker_params.npi.mu_nvss']
+                    sigma_nvss=self.params['params_mock_cat.maker_params.npi.sigma_nvss']
+                    delta_rm=np.random.normal(mu_nvss, sigma_nvss)
+                    if random.choice('+-')=='-':
+                        rm_data[item] -= delta_rm
+                        delta_rm_list.append(-delta_rm)
+                    else:
+                        rm_data[item] += delta_rm
+                        delta_rm_list.append(delta_rm)
+            
+            delta_rm_array=np.array(delta_rm_list)
+            plt.scatter(eg_b[npi_indices], delta_rm_array)
+            plt.savefig('Delta_rm.png', bbox_inches='tight')
+
+
         #creating mock sigma gal
         #NVSS cat 2009ApJ...702.1230T
         #LoTSS cat "LoTSS DR2 (O'Sullivan et al. 2022) "
@@ -144,6 +172,7 @@ class CatalogMaker():
 
 
 
+
         if self.params['params_mock_cat.maker_params.eg_on']==True:
             np.random.seed(seed=self.params['params_mock_cat.maker_params.seed'])
             rand_rm=np.random.normal(0.0, 1.0,len(e_rm))
@@ -157,9 +186,11 @@ class CatalogMaker():
         #Print noise
         print('Gal noise', N_gal.draw_sample().val.std())
         print('Egal noise', N_eg.draw_sample().val.std())
+        
 
 
 
+        
         #Plot 1
         plot = ift.Plot()
         plot.add(eg_projector.adjoint(eg_gal_data), vmin=-250, vmax=250)

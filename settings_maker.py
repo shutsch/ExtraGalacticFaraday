@@ -97,7 +97,7 @@ class Settings_Maker():
 
 
         #to use when inference on the noise factors is necessary
-        if self.params['params_mock_cat.maker_params.npi']==True:
+        if self.params['params_mock_cat.maker_params.npi.use_npi']==True:
         # Possible all sky variation of alpha, requires pygedm package 
             alpha = 2.5
             log_ymw = np.log(Egf.load_ymw_sky('ymw16', 'mc', params))
@@ -105,13 +105,14 @@ class Settings_Maker():
             log_ymw *= 5
             alpha = implicit_response(ift.Field(ift.makeDomain(implicit_response.domain), log_ymw)).val
 
-            implicit_noise = Egf.SimpleVariableNoise(gal_data_domain, alpha=alpha, q='mode', noise_cov=gal_stddev**2).get_model()
+            implicit_noise = Egf.SimpleVariableNoise(gal_data_domain, alpha=alpha, q='mode', noise_cov=gal_stddev**2)
+            implicit_noise_model=implicit_noise.get_model()
         # build the full model and connect it to the likelihood
 
             implicit_model = implicit_response @ galactic_model.get_model()
             residual = ift.Adder(-gal_rm) @ implicit_model
-            new_dom = ift.MultiDomain.make({'icov': implicit_noise.target, 'residual': residual.target})
-            n_res = ift.FieldAdapter(new_dom, 'icov')(implicit_noise.reciprocal()) + \
+            new_dom = ift.MultiDomain.make({'icov': implicit_noise_model.target, 'residual': residual.target})
+            n_res = ift.FieldAdapter(new_dom, 'icov')(implicit_noise_model.reciprocal()) + \
                 ift.FieldAdapter(new_dom, 'residual')(residual)
             implicit_likelihood = ift.VariableCovarianceGaussianEnergy(domain=gal_data_domain, residual_key='residual',
                                                                 inverse_covariance_key='icov',
@@ -120,6 +121,8 @@ class Settings_Maker():
         else:
         #to use with perfect noise knowledge
             implicit_noise = Egf.StaticNoise(gal_data_domain, gal_stddev**2, True)
+            implicit_noise_model = None
+
 
         # build the full model and connect it to the likelihood
 
@@ -156,7 +159,8 @@ class Settings_Maker():
             'sky_maps': sky_models,
             'power_spectra': power_models,
             'scatter_pairs': None,
-            'plotting_kwargs': plotting_kwargs
+            'plotting_kwargs': plotting_kwargs,
+            'eta': implicit_noise.get_components()['eta'] if implicit_noise_model != None else None
         }
 
         return {'minimizer_params': minimizer_params, 'ecomponents': ecomponents}
