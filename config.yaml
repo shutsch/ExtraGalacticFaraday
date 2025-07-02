@@ -11,24 +11,24 @@ params_mock_cat:
   #  k0: 5.0
   #  gamma: -2.5
   # values for a Gal RM on large scales
-    P0: 3.8
+    P0: 5.0
     k0: 5.0
     gamma: -8.0
 
 
   maker_params:
-    seed: 5896
+    seed: 2500
     use_mock: True
     disk_on: 1
     maker_type : "seb23" #"consistent"
     eg_on: True
-    n_eg_params: 33
-    n_los: 1030
-    cat_gal: "2009ApJ...702.1230T"
+    n_eg_params: 22
+    n_los: 14500
+    cat_gal: "2023MNRAS.519.5723O" #"2009ApJ...702.1230T"
     cat_eg: "2023MNRAS.519.5723O" #"LoTSS DR2 (O'Sullivan et al. 2022)"
   
     npi:
-      use_npi: True
+      use_npi: False
       npi_los: 1000
       #using Y. K. Ma et al. (2019)
       mu_nvss: 605.0
@@ -147,19 +147,20 @@ std:
   std_env: 0.5 
   std_one: 0.5
 
+
 mean:
-  mean_int: -2.5
-  mean_lum: 0.0
+  mean_int: 2.0
+  mean_lum: -0.5
   mean_red: -0.5
-  mean_env: 0.0
+  mean_env: 3.0
   mean_one: 4.0
 
 prior_std:
   prior_std_int: 1.0
-  prior_std_lum: 1.0
-  prior_std_red: 1.0
-  prior_std_env: 1.0 
-  prior_std_one: 1.0
+  prior_std_lum: 0.5
+  prior_std_red: 0.5
+  prior_std_env: 1.5
+  prior_std_one: 2.0
 
 prior_mean:
   prior_mean_int: 0.0

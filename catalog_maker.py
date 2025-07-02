@@ -1,13 +1,15 @@
+from src.helper_functions.parameters_maker import Parameters_maker
 import nifty8 as ift
 import libs as Egf 
 import numpy as np
+import healpy as hp
 from src.helper_functions.misc import gal2gal
 from mock_seb23 import seb23
 from astropy.io import fits
 from scipy.stats import rv_histogram
 import matplotlib.pyplot as plt
 import matplotlib
-from src.helper_functions.parameters_maker import Parameters_maker
+from nifty_cmaps import ncmap
 matplotlib.use('TkAgg')
 import utilities as U
 import random
@@ -29,7 +31,10 @@ class CatalogMaker():
 
         e_rm = np.array(data['rm'][z_indices])
         e_z = np.array(data['z_best'][z_indices])
+        e_z_orig = e_z
         e_F = np.array(data['stokesI'][z_indices])
+        e_F_orig_at_z = e_F
+
 
         los=self.params['params_mock_cat.maker_params.n_los']
 
@@ -40,8 +45,9 @@ class CatalogMaker():
         print('Number of LOS', len(z_mock_indices) )
 
 
-        histogram_z = rv_histogram(np.histogram(e_z, bins=100), density=False)
-        z_mock=histogram_z.rvs(size=z_mock_indices.size)
+        #histogram_z = rv_histogram(np.histogram(e_z, bins=100), density=True)
+        #z_mock=histogram_z.rvs(size=z_mock_indices.size)
+        z_mock=np.random.choice(e_z,size=z_mock_indices.size) 
 
         data['z_best'][:] = np.nan
         data['z_best'][z_mock_indices] = z_mock
@@ -49,10 +55,12 @@ class CatalogMaker():
         F_all = np.array(data['stokesI'])
         F_indices = np.where(F_all>0)[0]
         F_sample= np.array(data['stokesI'][F_indices])
+        e_F_orig = F_sample
 
         #creating mock fluxes
-        histogram_F = rv_histogram(np.histogram(F_sample, bins=10000), density=False)
-        F_mock=histogram_F.rvs(size=len(data['stokesI']))
+        #histogram_F = rv_histogram(np.histogram(F_sample, bins=10000), density=False)
+        #F_mock=histogram_F.rvs(size=len(data['stokesI']))
+        F_mock=np.random.choice(F_sample,size=len(data['stokesI'])) 
 
         data['stokesI'] = F_mock
 
@@ -84,11 +92,17 @@ class CatalogMaker():
                 eg_gal_data = eg_projector(b)
             
             plot = ift.Plot()
-            plot.add(dm, vmin=-250, vmax=250)
-            plot.add(b, vmin=-2.50, vmax=2.50)
-            plot.add(0.81*dm*b, vmin=-250, vmax=250)
-            plot.output(name='Mock_cat_Seb23_dm_b.png')
-            #plt.savefig('Mock_cat_Seb23_dm_b.png', bbox_inches='tight')
+            plot.add(dm, vmin=0, vmax=500, title='DM [pc cm$^{-3}$]', cmap='magma', cmap_stddev=getattr(ncmap, 'fu')())
+            plot.add(b, vmin=-2.50, vmax=2.50, cmap=getattr(ncmap, 'fu')(), cmap_stddev=getattr(ncmap, 'fu')())
+            plot.add(0.81*dm*b, vmin=-250, vmax=250, cmap=getattr(ncmap, 'fm')(), cmap_stddev=getattr(ncmap, 'fu')())
+            plot.output(name='Mock_cat_Seb23_dm_b.png', nx=1, ny=3)
+
+            hp.mollview(dm.val,min=0, max=500, title='DM [pc cm$^{-3}$]', cmap='magma')
+            plt.savefig('DM.png', bbox_inches='tight')
+            hp.mollview(b.val,min=-2.5, max=2.5, title='B [$\\mu$G], $\\gamma$=-8 ', cmap=getattr(ncmap, 'fu')())
+            plt.savefig('B.png', bbox_inches='tight')
+            hp.mollview(0.81*dm.val*b.val,min=-250, max=250, title='$\\phi_{gal}$ [rad m$^{-2}$]', cmap=getattr(ncmap, 'fm')())
+            plt.savefig('RM.png', bbox_inches='tight')
 
         else: #CONSISTENT catalog
             galactic_model = U.get_galactic_model(sky_domain, self.params)
@@ -155,9 +169,6 @@ class CatalogMaker():
         sigma_gal_mock=histogram_sigma_gal.rvs(size=ltheta-lerm)
         sigma_gal_mock_field=ift.Field.from_raw(ift.UnstructuredDomain(ltheta-lerm),np.array(sigma_gal_mock))
         N_gal = ift.DiagonalOperator(sigma_gal_mock_field**2, domain=ift.UnstructuredDomain(ltheta-lerm), sampling_dtype=np.float64)
-
-
-        ### rm data assembly ###
         rm_data[np.isnan(data['z_best'])] +=  N_gal.draw_sample().val
         print(rm_data.min(), rm_data.max(), rm_data.mean())
 
@@ -169,6 +180,36 @@ class CatalogMaker():
         sigma_eg_mock_field=ift.Field.from_raw(ift.UnstructuredDomain(lerm),np.array(sigma_eg_mock))
         N_eg = ift.DiagonalOperator(sigma_eg_mock_field**2, domain=ift.UnstructuredDomain(lerm), sampling_dtype=np.float64)
         rm_data[z_indices]+= N_eg.draw_sample().val
+
+
+        fig, axs = plt.subplots(2, 2)
+
+        axs[0,0].hist(sigma_eg, bins=100, density=True, color='green')
+        
+        #axs[0,0].set_xlabel('$\\sigma_{eg, obs}$ (rad/m$^2$)')
+        axs[0,1].hist(sigma_gal, bins=100, density=True, color='green')
+        #axs[0,1].set_xlabel('$\\sigma_{eg, mock}$ (rad/m$^2$)')
+
+        axs[1,0].hist(sigma_eg_mock, bins=100, density=True, color='lightgrey')
+        axs[1,0].set_xlabel('$\\sigma_{eg}$ (rad/m$^2$)')
+
+        axs[1,1].hist(sigma_gal_mock, bins=100, density=True, color='lightgrey')
+        axs[1,1].set_xlabel('$\\sigma_{gal}$ (rad/m$^2$)')
+
+        axs[1,1].sharex(axs[0,1])
+        axs[1,0].sharex(axs[0,0])
+
+        axs[0,0].set_xticks([])
+        axs[0,1].set_xticks([])
+
+        #axs[1,1].set_ylabel('Occurrencies')
+        #axs[0,1].set_ylabel('Occurrencies')
+        #axs[1,0].set_ylabel('Occurrencies')
+        #axs[0,0].set_ylabel('Occurrencies')
+
+        plt.subplots_adjust(wspace=0.5, hspace=0)
+        plt.savefig('Noise.png', bbox_inches='tight')
+
 
 
 
@@ -189,6 +230,56 @@ class CatalogMaker():
         
 
 
+        fig, axs = plt.subplots(3, 2, figsize=(10,10))
+
+
+        axs[2,1].set_xlabel('z')
+        axs[2,0].set_xlabel('Stokes I (Jy)')
+        axs[0,0].set_ylabel('Mock $\\phi_{eg}$ (rad/m$^2$)')
+        axs[0,1].set_ylabel('Mock $\\phi_{eg}$ (rad/m$^2$)')
+        axs[0,1].scatter(e_z, egal_contr, s=5, c='green')
+
+        axs[2,1].hist(e_z_orig, bins=100, density=True, color='lightgrey')
+        axs[1,1].hist(e_z, bins=100, density=True, color='green')
+
+        axs[0,0].scatter(e_F, egal_contr, s=5, c='green')
+
+        hist, bins = np.histogram(e_F_orig, bins=100)
+        logbins = np.logspace(np.log10(bins[0]),np.log10(bins[-1]),len(bins))
+        axs[2,0].hist(e_F_orig, bins=logbins,  density=True, color='lightgrey')
+
+        hist, bins = np.histogram(e_F, bins=100)
+        logbins = np.logspace(np.log10(bins[0]),np.log10(bins[-1]),len(bins))
+        axs[1,0].hist(e_F, bins=logbins,  density=True, color='green')
+
+        axs[0,0].set_xlim(0.0001,22000)
+        axs[1,0].sharex(axs[2,0])
+        axs[0,0].sharex(axs[2,0])
+        axs[0,0].set_xscale('log')
+        axs[1,0].set_xscale('log')
+        axs[2,0].set_xscale('log')
+
+        axs[0,0].set_ylim(-150,150)
+        axs[1,0].set_ylim(0,6.9)
+        axs[2,0].sharey(axs[1,0])
+
+
+        axs[0,1].set_xlim(-0.05,3.5)
+        axs[1,1].sharex(axs[2,1])
+        axs[0,1].sharex(axs[2,1])
+
+        axs[0,1].set_ylim(-150,150)
+        axs[1,1].set_ylim(0,1.9)
+        axs[2,1].sharey(axs[1,1])
+
+        axs[2,0].set_ylabel('Observed #')
+        axs[1,0].set_ylabel('Mock #')
+        axs[2,1].set_ylabel('Observed #')
+        axs[1,1].set_ylabel('Mock #')
+
+
+        plt.subplots_adjust(wspace=0.5, hspace=0)
+        plt.savefig('Luminosityand_z_dependence.png', bbox_inches='tight')
 
         
         #Plot 1

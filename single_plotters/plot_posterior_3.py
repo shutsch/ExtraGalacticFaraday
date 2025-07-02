@@ -131,7 +131,7 @@ class Posterior_Plotter_3():
 
         
         axs[1,1].hist(ce0_array, bins=self.params['plot.bins'], color='lightgray')
-        axs[1,1].set_xlabel('$\\chi_{env}$', fontsize = self.params['plot.fontsize'])
+        axs[1,1].set_xlabel('$\\chi_{env, 0}$', fontsize = self.params['plot.fontsize'])
         axs[1,1].tick_params('y', labelleft=False)
         axs[1,1].set_xlim(me0.val-5*se0,me0.val+5*se0)
 
@@ -155,7 +155,7 @@ class Posterior_Plotter_3():
 
         
         axs[0,2].hist(ci0_array, bins=self.params['plot.bins'], color='lightgray')
-        axs[0,2].set_xlabel('$\\chi_{int}$', fontsize = self.params['plot.fontsize'])
+        axs[0,2].set_xlabel('$\\chi_{int, 0}$', fontsize = self.params['plot.fontsize'])
         axs[0,2].tick_params('y', labelleft=False)
         axs[0,2].set_xlim(mi0.val-5*si0,mi0.val+5*si0)
 

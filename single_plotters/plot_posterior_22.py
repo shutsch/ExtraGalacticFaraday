@@ -87,7 +87,7 @@ class Posterior_Plotter_22():
 
 
         axs[0,1].hist(ce0_array, bins=self.params['plot.bins'], color='lightgray')
-        axs[0,1].set_xlabel('$\\chi_{env}$', fontsize = self.params['plot.fontsize'])
+        axs[0,1].set_xlabel('$\\chi_{env, 0}$', fontsize = self.params['plot.fontsize'])
         axs[0,1].tick_params('y', labelleft=False)
         axs[0,1].set_xlim(me0.val-5*se0,me0.val+5*se0)
 
