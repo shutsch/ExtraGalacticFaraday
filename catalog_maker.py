@@ -6,7 +6,7 @@ import healpy as hp
 from src.helper_functions.misc import gal2gal
 from mock_seb23 import seb23
 from astropy.io import fits
-from scipy.stats import rv_histogram
+#from scipy.stats import rv_histogram
 import matplotlib.pyplot as plt
 import matplotlib
 from nifty_cmaps import ncmap
@@ -165,8 +165,11 @@ class CatalogMaker():
         #LoTSS cat "LoTSS DR2 (O'Sullivan et al. 2022) "
         cat_index_gal=np.where(data['catalog']==self.params['params_mock_cat.maker_params.cat_gal'])[0][~np.isnan(np.where(data['catalog']==self.params['params_mock_cat.maker_params.cat_gal'])[0])]
         sigma_gal = data['rm_err'][cat_index_gal]
-        histogram_sigma_gal = rv_histogram(np.histogram(sigma_gal, bins=10000), density=False)
-        sigma_gal_mock=histogram_sigma_gal.rvs(size=ltheta-lerm)
+
+        #histogram_sigma_gal = rv_histogram(np.histogram(sigma_gal, bins=10000), density=False)
+        #sigma_gal_mock=histogram_sigma_gal.rvs(size=ltheta-lerm)
+        sigma_gal_mock=np.random.choice(sigma_gal,size=ltheta-lerm) 
+
         sigma_gal_mock_field=ift.Field.from_raw(ift.UnstructuredDomain(ltheta-lerm),np.array(sigma_gal_mock))
         N_gal = ift.DiagonalOperator(sigma_gal_mock_field**2, domain=ift.UnstructuredDomain(ltheta-lerm), sampling_dtype=np.float64)
         rm_data[np.isnan(data['z_best'])] +=  N_gal.draw_sample().val
@@ -175,11 +178,16 @@ class CatalogMaker():
         #creating mock sigma eg
         cat_index_eg=np.where(data['catalog']==self.params['params_mock_cat.maker_params.cat_eg'])[0][~np.isnan(np.where(data['catalog']==self.params['params_mock_cat.maker_params.cat_eg'])[0])]
         sigma_eg = data['rm_err'][cat_index_eg]
-        histogram_sigma_eg = rv_histogram(np.histogram(sigma_eg, bins=100), density=False)
-        sigma_eg_mock=histogram_sigma_eg.rvs(size=lerm)
+
+        #histogram_sigma_eg = rv_histogram(np.histogram(sigma_eg, bins=100), density=False)
+        #sigma_eg_mock=histogram_sigma_eg.rvs(size=lerm)
+        sigma_eg_mock=np.random.choice(sigma_eg,size=lerm) 
+
+
         sigma_eg_mock_field=ift.Field.from_raw(ift.UnstructuredDomain(lerm),np.array(sigma_eg_mock))
         N_eg = ift.DiagonalOperator(sigma_eg_mock_field**2, domain=ift.UnstructuredDomain(lerm), sampling_dtype=np.float64)
         rm_data[z_indices]+= N_eg.draw_sample().val
+
 
 
         fig, axs = plt.subplots(2, 2)
