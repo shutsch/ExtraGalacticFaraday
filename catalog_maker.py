@@ -231,6 +231,59 @@ class CatalogMaker():
             print('std',np.std(egal_contr))
             print('mean',np.mean(egal_contr))
 
+
+            fig, axs = plt.subplots(3, 2, figsize=(10,10))
+
+
+            axs[2,1].set_xlabel('z')
+            axs[2,0].set_xlabel('Stokes I (Jy)')
+            axs[0,0].set_ylabel('Mock $\\phi_{eg}$ (rad/m$^2$)')
+            axs[0,1].set_ylabel('Mock $\\phi_{eg}$ (rad/m$^2$)')
+            axs[0,1].scatter(e_z, egal_contr, s=5, c='green')
+
+            axs[2,1].hist(e_z_orig, bins=100, density=True, color='lightgrey')
+            axs[1,1].hist(e_z, bins=100, density=True, color='green')
+
+            axs[0,0].scatter(e_F, egal_contr, s=5, c='green')
+
+            hist, bins = np.histogram(e_F_orig, bins=100)
+            logbins = np.logspace(np.log10(bins[0]),np.log10(bins[-1]),len(bins))
+            axs[2,0].hist(e_F_orig, bins=logbins,  density=True, color='lightgrey')
+
+            hist, bins = np.histogram(e_F, bins=100)
+            logbins = np.logspace(np.log10(bins[0]),np.log10(bins[-1]),len(bins))
+            axs[1,0].hist(e_F, bins=logbins,  density=True, color='green')
+
+            axs[0,0].set_xlim(0.0001,22000)
+            axs[1,0].sharex(axs[2,0])
+            axs[0,0].sharex(axs[2,0])
+            axs[0,0].set_xscale('log')
+            axs[1,0].set_xscale('log')
+            axs[2,0].set_xscale('log')
+
+            axs[0,0].set_ylim(-150,150)
+            axs[1,0].set_ylim(0,6.9)
+            axs[2,0].sharey(axs[1,0])
+
+
+            axs[0,1].set_xlim(-0.05,3.5)
+            axs[1,1].sharex(axs[2,1])
+            axs[0,1].sharex(axs[2,1])
+
+            axs[0,1].set_ylim(-150,150)
+            axs[1,1].set_ylim(0,1.9)
+            axs[2,1].sharey(axs[1,1])
+
+            axs[2,0].set_ylabel('Observed #')
+            axs[1,0].set_ylabel('Mock #')
+            axs[2,1].set_ylabel('Observed #')
+            axs[1,1].set_ylabel('Mock #')
+
+
+            plt.subplots_adjust(wspace=0.5, hspace=0)
+            plt.savefig('Luminosityand_z_dependence.png', bbox_inches='tight')
+
+
         noised_rm_data=ift.makeField(ift.UnstructuredDomain(ltheta), rm_data)
         #Print noise
         print('Gal noise', N_gal.draw_sample().val.std())
@@ -238,56 +291,7 @@ class CatalogMaker():
         
 
 
-        fig, axs = plt.subplots(3, 2, figsize=(10,10))
 
-
-        axs[2,1].set_xlabel('z')
-        axs[2,0].set_xlabel('Stokes I (Jy)')
-        axs[0,0].set_ylabel('Mock $\\phi_{eg}$ (rad/m$^2$)')
-        axs[0,1].set_ylabel('Mock $\\phi_{eg}$ (rad/m$^2$)')
-        axs[0,1].scatter(e_z, egal_contr, s=5, c='green')
-
-        axs[2,1].hist(e_z_orig, bins=100, density=True, color='lightgrey')
-        axs[1,1].hist(e_z, bins=100, density=True, color='green')
-
-        axs[0,0].scatter(e_F, egal_contr, s=5, c='green')
-
-        hist, bins = np.histogram(e_F_orig, bins=100)
-        logbins = np.logspace(np.log10(bins[0]),np.log10(bins[-1]),len(bins))
-        axs[2,0].hist(e_F_orig, bins=logbins,  density=True, color='lightgrey')
-
-        hist, bins = np.histogram(e_F, bins=100)
-        logbins = np.logspace(np.log10(bins[0]),np.log10(bins[-1]),len(bins))
-        axs[1,0].hist(e_F, bins=logbins,  density=True, color='green')
-
-        axs[0,0].set_xlim(0.0001,22000)
-        axs[1,0].sharex(axs[2,0])
-        axs[0,0].sharex(axs[2,0])
-        axs[0,0].set_xscale('log')
-        axs[1,0].set_xscale('log')
-        axs[2,0].set_xscale('log')
-
-        axs[0,0].set_ylim(-150,150)
-        axs[1,0].set_ylim(0,6.9)
-        axs[2,0].sharey(axs[1,0])
-
-
-        axs[0,1].set_xlim(-0.05,3.5)
-        axs[1,1].sharex(axs[2,1])
-        axs[0,1].sharex(axs[2,1])
-
-        axs[0,1].set_ylim(-150,150)
-        axs[1,1].set_ylim(0,1.9)
-        axs[2,1].sharey(axs[1,1])
-
-        axs[2,0].set_ylabel('Observed #')
-        axs[1,0].set_ylabel('Mock #')
-        axs[2,1].set_ylabel('Observed #')
-        axs[1,1].set_ylabel('Mock #')
-
-
-        plt.subplots_adjust(wspace=0.5, hspace=0)
-        plt.savefig('Luminosityand_z_dependence.png', bbox_inches='tight')
 
         
         #Plot 1
