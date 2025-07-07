@@ -38,7 +38,7 @@ class Minimizer():
             energy_plotting(energy_dict, minimizer_params['plot_path'])
             ident = str(i)
             if self.params['params_mock_cat.maker_params.npi.use_npi']==True:
-                eta_plotting('noise_excitations',[s for s in latest_sample_list.iterator()], minimizer_params['plot_path'], string=ident)
+                eta_plotting('noise_excitations',[s for s in latest_sample_list.iterator()], minimizer_params['plot_path'], minimizer_params['sigma_rm'], minimizer_params['gal_pos'], minimizer_params['mock_npi_indices'], string=ident)
 
             if minimizer_params['sky_maps'] is not None:
                 for sky_name, sky in minimizer_params['sky_maps'].items():

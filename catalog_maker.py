@@ -140,7 +140,7 @@ class CatalogMaker():
             b_indices=np.where(np.isnan(data['z_best']))[0]
             np.random.seed(seed=self.params['params_mock_cat.maker_params.seed'])
             npi_indices=np.unique(np.random.choice(b_indices, size=self.params['params_mock_cat.maker_params.npi.npi_los']))
-            print(npi_indices)
+            np.save('mock_npi_indices.npy', npi_indices)
             print(npi_indices.size)
             print(ltheta-lerm)
             for item in b_indices:

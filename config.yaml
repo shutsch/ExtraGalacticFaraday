@@ -17,7 +17,7 @@ params_mock_cat:
 
 
   maker_params:
-    seed: 2500
+    seed: 1500
     use_mock: True
     disk_on: 1
     maker_type : "seb23" #"consistent"
@@ -28,8 +28,8 @@ params_mock_cat:
     cat_eg: "2023MNRAS.519.5723O" #"LoTSS DR2 (O'Sullivan et al. 2022)"
   
     npi:
-      use_npi: False
-      npi_los: 1000
+      use_npi: True
+      npi_los: 25000
       #using Y. K. Ma et al. (2019)
       mu_nvss: 605.0
       sigma_nvss: 65.0

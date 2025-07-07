@@ -160,6 +160,9 @@ class Settings_Maker():
             'power_spectra': power_models,
             'scatter_pairs': None,
             'plotting_kwargs': plotting_kwargs,
+            'sigma_rm': data['rm_err'],
+            'gal_pos': ~z_indices,
+            'mock_npi_indices': np.load('mock_npi_indices.npy'),
             'eta': implicit_noise.get_components()['eta'] if implicit_noise_model != None else None
         }
 

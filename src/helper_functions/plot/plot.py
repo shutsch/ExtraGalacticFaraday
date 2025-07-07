@@ -218,7 +218,7 @@ def _density_estimation(m1, m2, xmin, xmax, ymin, ymax, nbins):
     return x, y, z
 
  
-def eta_plotting(name, plot_obj, path, string=None, **kwargs):
+def eta_plotting(name, plot_obj, path, sigma_rm, gal_pos, mock_npi_indices, string=None, **kwargs):
     if string is None:
         string = ''
     eta_path = path + 'eta/'+ '/'
@@ -235,3 +235,24 @@ def eta_plotting(name, plot_obj, path, string=None, **kwargs):
         m =plot_obj
     plot.add(m, title="mean", **kwargs)
     plot.output(name=eta_path + name +'_' + string + ".png")
+
+
+    gal_pos=gal_pos.mask.astype('float64')
+    np.putmask(gal_pos, gal_pos, m.val)
+    gal_pos[gal_pos == 0.0] = 1.0
+
+    sigma_rm_corr=gal_pos*sigma_rm
+
+    pl.scatter(sigma_rm, sigma_rm_corr)
+    pl.xlabel('$\\sigma_{RM}$')
+    pl.ylabel('$\\sigma_{RM, corr}$')
+    pl.savefig(eta_path + name +'_sigma_' + string + ".png")
+
+    pl.clf()
+    fig=pl.figure(figsize=(40,1))
+    pl.bar(np.arange(0,gal_pos.size,1), gal_pos)
+    print('mock size', mock_npi_indices.size)
+    pl.vlines(mock_npi_indices, ymin=-0.5, ymax=0, lw=0.005, color='k')
+    pl.tight_layout()
+    pl.savefig(eta_path + name +'_indices_' + string + ".png", dpi=300)
+
