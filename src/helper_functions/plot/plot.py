@@ -2,6 +2,7 @@ import os
 import numpy as np
 import nifty8 as ift
 from .nifty_cmaps import ncmap
+from astropy.modeling.models import Gaussian1D
 import matplotlib.pyplot as pl
 from matplotlib import cm
 import matplotlib
@@ -243,10 +244,18 @@ def eta_plotting(name, plot_obj, path, sigma_rm, gal_pos, mock_npi_indices, stri
 
     sigma_rm_corr=gal_pos*sigma_rm
 
-    pl.scatter(sigma_rm, sigma_rm_corr)
+    #pl.scatter(sigma_rm, sigma_rm_corr)
     pl.xlabel('$\\sigma_{RM}$')
     pl.ylabel('$\\sigma_{RM, corr}$')
+
+
+    xxx, yyy, zzz = _density_estimation(sigma_rm, sigma_rm_corr, sigma_rm.min(), sigma_rm.max(), sigma_rm_corr.min(), sigma_rm_corr.max(), 100)
+    pl.imshow(np.rot90(zzz), cmap=pl.cm.inferno, extent=[sigma_rm.min(), sigma_rm.max(), sigma_rm_corr.min(), sigma_rm_corr.max()], aspect="auto")
+    pl.plot(sigma_rm, sigma_rm, color='lightsteelblue')
+    pl.xlim(sigma_rm.min(), sigma_rm.max())
+    pl.ylim(sigma_rm_corr.min(), sigma_rm_corr.max())
     pl.savefig(eta_path + name +'_sigma_' + string + ".png")
+
 
     pl.clf()
     fig=pl.figure(figsize=(40,1))
