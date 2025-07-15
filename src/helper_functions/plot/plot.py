@@ -237,31 +237,33 @@ def eta_plotting(name, plot_obj, path, sigma_rm, gal_pos, mock_npi_indices, stri
     plot.add(m, title="mean", **kwargs)
     plot.output(name=eta_path + name +'_' + string + ".png")
 
+    pl.clf()
 
     gal_pos=gal_pos.mask.astype('float64')
     np.putmask(gal_pos, gal_pos, m.val)
     gal_pos[gal_pos == 0.0] = 1.0
-
-    sigma_rm_corr=gal_pos*sigma_rm
+    
+    sigma_rm2=sigma_rm**2
+    sigma_rm_corr2=gal_pos*sigma_rm2
 
     #pl.scatter(sigma_rm, sigma_rm_corr)
-    pl.xlabel('$\\sigma_{RM}$')
-    pl.ylabel('$\\sigma_{RM, corr}$')
+    pl.xlabel('$\\sigma^2_{RM}$')
+    pl.ylabel('$\\sigma^2_{RM, corr}$')
 
 
-    xxx, yyy, zzz = _density_estimation(sigma_rm, sigma_rm_corr, sigma_rm.min(), sigma_rm.max(), sigma_rm_corr.min(), sigma_rm_corr.max(), 100)
-    pl.imshow(np.rot90(zzz), cmap=pl.cm.inferno, extent=[sigma_rm.min(), sigma_rm.max(), sigma_rm_corr.min(), sigma_rm_corr.max()], aspect="auto")
-    pl.plot(sigma_rm, sigma_rm, color='lightsteelblue')
-    pl.xlim(sigma_rm.min(), sigma_rm.max())
-    pl.ylim(sigma_rm_corr.min(), sigma_rm_corr.max())
+    xxx, yyy, zzz = _density_estimation(sigma_rm2, sigma_rm_corr2, sigma_rm2.min(), sigma_rm2.max(), sigma_rm_corr2.min(), sigma_rm_corr2.max(), 100)
+    pl.imshow(np.rot90(zzz), cmap=pl.cm.inferno, extent=[sigma_rm2.min(), sigma_rm2.max(), sigma_rm_corr2.min(), sigma_rm_corr2.max()], aspect="auto")
+    pl.plot(sigma_rm2, sigma_rm2, color='lightsteelblue')
+    pl.xlim(sigma_rm2.min(), sigma_rm2.max())
+    pl.ylim(sigma_rm_corr2.min(), sigma_rm_corr2.max())
     pl.savefig(eta_path + name +'_sigma_' + string + ".png")
 
 
     pl.clf()
     fig=pl.figure(figsize=(40,1))
+    pl.vlines(mock_npi_indices, ymin=0, ymax=gal_pos.max(), lw=0.005, color='k')
     pl.bar(np.arange(0,gal_pos.size,1), gal_pos)
     print('mock size', mock_npi_indices.size)
-    pl.vlines(mock_npi_indices, ymin=-0.5, ymax=0, lw=0.005, color='k')
     pl.tight_layout()
     pl.savefig(eta_path + name +'_indices_' + string + ".png", dpi=300)
 
