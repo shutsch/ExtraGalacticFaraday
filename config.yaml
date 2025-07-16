@@ -23,18 +23,39 @@ params_mock_cat:
     maker_type : "seb23" #"consistent"
     eg_on: True
     n_eg_params: 4
-    n_los: 14500
+    #n_los: 14500
     cat_gal: "2023MNRAS.519.5723O" #"2009ApJ...702.1230T"
     cat_eg: "2023MNRAS.519.5723O" #"LoTSS DR2 (O'Sullivan et al. 2022)"
-  
+    elev_th: 45.0
+    multiple: 0.25
+        
+
     npi:
-      use_npi: True
+      use_npi: False
       npi_los: 5000
       #using Y. K. Ma et al. (2019)
       mu_nvss: 605.0
       sigma_nvss: 65.0
     
-
+    surveys:
+      #Survey1 should be used for eg and Survey2, if needed, for Galactic only. Otherwise Survey1 can be used for both
+      make_survey1: False
+      delta_low1: -90.0 #deg
+      delta_high1: 0.0 #deg
+      los1: 5000
+      phi_low1: 0.0
+      phi_high1: 2.0
+      name1: 'SKA-LOW'
+      cat1: "2023MNRAS.519.5723O"  #"2023MNRAS.519.5723O"  #"2025A&A...694A.125L"  #
+     
+      make_survey2: False
+      delta_low2: -40.0 #deg
+      delta_high2: 90.0 #deg
+      los2: 37543
+      phi_low2: 0.0
+      phi_high2: 2.0
+      name2: 'SKA-MID'
+      cat2: "2009ApJ...702.1230T" #"2025A&A...694A.125L" #
 
  
 
