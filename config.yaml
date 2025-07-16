@@ -20,14 +20,14 @@ params_mock_cat:
     seed: 1500
     use_mock: True
     disk_on: 1
-    maker_type : "seb23" #"consistent"
+    maker_type: "seb23" #"consistent"
     eg_on: True
     n_eg_params: 4
     #n_los: 14500
     cat_gal: "2023MNRAS.519.5723O" #"2009ApJ...702.1230T"
     cat_eg: "2023MNRAS.519.5723O" #"LoTSS DR2 (O'Sullivan et al. 2022)"
-    elev_th: 45.0
-    multiple: 0.25
+    gal_lat_th: 45.0
+    multiple: 2.0
         
 
     npi:
@@ -39,16 +39,16 @@ params_mock_cat:
     
     surveys:
       #Survey1 should be used for eg and Survey2, if needed, for Galactic only. Otherwise Survey1 can be used for both
-      make_survey1: False
+      make_survey1: True
       delta_low1: -90.0 #deg
       delta_high1: 0.0 #deg
-      los1: 5000
+      los1: 180000
       phi_low1: 0.0
       phi_high1: 2.0
-      name1: 'SKA-LOW'
-      cat1: "2023MNRAS.519.5723O"  #"2023MNRAS.519.5723O"  #"2025A&A...694A.125L"  #
+      name1: 'SKA-MID'
+      cat1: "2025A&A...694A.125L"  #"2023MNRAS.519.5723O"  #"2023MNRAS.519.5723O"  #"2025A&A...694A.125L"  #
      
-      make_survey2: False
+      make_survey2: True
       delta_low2: -40.0 #deg
       delta_high2: 90.0 #deg
       los2: 37543
@@ -123,16 +123,16 @@ sample_params:
 
 controllers:
   sampler:
-    n: 5
-    n_final: 5
+    n: 500
+    n_final: 500
     increase_step:  "None"
     increase_rate:  "None"
     deltaE: 1.0e-07
     convergence_level: 2
   
   minimizer:
-    n: 1
-    n_final: 1
+    n: 40
+    n_final: 40
     increase_step: "None"
     increase_rate: "None"
     deltaE_threshold: 0
@@ -168,9 +168,8 @@ std:
   std_int: 0.5
   std_lum: 0.5
   std_red: 0.5
-  std_env: 0.5 
+  std_env: 0.5
   std_one: 0.5
-
 
 mean:
   mean_int: 2.0

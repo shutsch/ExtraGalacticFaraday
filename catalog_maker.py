@@ -46,10 +46,10 @@ class CatalogMaker():
 
         if self.params['params_mock_cat.maker_params.surveys.make_survey1'] == True:
             los=int(self.params['params_mock_cat.maker_params.multiple']*self.params['params_mock_cat.maker_params.surveys.los1'])
-            b_sel_indices=np.where(abs(dest_data['b'][np.where(dest_data['catalog']==self.params['params_mock_cat.maker_params.surveys.name1'])[0]])>self.params['params_mock_cat.maker_params.elev_th'])[0] 
+            b_sel_indices=np.where(abs(dest_data['b'][np.where(dest_data['catalog']==self.params['params_mock_cat.maker_params.surveys.name1'])[0]])>self.params['params_mock_cat.maker_params.gal_lat_th'])[0] 
         else:
             los=int(self.params['params_mock_cat.maker_params.multiple']*dest_data['b'].size)
-            b_sel_indices=np.where(abs(dest_data['b'])>self.params['params_mock_cat.maker_params.elev_th'])[0] 
+            b_sel_indices=np.where(abs(dest_data['b'])>self.params['params_mock_cat.maker_params.gal_lat_th'])[0] 
 
 
 
@@ -57,7 +57,7 @@ class CatalogMaker():
         np.random.seed(seed=self.params['params_mock_cat.maker_params.seed'])
         z_mock_indices=np.unique(np.random.choice(b_sel_indices, size=los))
         #z_mock_indices=np.unique(self.rng.choice(b45_indices, size=los))
-        print('Number of LOS', len(z_mock_indices), self.params['params_mock_cat.maker_params.multiple'], dest_data['b'].size )
+        print('Number of LOS', len(z_mock_indices), self.params['params_mock_cat.maker_params.multiple'], dest_data['b'].size, los , b_sel_indices.size)
 
 
         #histogram_z = rv_histogram(np.histogram(e_z, bins=100), density=True)
