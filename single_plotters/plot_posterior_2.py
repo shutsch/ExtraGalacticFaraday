@@ -5,7 +5,7 @@ from matplotlib.patches import Ellipse
 from matplotlib import cm
 import matplotlib.pyplot as plt
 import matplotlib
-matplotlib.use('TkAgg')
+#matplotlib.use('TkAgg')
 
 
 class Posterior_Plotter_2():

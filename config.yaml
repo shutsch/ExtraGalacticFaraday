@@ -22,17 +22,20 @@ params_mock_cat:
     disk_on: 1
     maker_type : "seb23" #"consistent"
     eg_on: True
-    n_eg_params: 22
+    n_eg_params: 4
     n_los: 14500
     cat_gal: "2023MNRAS.519.5723O" #"2009ApJ...702.1230T"
     cat_eg: "2023MNRAS.519.5723O" #"LoTSS DR2 (O'Sullivan et al. 2022)"
   
     npi:
       use_npi: True
-      npi_los: 25000
+      npi_los: 5000
       #using Y. K. Ma et al. (2019)
       mu_nvss: 605.0
       sigma_nvss: 65.0
+    
+
+
  
 
   #Sebastian
@@ -99,16 +102,16 @@ sample_params:
 
 controllers:
   sampler:
-    n: 500
-    n_final: 500
+    n: 5
+    n_final: 5
     increase_step:  "None"
     increase_rate:  "None"
     deltaE: 1.0e-07
     convergence_level: 2
   
   minimizer:
-    n: 40
-    n_final: 40
+    n: 1
+    n_final: 1
     increase_step: "None"
     increase_rate: "None"
     deltaE_threshold: 0

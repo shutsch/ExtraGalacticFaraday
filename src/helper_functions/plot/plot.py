@@ -236,31 +236,40 @@ def eta_plotting(name, plot_obj, path, sigma_rm, gal_pos, mock_npi_indices, stri
         m =plot_obj
     plot.add(m, title="mean", **kwargs)
     plot.output(name=eta_path + name +'_' + string + ".png")
+    print('eta mean min', m.val.min())
+    print('eta mean max', m.val.max())
 
     pl.clf()
-
+    fig, ax = pl.subplots()
     gal_pos=gal_pos.mask.astype('float64')
-    np.putmask(gal_pos, gal_pos, m.val)
-    gal_pos[gal_pos == 0.0] = 1.0
-    
+    #np.putmask(gal_pos, gal_pos, m.val)
+    #gal_pos[gal_pos == 0.0] = 1.0
+    gal_pos[gal_pos == 1.0] = m.val
+
     sigma_rm2=sigma_rm**2
     sigma_rm_corr2=gal_pos*sigma_rm2
 
     #pl.scatter(sigma_rm, sigma_rm_corr)
-    pl.xlabel('$\\sigma^2_{RM}$')
-    pl.ylabel('$\\sigma^2_{RM, corr}$')
+    ax.set_xlabel('$\\sigma^2_{RM}$')
+    ax.set_ylabel('$\\sigma^2_{RM, corr}$')
 
 
-    xxx, yyy, zzz = _density_estimation(sigma_rm2, sigma_rm_corr2, sigma_rm2.min(), sigma_rm2.max(), sigma_rm_corr2.min(), sigma_rm_corr2.max(), 100)
-    pl.imshow(np.rot90(zzz), cmap=pl.cm.inferno, extent=[sigma_rm2.min(), sigma_rm2.max(), sigma_rm_corr2.min(), sigma_rm_corr2.max()], aspect="auto")
-    pl.plot(sigma_rm2, sigma_rm2, color='lightsteelblue')
-    pl.xlim(sigma_rm2.min(), sigma_rm2.max())
-    pl.ylim(sigma_rm_corr2.min(), sigma_rm_corr2.max())
+    #xxx, yyy, zzz = _density_estimation(sigma_rm2, sigma_rm_corr2, sigma_rm2.min(), sigma_rm2.max(), sigma_rm_corr2.min(), sigma_rm_corr2.max(), 100)
+    #ax.imshow(np.rot90(zzz), cmap=pl.cm.inferno, extent=[sigma_rm2.min(), sigma_rm2.max(), sigma_rm_corr2.min(), sigma_rm_corr2.max()], aspect="auto")
+    ax.scatter(sigma_rm2, sigma_rm_corr2)
+    ax.plot(sigma_rm2, sigma_rm2, color='lightsteelblue')
+    #ax.set_xlim(sigma_rm2.min(), sigma_rm2.max())
+    #ax.set_ylim(sigma_rm_corr2.min(), sigma_rm_corr2.max())
+    ax.set_xscale("log")
+    ax.set_yscale("log")
     pl.savefig(eta_path + name +'_sigma_' + string + ".png")
 
 
     pl.clf()
     fig=pl.figure(figsize=(40,1))
+    print('gal_pos min', gal_pos.min())
+    print('gal_pos max', gal_pos.max())
+
     pl.vlines(mock_npi_indices, ymin=0, ymax=gal_pos.max(), lw=0.005, color='k')
     pl.bar(np.arange(0,gal_pos.size,1), gal_pos)
     print('mock size', mock_npi_indices.size)
