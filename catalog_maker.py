@@ -6,13 +6,31 @@ import healpy as hp
 from src.helper_functions.misc import gal2gal
 from mock_seb23 import seb23
 from astropy.io import fits
-#from scipy.stats import rv_histogram
+from scipy.stats import rv_histogram
 import matplotlib.pyplot as plt
 import matplotlib
 from nifty_cmaps import ncmap
 matplotlib.use('TkAgg')
 import utilities as U
 import random
+from astropy.cosmology import FlatLambdaCDM
+import math as m
+
+#cosmo and constants
+
+light_speed =  Egf.const['c']
+h =  Egf.const['Jens']['h']
+Wm = Egf.const['Jens']['Wm']
+Wc = Egf.const['Jens']['Wc']
+Wl = Egf.const['Jens']['Wl']
+H0 = 100 * h
+    
+cosmo = FlatLambdaCDM(H0=H0, Om0=Wm)  
+L0 = float(Egf.const['L0'])
+D0 = Egf.const['D0']
+factor = float(Egf.const['factor'])
+
+
 
 class CatalogMaker():
 
@@ -34,12 +52,17 @@ class CatalogMaker():
         
         z_indices = ~np.isnan(data['z_best'])
 
-        e_rm = np.array(data['rm'][z_indices])
+
         e_z = np.array(data['z_best'][z_indices])
         e_z_orig = e_z
+        Dl_orig=cosmo.luminosity_distance(e_z_orig).value
+
         e_F = np.array(data['stokesI'][z_indices])
         e_F_orig_at_z = e_F
+        e_L_orig_at_z=e_F_orig_at_z*4*m.pi*Dl_orig**2*factor
+        
 
+        e_rm = np.array(data['rm'][z_indices])
 
         #los=self.params['params_mock_cat.maker_params.n_los']
 
@@ -57,11 +80,13 @@ class CatalogMaker():
         np.random.seed(seed=self.params['params_mock_cat.maker_params.seed'])
         z_mock_indices=np.unique(np.random.choice(b_sel_indices, size=los))
         #z_mock_indices=np.unique(self.rng.choice(b45_indices, size=los))
-        print('Number of LOS', len(z_mock_indices), self.params['params_mock_cat.maker_params.multiple'], dest_data['b'].size, los , b_sel_indices.size)
+        print('Number of LOS with redshift', len(z_mock_indices))
+        print('Total number of LOS in the catalog', dest_data['b'].size)
 
 
         #histogram_z = rv_histogram(np.histogram(e_z, bins=100), density=True)
         #z_mock=histogram_z.rvs(size=z_mock_indices.size)
+        #e_z_nvss=np.load('../../DATA/REDSHIFTS/z_nvss.npy')
         z_mock=np.random.choice(e_z,size=z_mock_indices.size) 
 
         dest_data['z_best'][:] = np.nan
@@ -75,17 +100,29 @@ class CatalogMaker():
         #creating mock fluxes
         #histogram_F = rv_histogram(np.histogram(F_sample, bins=10000), density=False)
         #F_mock=histogram_F.rvs(size=len(data['stokesI']))
-        F_mock=np.random.choice(F_sample,size=len(dest_data['stokesI'])) 
+        #F_mock=np.random.choice(F_sample,size=len(dest_data['stokesI'])) 
+        F_mock=np.random.choice(e_F_orig_at_z,size=len(dest_data['stokesI'])) 
+
+
+
 
         dest_data['stokesI'] = F_mock
 
         # new filter
         z_indices = ~np.isnan(dest_data['z_best'])
+
         e_z = np.array(dest_data['z_best'][z_indices])
+        Dl=cosmo.luminosity_distance(e_z).value
+        
         e_F = np.array(dest_data['stokesI'][z_indices])
-        e_rm = np.array(dest_data['rm'][z_indices])
+        e_L = e_F*4*m.pi*Dl**2*factor
+        
         #g_rm = np.array(data['rm'][~z_indices])
+        e_rm = np.array(dest_data['rm'][z_indices])
         lerm = len(e_rm)
+
+
+
 
         eg_l = np.array(dest_data['l'])
         eg_b = np.array(dest_data['b'])
@@ -97,7 +134,11 @@ class CatalogMaker():
         
         eg_projector = Egf.SkyProjector(ift.makeDomain(ift.HPSpace(self.params['params_inference.nside'])), ift.makeDomain(ift.UnstructuredDomain(lthetaeg)), theta=theta_eg, phi=phi_eg)
 
-        if(self.params['params_mock_cat.maker_params.maker_type'] == "seb23"):
+
+
+
+
+        if(self.params['params_mock_cat.maker_params.maker_type'] == "seb23" or self.params['params_mock_cat.maker_params.maker_type'] == "ymw16" ):
 
             rm_gal, b, dm =seb23(self.params)
 
@@ -119,7 +160,7 @@ class CatalogMaker():
             hp.mollview(0.81*dm.val*b.val,min=-250, max=250, title='$\\phi_{gal}$ [rad m$^{-2}$]', cmap=getattr(ncmap, 'fm')())
             plt.savefig('RM.png', bbox_inches='tight')
 
-        else: #CONSISTENT catalog
+        if(self.params['params_mock_cat.maker_params.maker_type'] == "consistent"): #CONSISTENT catalog
             galactic_model = U.get_galactic_model(sky_domain, self.params)
             
             gal_mock_position = ift.from_random(galactic_model.get_model().domain, 'normal')
@@ -297,22 +338,36 @@ class CatalogMaker():
 
             axs[2,1].set_xlabel('z')
             axs[2,0].set_xlabel('Stokes I (Jy)')
+            #axs[2,0].set_xlabel('Normalized Luminosity')
+
             axs[0,0].set_ylabel('Mock $\\phi_{eg}$ (rad/m$^2$)')
             axs[0,1].set_ylabel('Mock $\\phi_{eg}$ (rad/m$^2$)')
             axs[0,1].scatter(e_z, egal_contr, s=5, c='green')
 
-            axs[2,1].hist(e_z_orig, bins=100, density=True, color='lightgrey')
-            axs[1,1].hist(e_z, bins=100, density=True, color='green')
+            axs[2,1].hist(e_z_orig, bins=100, density=False, color='lightgrey')
+            axs[1,1].hist(e_z, bins=100, density=False, color='green')
 
             axs[0,0].scatter(e_F, egal_contr, s=5, c='green')
+            #axs[0,0].scatter(e_L/L0, egal_contr, s=5, c='green')
 
-            hist, bins = np.histogram(e_F_orig, bins=100)
+            hist, bins = np.histogram(e_F_orig_at_z, bins=100)
             logbins = np.logspace(np.log10(bins[0]),np.log10(bins[-1]),len(bins))
-            axs[2,0].hist(e_F_orig, bins=logbins,  density=True, color='lightgrey')
+            axs[2,0].hist(e_F_orig_at_z, bins=logbins,  density=False, color='lightgrey')
 
             hist, bins = np.histogram(e_F, bins=100)
             logbins = np.logspace(np.log10(bins[0]),np.log10(bins[-1]),len(bins))
-            axs[1,0].hist(e_F, bins=logbins,  density=True, color='green')
+            axs[1,0].hist(e_F, bins=logbins,  density=False, color='green')
+
+
+
+            #hist, bins = np.histogram(e_L_orig_at_z/L0, bins=100)
+            #logbins = np.logspace(np.log10(bins[0]),np.log10(bins[-1]),len(bins))
+            #axs[2,0].hist(e_L_orig_at_z/L0, bins=logbins,  density=False, color='lightgrey')
+
+            #hist, bins = np.histogram(e_L/L0, bins=100)
+            #logbins = np.logspace(np.log10(bins[0]),np.log10(bins[-1]),len(bins))
+            #axs[1,0].hist(e_L/L0, bins=logbins,  density=False, color='green')
+
 
             axs[0,0].set_xlim(0.0001,22000)
             axs[1,0].sharex(axs[2,0])
@@ -322,7 +377,8 @@ class CatalogMaker():
             axs[2,0].set_xscale('log')
 
             axs[0,0].set_ylim(-150,150)
-            axs[1,0].set_ylim(0,6.9)
+            axs[1,0].set_ylim(0,4999)
+            #axs[1,0].set_ylim(0.1,1499)
             axs[2,0].sharey(axs[1,0])
 
 
@@ -331,7 +387,8 @@ class CatalogMaker():
             axs[0,1].sharex(axs[2,1])
 
             axs[0,1].set_ylim(-150,150)
-            axs[1,1].set_ylim(0,1.9)
+            #axs[1,1].set_ylim(0,1.9)
+            axs[1,1].set_ylim(0,2900)
             axs[2,1].sharey(axs[1,1])
 
             axs[2,0].set_ylabel('Observed #')
@@ -341,7 +398,7 @@ class CatalogMaker():
 
 
             plt.subplots_adjust(wspace=0.5, hspace=0)
-            plt.savefig('Luminosityand_z_dependence.png', bbox_inches='tight')
+            plt.savefig('Luminosity_and_z_dependence.png', bbox_inches='tight')
 
 
         noised_rm_data=ift.makeField(ift.UnstructuredDomain(ltheta), rm_data)

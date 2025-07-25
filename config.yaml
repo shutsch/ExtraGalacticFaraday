@@ -11,23 +11,23 @@ params_mock_cat:
   #  k0: 5.0
   #  gamma: -2.5
   # values for a Gal RM on large scales
-    P0: 5.0
+    P0: 3.8
     k0: 5.0
     gamma: -8.0
 
 
   maker_params:
-    seed: 1500
+    seed: 1000
     use_mock: True
     disk_on: 1
-    maker_type: "seb23" #"consistent"
+    maker_type: "seb23" #"consistent" #"ymw16"
     eg_on: True
     n_eg_params: 4
     #n_los: 14500
     cat_gal: "2023MNRAS.519.5723O" #"2009ApJ...702.1230T"
     cat_eg: "2023MNRAS.519.5723O" #"LoTSS DR2 (O'Sullivan et al. 2022)"
-    gal_lat_th: 45.0
-    multiple: 2.0
+    gal_lat_th: 20.0 #45.0
+    multiple: 2.0 #0.25
         
 
     npi:
@@ -39,23 +39,23 @@ params_mock_cat:
     
     surveys:
       #Survey1 should be used for eg and Survey2, if needed, for Galactic only. Otherwise Survey1 can be used for both
-      make_survey1: True
+      make_survey1: False
       delta_low1: -90.0 #deg
       delta_high1: 0.0 #deg
-      los1: 180000
+      los1: 60000
       phi_low1: 0.0
       phi_high1: 2.0
-      name1: 'SKA-MID'
-      cat1: "2025A&A...694A.125L"  #"2023MNRAS.519.5723O"  #"2023MNRAS.519.5723O"  #"2025A&A...694A.125L"  #
+      name1: 'SKA-LOW'
+      cat1: "2023MNRAS.519.5723O" #"2025A&A...694A.125L"  #"2023MNRAS.519.5723O"  #"2023MNRAS.519.5723O"  #"2025A&A...694A.125L"  #
      
-      make_survey2: True
-      delta_low2: -40.0 #deg
+      make_survey2: False
+      delta_low2: -90.0 #deg
       delta_high2: 90.0 #deg
-      los2: 37543
+      los2: 150000
       phi_low2: 0.0
       phi_high2: 2.0
       name2: 'SKA-MID'
-      cat2: "2009ApJ...702.1230T" #"2025A&A...694A.125L" #
+      cat2: "2025A&A...694A.125L" #"2009ApJ...702.1230T" #"2025A&A...694A.125L" #
 
  
 
@@ -172,17 +172,17 @@ std:
   std_one: 0.5
 
 mean:
-  mean_int: 2.0
+  mean_int: 2.5
   mean_lum: -0.5
-  mean_red: -0.5
-  mean_env: 3.0
+  mean_red: 2.0
+  mean_env: 1.0
   mean_one: 4.0
 
 prior_std:
   prior_std_int: 1.0
   prior_std_lum: 0.5
   prior_std_red: 0.5
-  prior_std_env: 1.5
+  prior_std_env: 1.0
   prior_std_one: 2.0
 
 prior_mean:

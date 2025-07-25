@@ -15,9 +15,11 @@ def seb23(params):
     N=Egf.config['params_inference']['nside']  #number of pixels
     A = 0.81    # Constant in front of the RM integral in order to have rad/m^2. In that case B is in muG, n is in cm^-3 and the distance in parsec
     
-    data = fits.open(params['params_inference.dm_path']+'DM_mean_std_Sebastian.fits')
-
-    dm_new_ar=data[1].data['mean']
+    if(params['params_mock_cat.maker_params.maker_type'] == "seb23"):
+        data = fits.open(params['params_inference.dm_path']+'DM_mean_std_Sebastian.fits')
+        dm_new_ar=data[1].data['mean']
+    if(params['params_mock_cat.maker_params.maker_type'] == "ymw16" ):
+        dm_new_ar=np.load(params['params_inference.dm_path']+'ymw16_dm_map.npy')
 
     s_space = ift.HPSpace(N)
     s_space_domain = ift.makeDomain(ift.HPSpace(N))
