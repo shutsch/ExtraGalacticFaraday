@@ -8,8 +8,8 @@
             "name": "Python: Current File",
             "type": "debugpy",
             "request": "launch",
-            "program": "RM_decomposer.py",
-            // "program": "${file}",
+            //"program": "RM_decomposer.py",
+             "program": "${file}",
             "console": "integratedTerminal",
             "justMyCode": false
         }

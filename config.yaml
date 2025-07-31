@@ -20,7 +20,7 @@ params_mock_cat:
     seed: 1000
     use_mock: True
     disk_on: 1
-    maker_type: "ymw16" #"seb23" #"consistent" #"ymw16"
+    maker_type: "seb23" #"seb23" #"consistent" #"ymw16"
     eg_on: True
     n_eg_params: 4
     #n_los: 14500
@@ -31,7 +31,7 @@ params_mock_cat:
         
 
     npi:
-      use_npi: True
+      use_npi: False
       npi_los: 5000
       #using Y. K. Ma et al. (2019)
       mu_nvss: 605.0
@@ -199,3 +199,6 @@ plot:
   fontsize: 20
   markersize: 5
   legend_fontsize: 15
+
+params_map:
+  nside: 64
