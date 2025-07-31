@@ -155,7 +155,7 @@ class CatalogMaker():
 
             hp.mollview(dm.val,min=0, max=500, title='DM [pc cm$^{-3}$]', cmap='magma')
             plt.savefig('DM.png', bbox_inches='tight')
-            hp.mollview(b.val,min=-2.5, max=2.5, title='B [$\\mu$G], $\\gamma$=-8 ', cmap=getattr(ncmap, 'fu')())
+            hp.mollview(b.val,min=-2.5, max=2.5, title='B [$\\mu$G], $\\gamma$=-3 ', cmap='viridis') # cmap=getattr(ncmap, 'fu')())
             plt.savefig('B.png', bbox_inches='tight')
             hp.mollview(0.81*dm.val*b.val,min=-250, max=250, title='$\\phi_{gal}$ [rad m$^{-2}$]', cmap=getattr(ncmap, 'fm')())
             plt.savefig('RM.png', bbox_inches='tight')
@@ -369,27 +369,28 @@ class CatalogMaker():
             #axs[1,0].hist(e_L/L0, bins=logbins,  density=False, color='green')
 
 
-            axs[0,0].set_xlim(0.0001,22000)
+            axs[2,0].set_xlim(0.0002,22000)
             axs[1,0].sharex(axs[2,0])
             axs[0,0].sharex(axs[2,0])
             axs[0,0].set_xscale('log')
             axs[1,0].set_xscale('log')
             axs[2,0].set_xscale('log')
 
-            axs[0,0].set_ylim(-150,150)
-            axs[1,0].set_ylim(0,4999)
-            #axs[1,0].set_ylim(0.1,1499)
-            axs[2,0].sharey(axs[1,0])
+            axs[0,0].set_ylim(-149,149)
+            axs[1,0].set_ylim(0.1,1499)
+            axs[1,1].set_ylim(0.1,2499)
+            #axs[2,0].sharey(axs[1,0])
 
 
             axs[0,1].set_xlim(-0.05,3.5)
             axs[1,1].sharex(axs[2,1])
             axs[0,1].sharex(axs[2,1])
 
-            axs[0,1].set_ylim(-150,150)
+            axs[0,1].set_ylim(-149,149)
             #axs[1,1].set_ylim(0,1.9)
-            axs[1,1].set_ylim(0,2900)
-            axs[2,1].sharey(axs[1,1])
+            axs[2,0].set_ylim(0.1,119)
+            axs[2,1].set_ylim(0.1,209)
+            #axs[2,1].sharey(axs[1,1])
 
             axs[2,0].set_ylabel('Observed #')
             axs[1,0].set_ylabel('Mock #')

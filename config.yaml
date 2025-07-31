@@ -20,7 +20,7 @@ params_mock_cat:
     seed: 1000
     use_mock: True
     disk_on: 1
-    maker_type: "seb23" #"consistent" #"ymw16"
+    maker_type: "ymw16" #"seb23" #"consistent" #"ymw16"
     eg_on: True
     n_eg_params: 4
     #n_los: 14500
@@ -31,7 +31,7 @@ params_mock_cat:
         
 
     npi:
-      use_npi: False
+      use_npi: True
       npi_los: 5000
       #using Y. K. Ma et al. (2019)
       mu_nvss: 605.0
@@ -172,11 +172,12 @@ std:
   std_one: 0.5
 
 mean:
-  mean_int: 2.5
+  mean_int: 2.0
   mean_lum: -0.5
-  mean_red: 2.0
-  mean_env: 1.0
+  mean_red: -0.5
+  mean_env: 3.0
   mean_one: 4.0
+
 
 prior_std:
   prior_std_int: 1.0

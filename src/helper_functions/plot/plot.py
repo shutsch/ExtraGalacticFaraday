@@ -246,6 +246,12 @@ def eta_plotting(name, plot_obj, path, sigma_rm, gal_pos, mock_npi_indices, stri
     #gal_pos[gal_pos == 0.0] = 1.0
     gal_pos[gal_pos == 1.0] = m.val
 
+    with open(eta_path + name +'_summary_' + string + ".txt", 'w') as f:
+        print('Number of eta >10', np.where(gal_pos>10.0)[0].size, file=f)
+        print('Number of eta >5', np.where(gal_pos==5.0)[0].size, file=f)
+
+
+
     sigma_rm2=sigma_rm**2
     sigma_rm_corr2=gal_pos*sigma_rm2
 
