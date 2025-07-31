@@ -248,7 +248,7 @@ def eta_plotting(name, plot_obj, path, sigma_rm, gal_pos, mock_npi_indices, stri
 
     with open(eta_path + name +'_summary_' + string + ".txt", 'w') as f:
         print('Number of eta >10', np.where(gal_pos>10.0)[0].size, file=f)
-        print('Number of eta >5', np.where(gal_pos==5.0)[0].size, file=f)
+        print('Number of eta >5', np.where(gal_pos>5.0)[0].size, file=f)
 
 
 
