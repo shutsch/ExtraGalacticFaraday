@@ -13,7 +13,7 @@ params_mock_cat:
   # values for a Gal RM on large scales
     P0: 3.8
     k0: 5.0
-    gamma: -8.0
+    gamma: -3.0
 
 
   maker_params:

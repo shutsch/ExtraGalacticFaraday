@@ -189,7 +189,7 @@ class Minimizer():
             n_samples = n_samples,
             kl_minimizer=get_minimizer,
             sampling_iteration_controller=get_sampler,
-            nonlinear_sampling_minimizer=None,
+            nonlinear_sampling_minimizer=ift.NewtonCG(controllers['Minimizer_Samples']),
             export_operator_outputs=op_output,
             initial_position=position,
             return_final_position=True,
