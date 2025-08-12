@@ -219,7 +219,7 @@ def _density_estimation(m1, m2, xmin, xmax, ymin, ymax, nbins):
     return x, y, z
 
  
-def eta_plotting(name, plot_obj, path, sigma_rm, gal_pos, mock_npi_indices, string=None, **kwargs):
+def eta_plotting(name, plot_obj, path, sigma_rm, gal_pos, mock_npi_indices, deviation, string=None, **kwargs):
     if string is None:
         string = ''
     eta_path = path + 'eta/'+ '/'
@@ -239,12 +239,22 @@ def eta_plotting(name, plot_obj, path, sigma_rm, gal_pos, mock_npi_indices, stri
     print('eta mean min', m.val.min())
     print('eta mean max', m.val.max())
 
-    pl.clf()
-    fig, ax = pl.subplots()
+
     gal_pos=gal_pos.mask.astype('float64')
     #np.putmask(gal_pos, gal_pos, m.val)
     #gal_pos[gal_pos == 0.0] = 1.0
     gal_pos[gal_pos == 1.0] = m.val
+
+
+    pl.clf()
+    fig, ax = pl.subplots()
+    print(gal_pos.size)
+    print(deviation.size)
+    ratio=deviation/np.sqrt(gal_pos)
+    ax.hist(ratio[np.where(gal_pos != 1.0)[0]], bins=100,  density=False, color='green')
+    pl.tight_layout()
+    pl.savefig(eta_path + name +'_deviation_' + string + ".png", dpi=300)
+
 
     with open(eta_path + name +'_summary_' + string + ".txt", 'w') as f:
         print('Number of eta >10', np.where(gal_pos>10.0)[0].size, file=f)
@@ -256,6 +266,8 @@ def eta_plotting(name, plot_obj, path, sigma_rm, gal_pos, mock_npi_indices, stri
     sigma_rm_corr2=gal_pos*sigma_rm2
 
     #pl.scatter(sigma_rm, sigma_rm_corr)
+    pl.clf()
+    fig, ax = pl.subplots()
     ax.set_xlabel('$\\sigma^2_{RM}$')
     ax.set_ylabel('$\\sigma^2_{RM, corr}$')
 

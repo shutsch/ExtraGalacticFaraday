@@ -173,6 +173,7 @@ class Settings_Maker():
             'sigma_rm': data['rm_err'],
             'gal_pos': ~z_indices,
             'mock_npi_indices': np.load('mock_npi_indices.npy'),
+            'deviation': np.load('deviation.npy'),
             'eta': implicit_noise.get_components()['eta'] if implicit_noise_model != None else None
         }
 

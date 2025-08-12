@@ -190,33 +190,6 @@ class CatalogMaker():
         rm_data=np.array(eg_gal_data.val)
 
 
-        #modification of RM values to mimic wrong estimates present in the data and difficult to predict
-        delta_rm_list=[]
-        if self.params['params_mock_cat.maker_params.npi.use_npi']==True:
-            b_indices=np.where(np.isnan(dest_data['z_best']))[0]
-            np.random.seed(seed=self.params['params_mock_cat.maker_params.seed'])
-            npi_indices=np.unique(np.random.choice(b_indices, size=self.params['params_mock_cat.maker_params.npi.npi_los']))
-            np.save('mock_npi_indices.npy', npi_indices)
-            print(npi_indices.size)
-            print(ltheta-lerm)
-            for item in b_indices:
-                if item in npi_indices:
-                    mu_nvss=self.params['params_mock_cat.maker_params.npi.mu_nvss']
-                    sigma_nvss=self.params['params_mock_cat.maker_params.npi.sigma_nvss']
-                    delta_rm=np.random.normal(mu_nvss, sigma_nvss)
-                    if random.choice('+-')=='-':
-                        rm_data[item] -= delta_rm
-                        delta_rm_list.append(-delta_rm)
-                    else:
-                        rm_data[item] += delta_rm
-                        delta_rm_list.append(delta_rm)
-            
-            delta_rm_array=np.array(delta_rm_list)
-            plt.scatter(eg_b[npi_indices], delta_rm_array)
-            plt.savefig('Delta_rm.png', bbox_inches='tight')
-
-
-
         if self.params['params_mock_cat.maker_params.surveys.make_survey1'] == True:
           
             cat_index_1=np.where(dest_data['catalog']==self.params['params_mock_cat.maker_params.surveys.name1'])[0]
@@ -319,6 +292,35 @@ class CatalogMaker():
             plt.subplots_adjust(wspace=0.5, hspace=0)
             plt.savefig('Noise.png', bbox_inches='tight')
 
+        
+        #modification of RM values to mimic wrong estimates present in the data and difficult to predict
+        delta_rm_list=[]
+        if self.params['params_mock_cat.maker_params.npi.use_npi']==True:
+            b_indices=np.where(np.isnan(dest_data['z_best']))[0]
+            np.random.seed(seed=self.params['params_mock_cat.maker_params.seed'])
+            npi_indices=np.unique(np.random.choice(b_indices, size=self.params['params_mock_cat.maker_params.npi.npi_los']))
+            np.save('mock_npi_indices.npy', npi_indices)
+            print(npi_indices.size)
+            print(ltheta-lerm)
+            for item in b_indices:
+                if item in npi_indices:
+                    mu_nvss=self.params['params_mock_cat.maker_params.npi.mu_nvss']
+                    sigma_nvss=self.params['params_mock_cat.maker_params.npi.sigma_nvss']
+                    delta_rm=np.random.normal(mu_nvss, sigma_nvss)
+                    if random.choice('+-')=='-':
+                        rm_data[item] -= delta_rm
+                        delta_rm_list.append(-delta_rm)
+                    else:
+                        rm_data[item] += delta_rm
+                        delta_rm_list.append(delta_rm)
+            
+            delta_rm_array=np.array(delta_rm_list)
+            plt.scatter(eg_b[npi_indices], delta_rm_array)
+            plt.savefig('Delta_rm.png', bbox_inches='tight')
+
+        deviation=(rm_data-eg_gal_data.val)/sigma_mock
+        np.save('deviation.npy',deviation)
+        print('Deviation', deviation.size)
 
 
 

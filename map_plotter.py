@@ -30,7 +30,7 @@ class Map_Plotter():
         self.ecomponents = args['ecomponents']
         self.params = args['params']
 
-    def plot(self, figname):
+    def plot(self, figname_mock, figname_reconstructed):
         params= self.params
 
         samples = ift.ResidualSampleList.load(f'{self.params["params_inference.results_path"]}pickle/last')
@@ -134,7 +134,12 @@ class Map_Plotter():
         eg_mock=ift.makeField(ift.UnstructuredDomain(lthetaeg), egal_contr_mock)
 
         print(f'mock:{egal_mock_position.val}')
-        plot = ift.Plot()
-        plot.add(eg_projector.adjoint(eg_mock), vmin=-50, vmax=50, title='Ground truth')
-        plot.add(eg_projector.adjoint(eg), vmin=-50, vmax=50, title='Posterior')
-        plot.output(name=f'{self.params["params_inference.plot_path"]}{figname}')
+        hp.mollview(eg_projector.adjoint(eg_mock).val,min=0, max=5, title='$\\sigma_{eg, mock}$ [rad m$^{-2}$]', cmap='GnBu')
+        plt.savefig(f'{self.params["params_inference.plot_path"]}{figname_mock}', bbox_inches='tight')
+        hp.mollview(eg_projector.adjoint(eg_mock).val,min=0, max=5, title='$\\sigma_{eg}$ [rad m$^{-2}$]', cmap='GnBu')
+        plt.savefig(f'{self.params["params_inference.plot_path"]}{figname_reconstructed}', bbox_inches='tight')
+
+        #plot = ift.Plot()
+        #plot.add(eg_projector.adjoint(eg_mock), vmin=-50, vmax=50, title='Ground truth')
+        #plot.add(eg_projector.adjoint(eg), vmin=-50, vmax=50, title='Posterior')
+        #plot.output(name=f'{self.params["params_inference.plot_path"]}{figname}')
