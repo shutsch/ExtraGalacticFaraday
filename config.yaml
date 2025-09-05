@@ -26,12 +26,12 @@ params_mock_cat:
     #n_los: 14500
     cat_gal: "2023MNRAS.519.5723O" #"2009ApJ...702.1230T"
     cat_eg: "2023MNRAS.519.5723O" #"LoTSS DR2 (O'Sullivan et al. 2022)"
-    gal_lat_th: 20.0 #45.0
-    multiple: 2.0 #0.25
+    gal_lat_th: 45.0 #45.0
+    multiple: 0.25 #0.25
         
 
     npi:
-      use_npi: True
+      use_npi: False
       npi_los: 5000
       #using Y. K. Ma et al. (2019)
       mu_nvss: 605.0
@@ -109,6 +109,7 @@ params_inference:
   results_path: "./runs/demo/results/"
   cat_path: "./data/Faraday/catalog_versions/"
   dm_path: "./data/Faraday/dispersion_measure/"
+  non_linear: True
 
 file_params:
   fits_file_path: "data/Faraday/catalog_versions/master_catalog_ver"
@@ -183,7 +184,7 @@ prior_std:
   prior_std_int: 1.0
   prior_std_lum: 0.5
   prior_std_red: 0.5
-  prior_std_env: 1.0
+  prior_std_env: 1.5
   prior_std_one: 2.0
 
 prior_mean:
