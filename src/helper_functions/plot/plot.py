@@ -245,13 +245,17 @@ def eta_plotting(name, plot_obj, path, sigma_rm, gal_pos, mock_npi_indices, devi
     #gal_pos[gal_pos == 0.0] = 1.0
     gal_pos[gal_pos == 1.0] = m.val
 
+    sigma_rm2=sigma_rm**2
+    sigma_rm_corr2=gal_pos*sigma_rm2
+
 
     pl.clf()
     fig, ax = pl.subplots()
     print(gal_pos.size)
     print(deviation.size)
-    ratio=deviation/np.sqrt(gal_pos)
-    ax.hist(ratio[np.where(gal_pos != 1.0)[0]], bins=100,  density=False, color='green')
+    ratio=deviation[np.where(gal_pos > 5.0)[0]]/np.sqrt(sigma_rm_corr2[np.where(gal_pos > 5.0)[0]])
+    np.save(eta_path + name +'_deviation_' + string + ".npy", ratio)
+    ax.hist(ratio, bins=100,  density=False, color='green')
     pl.tight_layout()
     pl.savefig(eta_path + name +'_deviation_' + string + ".png", dpi=300)
 

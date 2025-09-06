@@ -64,7 +64,6 @@ class CatalogMaker():
 
         e_rm = np.array(data['rm'][z_indices])
 
-        #los=self.params['params_mock_cat.maker_params.n_los']
 
 
         if self.params['params_mock_cat.maker_params.surveys.make_survey1'] == True:
@@ -76,17 +75,21 @@ class CatalogMaker():
 
 
 
-        #b45_indices=np.where(abs(data['b'])>45.0)[0]
         np.random.seed(seed=self.params['params_mock_cat.maker_params.seed'])
         z_mock_indices=np.unique(np.random.choice(b_sel_indices, size=los))
-        #z_mock_indices=np.unique(self.rng.choice(b45_indices, size=los))
         print('Number of LOS with redshift', len(z_mock_indices))
         print('Total number of LOS in the catalog', dest_data['b'].size)
 
 
-        #histogram_z = rv_histogram(np.histogram(e_z, bins=100), density=True)
-        #z_mock=histogram_z.rvs(size=z_mock_indices.size)
-        #e_z_nvss=np.load('../../DATA/REDSHIFTS/z_nvss.npy')
+
+        if self.params['params_mock_cat.maker_param.nvss']:
+            print('Using NVSS redshifts and Stokes I...')
+
+            e_z=np.load(params['params_inference.auxiliary_path']+'z_nvss.npy')
+
+            nvss_index=np.where(data['catalog']=="2009ApJ...702.1230T")[0]
+            e_F_orig_at_z = np.array(data['stokesI'][nvss_index])
+        
         z_mock=np.random.choice(e_z,size=z_mock_indices.size) 
 
         dest_data['z_best'][:] = np.nan
@@ -97,10 +100,7 @@ class CatalogMaker():
         F_sample= np.array(data['stokesI'][F_indices])
         e_F_orig = F_sample
 
-        #creating mock fluxes
-        #histogram_F = rv_histogram(np.histogram(F_sample, bins=10000), density=False)
-        #F_mock=histogram_F.rvs(size=len(data['stokesI']))
-        #F_mock=np.random.choice(F_sample,size=len(dest_data['stokesI'])) 
+
         F_mock=np.random.choice(e_F_orig_at_z,size=len(dest_data['stokesI'])) 
 
 

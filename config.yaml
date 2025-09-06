@@ -28,6 +28,7 @@ params_mock_cat:
     cat_eg: "2023MNRAS.519.5723O" #"LoTSS DR2 (O'Sullivan et al. 2022)"
     gal_lat_th: 45.0 #45.0
     multiple: 0.25 #0.25
+    nvss: False
         
 
     npi:
@@ -109,6 +110,7 @@ params_inference:
   results_path: "./runs/demo/results/"
   cat_path: "./data/Faraday/catalog_versions/"
   dm_path: "./data/Faraday/dispersion_measure/"
+  auxiliary_path: "./data/Faraday/auxiliary/"
   non_linear: True
 
 file_params:
