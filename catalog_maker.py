@@ -82,7 +82,7 @@ class CatalogMaker():
 
 
 
-        if self.params['params_mock_cat.maker_param.nvss']:
+        if self.params['params_mock_cat.maker_params.nvss']:
             print('Using NVSS redshifts and Stokes I...')
 
             e_z=np.load(params['params_inference.auxiliary_path']+'z_nvss.npy')
