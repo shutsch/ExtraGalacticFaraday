@@ -85,7 +85,7 @@ class CatalogMaker():
         if self.params['params_mock_cat.maker_params.nvss']:
             print('Using NVSS redshifts and Stokes I...')
 
-            e_z=np.load(params['params_inference.auxiliary_path']+'z_nvss.npy')
+            e_z=np.load(self.params['params_inference.auxiliary_path']+'z_nvss.npy')
 
             nvss_index=np.where(data['catalog']=="2009ApJ...702.1230T")[0]
             e_F_orig_at_z = np.array(data['stokesI'][nvss_index])
