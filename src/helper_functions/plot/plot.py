@@ -266,8 +266,8 @@ def eta_plotting(name, plot_obj, path, sigma_rm, gal_pos, mock_npi_indices, devi
 
 
 
-    sigma_rm2=sigma_rm**2
-    sigma_rm_corr2=gal_pos*sigma_rm2
+    #sigma_rm2=sigma_rm**2
+    #sigma_rm_corr2=gal_pos*sigma_rm2
 
     #pl.scatter(sigma_rm, sigma_rm_corr)
     pl.clf()
