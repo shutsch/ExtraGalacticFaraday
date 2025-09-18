@@ -302,16 +302,17 @@ class CatalogMaker():
             np.save('mock_npi_indices.npy', npi_indices)
             print(npi_indices.size)
             print(ltheta-lerm)
-            if item in npi_indices:
-                mu_nvss=self.params['params_mock_cat.maker_params.npi.mu_nvss']
-                sigma_nvss=self.params['params_mock_cat.maker_params.npi.sigma_nvss']
-                delta_rm=np.random.normal(mu_nvss, sigma_nvss)
-                if random.choice('+-')=='-':
-                    rm_data[item] -= delta_rm
-                    delta_rm_list.append(-delta_rm)
-                else:
-                    rm_data[item] += delta_rm
-                    delta_rm_list.append(delta_rm)
+            for item in b_indices:
+                if item in npi_indices:
+                    mu_nvss=self.params['params_mock_cat.maker_params.npi.mu_nvss']
+                    sigma_nvss=self.params['params_mock_cat.maker_params.npi.sigma_nvss']
+                    delta_rm=np.random.normal(mu_nvss, sigma_nvss)
+                    if random.choice('+-')=='-':
+                        rm_data[item] -= delta_rm
+                        delta_rm_list.append(-delta_rm)
+                    else:
+                        rm_data[item] += delta_rm
+                        delta_rm_list.append(delta_rm)
             
             delta_rm_array=np.array(delta_rm_list)
             plt.scatter(eg_b[npi_indices], delta_rm_array)

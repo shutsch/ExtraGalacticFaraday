@@ -254,8 +254,8 @@ def eta_plotting(name, plot_obj, path, sigma_rm, gal_pos, mock_npi_indices, devi
     ratio=deviation[np.where(gal_pos > 5.0)[0]]/np.sqrt(sigma_rm_corr2[np.where(gal_pos > 5.0)[0]])
     np.save(eta_path + name +'_deviation_' + string + ".npy", ratio)
     ax.hist(ratio, bins=100,  density=False, color='green')
-    #pl.tight_layout()
-    #pl.savefig(eta_path + name +'_deviation_' + string + ".png", dpi=300)
+    pl.tight_layout()
+    pl.savefig(eta_path + name +'_deviation_' + string + ".png", dpi=300)
 
 
     with open(eta_path + name +'_summary_' + string + ".txt", 'w') as f:
@@ -279,7 +279,7 @@ def eta_plotting(name, plot_obj, path, sigma_rm, gal_pos, mock_npi_indices, devi
     #ax.set_ylim(sigma_rm_corr2.min(), sigma_rm_corr2.max())
     ax.set_xscale("log")
     ax.set_yscale("log")
-    #pl.savefig(eta_path + name +'_sigma_' + string + ".png")
+    pl.savefig(eta_path + name +'_sigma_' + string + ".png")
 
 
     pl.clf()
@@ -287,9 +287,9 @@ def eta_plotting(name, plot_obj, path, sigma_rm, gal_pos, mock_npi_indices, devi
     print('gal_pos min', gal_pos.min())
     print('gal_pos max', gal_pos.max())
 
-    #pl.vlines(mock_npi_indices, ymin=0, ymax=gal_pos.max(), lw=0.005, color='k')
-    #pl.bar(np.arange(0,gal_pos.size,1), gal_pos)
+    pl.vlines(mock_npi_indices, ymin=0, ymax=gal_pos.max(), lw=0.005, color='k')
+    pl.bar(np.arange(0,gal_pos.size,1), gal_pos)
     print('mock size', mock_npi_indices.size)
-    #pl.tight_layout()
-    #pl.savefig(eta_path + name +'_indices_' + string + ".png", dpi=300)
+    pl.tight_layout()
+    pl.savefig(eta_path + name +'_indices_' + string + ".png", dpi=300)
 
