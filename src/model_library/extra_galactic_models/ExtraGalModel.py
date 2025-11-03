@@ -60,6 +60,7 @@ class ExtraGalModel(Model):
         D0 = Egf.const['D0']
         Dl=cosmo.luminosity_distance(self.z).value
         factor = float(Egf.const['factor'])
+        spix = Egf.const['spix']
 
         nz = Egf.const['nz']  # number of redshift bins
 
@@ -76,7 +77,7 @@ class ExtraGalModel(Model):
         if(self.params['params_mock_cat.maker_params.n_eg_params'] == 2): #2 param
 
             multiply_z = ift.makeOp(ift.Field(self.target_domain, 1./(1+self.z)**4),sampling_dtype=float)
-            multiply_L = ift.makeOp(ift.Field(self.target_domain, np.log(self.F*4*m.pi*Dl**2*factor/L0)),sampling_dtype=float)
+            multiply_L = ift.makeOp(ift.Field(self.target_domain, np.log(self.F*4*m.pi*Dl**2*factor*(1+self.z)**(spix-1)/L0)),sampling_dtype=float)
             norm=(multiply_L @ expander_chi(chi_lum)).exp()
             term= multiply_z @ expander_chi(chi_int_0.exp())
 
@@ -129,7 +130,7 @@ class ExtraGalModel(Model):
         
 
             multiply_z = ift.makeOp(ift.Field(self.target_domain, 1./(1+self.z)**4),sampling_dtype=float)
-            multiply_L = ift.makeOp(ift.Field(self.target_domain, np.log(self.F*4*m.pi*Dl**2*factor/L0)),sampling_dtype=float)
+            multiply_L = ift.makeOp(ift.Field(self.target_domain, np.log(self.F*4*m.pi*Dl**2*factor*(1+self.z)**(spix-1)/L0)),sampling_dtype=float)
             norm=(multiply_L @ expander_chi(chi_lum)).exp()
             term= multiply_z @ expander_chi(chi_int_0.exp())
 
@@ -191,7 +192,7 @@ class ExtraGalModel(Model):
 
 
             multiply_z = ift.makeOp(ift.Field(self.target_domain, 1./(1+self.z)**4),sampling_dtype=float)
-            multiply_L = ift.makeOp(ift.Field(self.target_domain, np.log(self.F*4*m.pi*Dl**2*factor/L0)),sampling_dtype=float)
+            multiply_L = ift.makeOp(ift.Field(self.target_domain, np.log(self.F*4*m.pi*Dl**2*factor*(1+self.z)**(spix-1)/L0)),sampling_dtype=float)
             norm=(multiply_L @ expander_chi(chi_lum)).exp()
             term= multiply_z @ expander_chi(chi_int_0.exp())
 

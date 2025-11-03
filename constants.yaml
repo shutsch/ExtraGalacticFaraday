@@ -3,6 +3,7 @@ D0: 5000. #i.e., D in units of Mpc
 c: 299792.4580 #km/s
 factor: 9.52e18 #1.0e-26*(3.0857*1.0e22)**2
 nz: 100  # number of redshift bins
+spix: 0.7
 
 Planck:
   h: 0.673
