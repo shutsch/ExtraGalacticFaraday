@@ -4,6 +4,7 @@ import libs as Egf
 import matplotlib.pyplot as plt
 import matplotlib
 import math as m
+import healpy as hp
 from matplotlib import cm
 from astropy.cosmology import FlatLambdaCDM
 from src.helper_functions.misc import gal2gal
@@ -30,10 +31,10 @@ class Map_Plotter():
         self.ecomponents = args['ecomponents']
         self.params = args['params']
 
-    def plot(self, figname_mock, figname_reconstructed):
+    def plot(self, figname_mock, figname_reconstructed, figname_distribution):
         params= self.params
 
-        samples = ift.ResidualSampleList.load(f'{self.params["params_inference.results_path"]}pickle/last')
+        samples = ift.ResidualSampleList.load(f'{self.params["file_params.results_path"]}pickle/last')
 
         cr=np.array([s for s in samples.iterator(self.ecomponents['chi_red'])])
         mr, vr = samples.sample_stat(self.ecomponents['chi_red'])
@@ -72,7 +73,7 @@ class Map_Plotter():
         ce0_array=np.array(ce0_list)
 
         
-        sky_domain = ift.makeDomain(ift.HPSpace(params['params_map.nside']))
+        sky_domain = ift.makeDomain(ift.HPSpace(params['plot.map_nside']))
         catalog_version = 'custom_sim'
 
         data = Egf.get_rm(filter_pulsars=True, version=f'{catalog_version}', default_error_level=0.5, params=params)
@@ -93,7 +94,7 @@ class Map_Plotter():
     
         lthetaeg = len(theta_eg)
         
-        eg_projector = Egf.SkyProjector(ift.makeDomain(ift.HPSpace(self.params['params_map.nside'])), ift.makeDomain(ift.UnstructuredDomain(lthetaeg)), theta=theta_eg, phi=phi_eg)
+        eg_projector = Egf.SkyProjector(ift.makeDomain(ift.HPSpace(self.params['plot.map_nside'])), ift.makeDomain(ift.UnstructuredDomain(lthetaeg)), theta=theta_eg, phi=phi_eg)
 
 
         egal_data_domain = ift.makeDomain(ift.UnstructuredDomain((lthetaeg)))
@@ -118,6 +119,7 @@ class Map_Plotter():
         egal_mock_position = egal_mock_position.from_dict(epd)
         egal_contr = emodel.get_model().sqrt()(egal_mock_position).val
         eg=ift.makeField(ift.UnstructuredDomain(lthetaeg), egal_contr)
+        #print('eg', eg.val.size, eg.val)
 
         egal_mock_position = ift.full(emodel.get_model().domain, 0.0)
         epd = egal_mock_position.to_dict() 
@@ -133,13 +135,19 @@ class Map_Plotter():
         egal_contr_mock = emodel.get_model().sqrt()(egal_mock_position_mock).val
         eg_mock=ift.makeField(ift.UnstructuredDomain(lthetaeg), egal_contr_mock)
 
+        plt.hist(eg.val, bins=30, color='skyblue', edgecolor='black')
+        plt.xlabel('$\\sigma_{eg}$ [rad m$^{-2}$]')
+        plt.ylabel('Occurrency')
+        plt.savefig(f'{self.params["file_params.plot_path"]}{figname_distribution}', bbox_inches='tight')
+
+
         print(f'mock:{egal_mock_position.val}')
         hp.mollview(eg_projector.adjoint(eg_mock).val,min=0, max=5, title='$\\sigma_{eg, mock}$ [rad m$^{-2}$]', cmap='GnBu')
-        plt.savefig(f'{self.params["params_inference.plot_path"]}{figname_mock}', bbox_inches='tight')
-        hp.mollview(eg_projector.adjoint(eg_mock).val,min=0, max=5, title='$\\sigma_{eg}$ [rad m$^{-2}$]', cmap='GnBu')
-        plt.savefig(f'{self.params["params_inference.plot_path"]}{figname_reconstructed}', bbox_inches='tight')
+        plt.savefig(f'{self.params["file_params.plot_path"]}{figname_mock}', bbox_inches='tight')
+        hp.mollview(eg_projector.adjoint(eg).val,min=0, max=5, title='$\\sigma_{eg}$ [rad m$^{-2}$]', cmap='GnBu')
+        plt.savefig(f'{self.params["file_params.plot_path"]}{figname_reconstructed}', bbox_inches='tight')
 
         #plot = ift.Plot()
         #plot.add(eg_projector.adjoint(eg_mock), vmin=-50, vmax=50, title='Ground truth')
         #plot.add(eg_projector.adjoint(eg), vmin=-50, vmax=50, title='Posterior')
-        #plot.output(name=f'{self.params["params_inference.plot_path"]}{figname}')
+        #plot.output(name=f'{self.params["file_params.plot_path"]}{figname}')

@@ -164,7 +164,7 @@ class Settings_Maker():
         minimizer_params = {
             'n_global': params['params_inference.nglobal'],
             'kl_type': 'SampledKLEnergy',
-            'plot_path': params['params_inference.plot_path'],
+            'plot_path': params['file_params.plot_path'],
             'likelihoods': likelihoods,
             'sky_maps': sky_models,
             'power_spectra': power_models,

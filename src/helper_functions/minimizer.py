@@ -194,7 +194,7 @@ class Minimizer():
             initial_position=position,
             return_final_position=True,
             inspect_callback=plot_cb,
-            output_directory=params['params_inference.results_path'],
+            output_directory=params['file_params.results_path'],
             resume=params['params_inference.resume']
             #dry_run=False
             )

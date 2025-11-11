@@ -19,7 +19,7 @@ class Posterior_Plotter():
 
     def plot(self, figname):
 
-        samples = ift.ResidualSampleList.load(f'{self.params["params_inference.results_path"]}pickle/last')
+        samples = ift.ResidualSampleList.load(f'{self.params["file_params.results_path"]}pickle/last')
 
         if self.params['params_mock_cat.maker_params.n_eg_params'] == 1:
             Posterior_Plotter_1(samples=samples, args=self.args).plot()
@@ -34,7 +34,7 @@ class Posterior_Plotter():
         elif self.params['params_mock_cat.maker_params.n_eg_params'] == 4:
             Posterior_Plotter_4(samples=samples, args=self.args).plot()
     
-        plt.savefig(f'{self.params["params_inference.plot_path"]}{figname}', bbox_inches='tight')
+        plt.savefig(f'{self.params["file_params.plot_path"]}{figname}', bbox_inches='tight')
     
 
         

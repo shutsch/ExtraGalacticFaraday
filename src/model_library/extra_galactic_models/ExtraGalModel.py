@@ -67,6 +67,51 @@ class ExtraGalModel(Model):
 
         expander_chi = ift.VdotOperator(ift.full(self.target_domain, 1.)).adjoint
 
+
+
+            #new formula -> 
+            # sigmaRm^2 = (L/L0)^Xlum * sigma_int_0^2/(1+z)^4 + D/D0 * sigma_env_0^2
+
+            #chi_lum = InverseGammaOperator(self.target_domain, self.alpha, self.q) @ ift.FieldAdapter(self.target_domain, 'chi_lum')
+
+
+        multiply_z = ift.makeOp(ift.Field(self.target_domain, 1./(1+self.z)**4),sampling_dtype=float)
+        multiply_L = ift.makeOp(ift.Field(self.target_domain, np.log(self.F*4*m.pi*Dl**2*factor*(1+self.z)**(spix-1)/L0)),sampling_dtype=float)
+        norm=(multiply_L @ expander_chi(chi_lum)).exp()
+        term= multiply_z @ expander_chi(chi_int_0.exp())
+
+        fact1 = norm * term
+
+        fact1a = (expander_chi @ chi_int_0).exp() 
+
+        #nz = Egf.const['nz']  # number of redshift bins
+        normalized_z_domain = ift.RGSpace(nz, 1/nz) # that's the redshift domain. The volume is set to one, as we will manually mutiply with the real z distance later, since it is not the same for each LoS.
+           
+        full_domain = ift.DomainTuple.make((self.target_domain[0], normalized_z_domain,))
+        integrator = ift.ContractionOperator(full_domain, spaces=1) # this is the integration operator, mapping the full domain on the target_domain via a sum
+        expander = integrator.adjoint # the adjoint of this operator projects a field in the target_domain onto the full_domain
+            
+        # constructing the z_grid field
+        z_grid = np.empty(full_domain.shape) 
+        for i, z in enumerate(self.z):
+            z_grid[i] = np.linspace(1, 1 + z, nz) 
+        z_grid = ift.Field(full_domain, z_grid)
+    
+        # now we proceed as before, just that the operators are defined on the full combined domain
+        add_4 = ift.Adder(ift.full(full_domain, 4))
+        multiply_1pz = ift.makeOp(z_grid.log(), sampling_dtype=float)
+        fact3 = (multiply_1pz @ add_4 @ expander @ expander_chi @ chi_red).exp()  # expander maps chi_red on the full domain
+        fact4 = ift.makeOp(((light_speed/(H0*(Wm*z_grid**3+Wc*z_grid**2 +Wl)**0.5))*(1/D0)),sampling_dtype=float)
+
+        fact5 = fact4 @ fact3
+
+        z_weights = ift.makeOp(ift.Field(self.target_domain, self.z / nz),sampling_dtype=float) # these are the z_weights to rescale the integral accordingly
+        fact6 = z_weights @ integrator @ (fact5 * (expander @ expander_chi @ chi_env_0.exp()))
+        
+
+        fact6a = (expander_chi @ chi_env_0).exp() 
+
+
         if(self.params['params_mock_cat.maker_params.n_eg_params'] == 1): #1 param
 
 
@@ -75,14 +120,6 @@ class ExtraGalModel(Model):
             self._components.update({'chi1': chi1})
 
         if(self.params['params_mock_cat.maker_params.n_eg_params'] == 2): #2 param
-
-            multiply_z = ift.makeOp(ift.Field(self.target_domain, 1./(1+self.z)**4),sampling_dtype=float)
-            multiply_L = ift.makeOp(ift.Field(self.target_domain, np.log(self.F*4*m.pi*Dl**2*factor*(1+self.z)**(spix-1)/L0)),sampling_dtype=float)
-            norm=(multiply_L @ expander_chi(chi_lum)).exp()
-            term= multiply_z @ expander_chi(chi_int_0.exp())
-
-            fact1 = norm * term
-
             
             sigmaRm2 = fact1 
             
@@ -93,30 +130,6 @@ class ExtraGalModel(Model):
          
            
         if(self.params['params_mock_cat.maker_params.n_eg_params'] == 22): #2 param with redshift included
-
-            normalized_z_domain = ift.RGSpace(nz, 1/nz) # that's the redshift domain. The volume is set to one, as we will manually mutiply with the real z distance later, since it is not the same for each LoS.
-            
-            full_domain = ift.DomainTuple.make((self.target_domain[0], normalized_z_domain,))
-            integrator = ift.ContractionOperator(full_domain, spaces=1) # this is the integration operator, mapping the full domain on the target_domain via a sum
-            expander = integrator.adjoint # the adjoint of this operator projects a field in the target_domain onto the full_domain
-            
-            # constructing the z_grid field
-            z_grid = np.empty(full_domain.shape) 
-            for i, z in enumerate(self.z):
-                z_grid[i] = np.linspace(1, 1 + z, nz) 
-            z_grid = ift.Field(full_domain, z_grid)
-        
-            # now we proceed as before, just that the operators are defined on the full combined domain
-            add_4 = ift.Adder(ift.full(full_domain, 4))
-            multiply_1pz = ift.makeOp(z_grid.log(), sampling_dtype=float)
-            fact3 = (multiply_1pz @ add_4 @ expander @ expander_chi @ chi_red).exp()  # expander maps chi_red on the full domain
-            fact4 = ift.makeOp(((light_speed/(H0*(Wm*z_grid**3+Wc*z_grid**2 +Wl)**0.5))*(1/D0)),sampling_dtype=float)
-
-            fact5 = fact4 @ fact3
-
-            z_weights = ift.makeOp(ift.Field(self.target_domain, self.z / nz),sampling_dtype=float) # these are the z_weights to rescale the integral accordingly
-            fact6 = z_weights @ integrator @ (fact5 * (expander @ expander_chi @ chi_env_0.exp()))
-
 
             
             sigmaRm2 = fact6
@@ -129,55 +142,17 @@ class ExtraGalModel(Model):
         if(self.params['params_mock_cat.maker_params.n_eg_params'] == 3): #3 param
         
 
-            multiply_z = ift.makeOp(ift.Field(self.target_domain, 1./(1+self.z)**4),sampling_dtype=float)
-            multiply_L = ift.makeOp(ift.Field(self.target_domain, np.log(self.F*4*m.pi*Dl**2*factor*(1+self.z)**(spix-1)/L0)),sampling_dtype=float)
-            norm=(multiply_L @ expander_chi(chi_lum)).exp()
-            term= multiply_z @ expander_chi(chi_int_0.exp())
-
-            fact1 = norm * term
-        
-            fact6 = (expander_chi @ chi_env_0).exp() 
-
-            
-            sigmaRm2 =  fact1 + fact6
+           
+            sigmaRm2 =  fact1 + fact6a
 
             self._model = sigmaRm2
             self._components.update({'chi_lum': chi_lum, 'chi_int_0': chi_int_0, 'chi_env_0': chi_env_0, })
 
 
         if(self.params['params_mock_cat.maker_params.n_eg_params'] == 33): #3 param
- 
-        
-            fact1 = (expander_chi @ chi_int_0).exp() 
-
-
-
-            #nz = Egf.const['nz']  # number of redshift bins
-            normalized_z_domain = ift.RGSpace(nz, 1/nz) # that's the redshift domain. The volume is set to one, as we will manually mutiply with the real z distance later, since it is not the same for each LoS.
-            
-            full_domain = ift.DomainTuple.make((self.target_domain[0], normalized_z_domain,))
-            integrator = ift.ContractionOperator(full_domain, spaces=1) # this is the integration operator, mapping the full domain on the target_domain via a sum
-            expander = integrator.adjoint # the adjoint of this operator projects a field in the target_domain onto the full_domain
-            
-            # constructing the z_grid field
-            z_grid = np.empty(full_domain.shape) 
-            for i, z in enumerate(self.z):
-                z_grid[i] = np.linspace(1, 1 + z, nz) 
-            z_grid = ift.Field(full_domain, z_grid)
-        
-            # now we proceed as before, just that the operators are defined on the full combined domain
-            add_4 = ift.Adder(ift.full(full_domain, 4))
-            multiply_1pz = ift.makeOp(z_grid.log(), sampling_dtype=float)
-            fact3 = (multiply_1pz @ add_4 @ expander @ expander_chi @ chi_red).exp()  # expander maps chi_red on the full domain
-            fact4 = ift.makeOp(((light_speed/(H0*(Wm*z_grid**3+Wc*z_grid**2 +Wl)**0.5))*(1/D0)),sampling_dtype=float)
-
-            fact5 = fact4 @ fact3
-
-            z_weights = ift.makeOp(ift.Field(self.target_domain, self.z / nz),sampling_dtype=float) # these are the z_weights to rescale the integral accordingly
-            fact6 = z_weights @ integrator @ (fact5 * (expander @ expander_chi @ chi_env_0.exp()))
 
             
-            sigmaRm2 =  fact1 + fact6
+            sigmaRm2 =  fact1a + fact6
 
             self._model = sigmaRm2
             self._components.update({'chi_int_0': chi_int_0, 'chi_red': chi_red, 'chi_env_0': chi_env_0, })
@@ -185,42 +160,6 @@ class ExtraGalModel(Model):
 
         if(self.params['params_mock_cat.maker_params.n_eg_params'] == 4): #4 param
 
-            #new formula -> 
-            # sigmaRm^2 = (L/L0)^Xlum * sigma_int_0^2/(1+z)^4 + D/D0 * sigma_env_0^2
-
-            #chi_lum = InverseGammaOperator(self.target_domain, self.alpha, self.q) @ ift.FieldAdapter(self.target_domain, 'chi_lum')
-
-
-            multiply_z = ift.makeOp(ift.Field(self.target_domain, 1./(1+self.z)**4),sampling_dtype=float)
-            multiply_L = ift.makeOp(ift.Field(self.target_domain, np.log(self.F*4*m.pi*Dl**2*factor*(1+self.z)**(spix-1)/L0)),sampling_dtype=float)
-            norm=(multiply_L @ expander_chi(chi_lum)).exp()
-            term= multiply_z @ expander_chi(chi_int_0.exp())
-
-            fact1 = norm * term
-        
-            #nz = Egf.const['nz']  # number of redshift bins
-            normalized_z_domain = ift.RGSpace(nz, 1/nz) # that's the redshift domain. The volume is set to one, as we will manually mutiply with the real z distance later, since it is not the same for each LoS.
-            
-            full_domain = ift.DomainTuple.make((self.target_domain[0], normalized_z_domain,))
-            integrator = ift.ContractionOperator(full_domain, spaces=1) # this is the integration operator, mapping the full domain on the target_domain via a sum
-            expander = integrator.adjoint # the adjoint of this operator projects a field in the target_domain onto the full_domain
-            
-            # constructing the z_grid field
-            z_grid = np.empty(full_domain.shape) 
-            for i, z in enumerate(self.z):
-                z_grid[i] = np.linspace(1, 1 + z, nz) 
-            z_grid = ift.Field(full_domain, z_grid)
-        
-            # now we proceed as before, just that the operators are defined on the full combined domain
-            add_4 = ift.Adder(ift.full(full_domain, 4))
-            multiply_1pz = ift.makeOp(z_grid.log(), sampling_dtype=float)
-            fact3 = (multiply_1pz @ add_4 @ expander @ expander_chi @ chi_red).exp()  # expander maps chi_red on the full domain
-            fact4 = ift.makeOp(((light_speed/(H0*(Wm*z_grid**3+Wc*z_grid**2 +Wl)**0.5))*(1/D0)),sampling_dtype=float)
-
-            fact5 = fact4 @ fact3
-
-            z_weights = ift.makeOp(ift.Field(self.target_domain, self.z / nz),sampling_dtype=float) # these are the z_weights to rescale the integral accordingly
-            fact6 = z_weights @ integrator @ (fact5 * (expander @ expander_chi @ chi_env_0.exp()))
 
             
             sigmaRm2 = fact1 + fact6

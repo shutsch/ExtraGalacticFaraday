@@ -12,7 +12,7 @@ from ..logger import logger, Format
 
 def load_ymw_sky(model, mode, params):
 
-    filename = params['params_inference.dm_path'] + '{}_allsky_{}_{}.fits'.format(model, params['params_inference.nside'], mode)
+    filename = params['file_params.dm_path'] + '{}_allsky_{}_{}.fits'.format(model, params['params_inference.nside'], mode)
     if os.path.exists(filename):
         logger.info("DATA LOADING: load_ymw: loading existing file {} with nside {}".format(filename, params['params_inference.nside']))
         d_2016 = hp.read_map(filename)

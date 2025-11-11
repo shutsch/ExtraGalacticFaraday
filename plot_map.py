@@ -11,4 +11,4 @@ plot_params = {
                 'params': params,
             }
             
-Map_Plotter(plot_params).plot(figname_mock='Map_mock.png',figname_reconstructed='Map_reconstructed.png')
+Map_Plotter(plot_params).plot(figname_mock='Map_mock.png',figname_reconstructed='Map_reconstructed.png',figname_distribution='Distribution_reconstructed.png')

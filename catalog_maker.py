@@ -85,7 +85,7 @@ class CatalogMaker():
         if self.params['params_mock_cat.maker_params.nvss']:
             print('Using NVSS redshifts and Stokes I...')
 
-            e_z=np.load(self.params['params_inference.auxiliary_path']+'z_nvss.npy')
+            e_z=np.load(self.params['file_params.auxiliary_path']+'z_nvss.npy')
 
             nvss_index=np.where(data['catalog']=="2009ApJ...702.1230T")[0]
             e_F_orig_at_z = np.array(data['stokesI'][nvss_index])
@@ -435,14 +435,14 @@ class CatalogMaker():
         dest_data['rm_err'] =  sigma_mock
         
         if self.params['params_mock_cat.maker_params.surveys.make_survey1']==True:
-            hdu= fits.open(self.params['params_inference.cat_path']+ self.params['params_mock_cat.maker_params.surveys.name1']+'_catalog.fits')
+            hdu= fits.open(self.params['file_params.cat_path']+ self.params['params_mock_cat.maker_params.surveys.name1']+'_catalog.fits')
         else:
-           hdu= fits.open(self.params['params_inference.cat_path']+'master_catalog_vercustom.fits')
+           hdu= fits.open(self.params['file_params.cat_path']+'master_catalog_vercustom.fits')
 
         hdu[1].data['rm'][np.where(hdu[1].data['type']!='Pulsar')] = dest_data['rm']
         hdu[1].data['rm_err'][np.where(hdu[1].data['type']!='Pulsar')] =  dest_data['rm_err']
         hdu[1].data['z_best'][np.where(hdu[1].data['type']!='Pulsar')] =  dest_data['z_best']
         hdu[1].data['stokesI'][np.where(hdu[1].data['type']!='Pulsar')] =  dest_data['stokesI']
-        hdu.writeto(self.params['params_inference.cat_path']+'master_catalog_vercustom_sim.fits', overwrite=True)
+        hdu.writeto(self.params['file_params.cat_path']+'master_catalog_vercustom_sim.fits', overwrite=True)
         hdu.close()
 

@@ -208,7 +208,7 @@ class SurveyMaker():
 
 
         hdu=fits.BinTableHDU.from_columns(cols)
-        survey_cat_path=params['params_inference.cat_path']+params['params_mock_cat.maker_params.surveys.name1']+'_catalog.fits'
+        survey_cat_path=params['file_params.cat_path']+params['params_mock_cat.maker_params.surveys.name1']+'_catalog.fits'
         hdu.writeto(survey_cat_path, overwrite=True)
         cat = read_FITS(survey_cat_path)
         quantities = ['l', 'b', 'rm', 'rm_err', 'catalog', 'z_best', 'stokesI', 'type']
