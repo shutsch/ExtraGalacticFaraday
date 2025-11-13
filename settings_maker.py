@@ -17,7 +17,7 @@ class Settings_Maker():
         params= self.params
 
         sky_domain = ift.makeDomain(ift.HPSpace(params['params_inference.nside']))
-        catalog_version = 'custom'
+        catalog_version = params['file_params.version']
 
         data = Egf.get_rm(filter_pulsars=True, version=f'{catalog_version}', default_error_level=0.5, params=params)
 
@@ -25,15 +25,18 @@ class Settings_Maker():
         if(params['params_mock_cat.maker_params.use_mock']):
             if self.params['params_mock_cat.maker_params.surveys.make_survey1']==True:
                 survey_data=SurveyMaker(params).make_survey()
-                CatalogMaker(params, base_catalog=data, dest_catalog=survey_data).make_catalog()
+                c=CatalogMaker(params, base_catalog=data, dest_catalog=survey_data)
+                c.make_catalog()
                 logger.info("CREATED NEW MOCK SURVEY CATALOG")        
 
             else:
-                CatalogMaker(params, base_catalog=data, dest_catalog=None).make_catalog()
+                c=CatalogMaker(params, base_catalog=data, dest_catalog=None)
+                c.make_catalog()
                 logger.info("CREATED NEW MOCK CATALOG")       
 
             #CatalogMaker(params, base_catalog=data).make_catalog()
-            data = Egf.get_rm(filter_pulsars=True, version=f'{catalog_version}_sim', default_error_level=0.5, params=params)
+            #non si può fare così
+            data = Egf.get_rm(filter_pulsars=True, version=None, full_catalog_path=f'{c.catalog_name}', default_error_level=0.5, params=params)
     
 
         # filter

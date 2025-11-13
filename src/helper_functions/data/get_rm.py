@@ -6,13 +6,15 @@ from ..logger import logger, Format
 from ..misc import gal2gal
 
 
-def get_rm(version, filter_pulsars, default_error_level, params=None):
+def get_rm(version, filter_pulsars, default_error_level, params=None, full_catalog_path=None):
     logger.info(
         "\n" + Format.underline + "DATA LIBRARY:" + Format.end +
         " _faraday: params : \'filter_pulsars\' {}, \'default_error_level\' {}, \'version\' {}"
         .format(filter_pulsars, default_error_level, version))
 
-    cat = read_FITS(params['file_params.fits_file_path'] + version + params['file_params.fits_ext'])
+    cat_path = full_catalog_path if full_catalog_path is not None else\
+          params['file_params.fits_file_path'] + params['file_params.fits_file_root']+ version + params['file_params.fits_ext']
+    cat = read_FITS(cat_path)
 
     logger.info("DATA LOADING: load_faraday_new_master: Loading master catalog, "
                 "number of data points: {}".format(str(len(cat['rm']))))
@@ -21,6 +23,7 @@ def get_rm(version, filter_pulsars, default_error_level, params=None):
     if filter_pulsars:
         logger.info('DATA LOADING: load_faraday_new_master: Filtering Pulsars:'
                     ' {} filtered'.format(len(cat[(cat['type'] == 'Pulsar')])))
+        #cat = cat[not (cat['type'].any == 'Pulsar') ]
         cat = cat[~(cat['type'] == 'Pulsar')]
         logger.info('DATA LOADING: load_faraday_new_master: New number of data points: {}'.format(len(cat['rm'])))
 

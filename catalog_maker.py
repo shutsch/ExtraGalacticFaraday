@@ -434,10 +434,14 @@ class CatalogMaker():
         dest_data['rm'] = np.array(noised_rm_data.val)
         dest_data['rm_err'] =  sigma_mock
         
-        if self.params['params_mock_cat.maker_params.surveys.make_survey1']==True:
-            hdu= fits.open(self.params['file_params.cat_path']+ self.params['params_mock_cat.maker_params.surveys.name1']+'_catalog.fits')
+        catalog_name=""
+        if self.params['params_mock_cat.maker_params.surveys.make_survey1']:
+            catalog_name=self.params['file_params.cat_path']+self.params['params_mock_cat.maker_params.surveys.name1']+'_catalog'+'.fits'
         else:
-           hdu= fits.open(self.params['file_params.cat_path']+'master_catalog_vercustom.fits')
+            catalog_name=self.params['file_params.cat_path']+'master_catalog_vercustom'+'.fits'
+        
+        hdu= fits.open(catalog_name)
+        self.catalog_name=catalog_name
 
         hdu[1].data['rm'][np.where(hdu[1].data['type']!='Pulsar')] = dest_data['rm']
         hdu[1].data['rm_err'][np.where(hdu[1].data['type']!='Pulsar')] =  dest_data['rm_err']
