@@ -17,20 +17,31 @@ class Settings_Maker():
         params= self.params
 
         sky_domain = ift.makeDomain(ift.HPSpace(params['params_inference.nside']))
-        catalog_version = params['file_params.version']
+        #catalog_version = params['file_params.version']
 
-        data = Egf.get_rm(filter_pulsars=True, version=f'{catalog_version}', default_error_level=0.5, params=params)
+        #data = Egf.get_rm(filter_pulsars=True, version=f'{catalog_version}', default_error_level=0.5, params=params)
+        data = Egf.get_rm(filter_pulsars=True, version=params['file_params.version'], default_error_level=0.5, params=params)
+
+        # filter
+        z_indices = Egf.get_data(data)['z_indices']
+        e_z = Egf.get_data(data)['e_z']
+        e_rm = Egf.get_data(data)['e_rm']
+        e_F = Egf.get_data(data)['e_F']
+        e_rm_err = Egf.get_data(data)['e_rm_err']   
+        lerm = Egf.get_data(data)['lerm'] 
+
+
 
         #create mock catalog option
         if(params['params_mock_cat.maker_params.use_mock']):
             if self.params['params_mock_cat.maker_params.surveys.make_survey1']==True:
                 survey_data=SurveyMaker(params).make_survey()
-                c=CatalogMaker(params, base_catalog=data, dest_catalog=survey_data)
+                c=CatalogMaker(params, base_catalog=data, catalogs=Egf.get_data(data), dest_catalog=survey_data)
                 c.make_catalog()
                 logger.info("CREATED NEW MOCK SURVEY CATALOG")        
 
             else:
-                c=CatalogMaker(params, base_catalog=data, dest_catalog=None)
+                c=CatalogMaker(params, base_catalog=data, catalogs=Egf.get_data(data), dest_catalog=None)
                 c.make_catalog()
                 logger.info("CREATED NEW MOCK CATALOG")       
 
@@ -39,25 +50,22 @@ class Settings_Maker():
             data = Egf.get_rm(filter_pulsars=True, version=None, full_catalog_path=f'{c.catalog_name}', default_error_level=0.5, params=params)
     
 
-        # filter
-        z_indices = ~np.isnan(data['z_best'])
 
-        e_rm = np.array(data['rm'][z_indices])
-        e_stddev = np.array(data['rm_err'][z_indices])
-        e_z = np.array(data['z_best'][z_indices])
-        e_F = np.array(data['stokesI'][z_indices])
+
+        egal_rm = ift.Field(egal_data_domain, e_rm)
+        egal_stddev = ift.Field(egal_data_domain, e_rm_err)
+
+
+
 
         galactic_model = U.get_galactic_model(sky_domain, params)
 
-        egal_data_domain = ift.makeDomain(ift.UnstructuredDomain((len(e_rm),)))
-
-        egal_rm = ift.Field(egal_data_domain, e_rm)
-        egal_stddev = ift.Field(egal_data_domain, e_stddev)
         
+   
         # build the full model and connect it to the likelihood
         # set the extra-galactic model hyper-parameters and initialize the model
+        egal_data_domain = ift.makeDomain(ift.UnstructuredDomain((lerm,))) #è definito sia qui che in catalog maker, va tenuto in entrambi?
         egal_model_params = {'z': e_z, 'F': e_F, 'params': params}
-        
         emodel = Egf.ExtraGalModel(egal_data_domain, egal_model_params, use_prior_params=True)
 
         #if we are not interested in the RM but only in its sigma we can consider the eg sigma as a noise and sum the two here. 
@@ -96,13 +104,17 @@ class Settings_Maker():
                                                                 sampling_dtype=np.dtype(np.float64)) @ n_res
         
 
-        g_rm = np.array(data['rm'][~z_indices])
-        g_stddev = np.array(data['rm_err'][~z_indices])
+        g_rm = Egf.get_data(data)['g_rm']
+        g_F = Egf.get_data(data)['g_F']
+        g_rm_err = Egf.get_data(data)['g_rm_err']   
+        
+        lgrm=Egf.get_data(data)['lgrm']
 
-        gal_data_domain = ift.makeDomain(ift.UnstructuredDomain((len(g_rm),)))
+
+        gal_data_domain = ift.makeDomain(ift.UnstructuredDomain((lgrm,)))
 
         gal_rm = ift.Field(gal_data_domain, g_rm)
-        gal_stddev = ift.Field(gal_data_domain, g_stddev)
+        gal_stddev = ift.Field(gal_data_domain, g_rm_err)
 
         implicit_response = Egf.SkyProjector(theta=data['theta'][~z_indices],
                                             phi=data['phi'][~z_indices],

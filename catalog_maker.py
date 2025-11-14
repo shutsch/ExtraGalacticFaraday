@@ -3,10 +3,7 @@ import nifty8 as ift
 import libs as Egf 
 import numpy as np
 import healpy as hp
-from src.helper_functions.misc import gal2gal
 from mock_seb23 import seb23
-from astropy.io import fits
-from scipy.stats import rv_histogram
 import matplotlib.pyplot as plt
 import matplotlib
 from nifty_cmaps import ncmap
@@ -34,13 +31,23 @@ factor = float(Egf.const['factor'])
 
 class CatalogMaker():
 
-    def __init__(self, params, base_catalog=None, dest_catalog=None):
+    def __init__(self, params, base_catalog, catalogs, dest_catalog=None):
         self.params = params
         self.base_catalog = base_catalog
+        self.z_indices = catalogs['z_indices']
+        self.e_z = catalogs['e_z']
+        self.e_rm = catalogs['e_rm']
+        self.e_F = catalogs['e_F']
+        self.e_rm_err = catalogs['e_rm_err']   
+        self.lerm = catalogs['lerm'] 
         self.dest_catalog = dest_catalog
-        #self.rng = np.random.default_rng(seed=params['params_mock_cat.maker_params.seed'])
+
 
     def make_catalog(self):
+
+        np.random.seed(seed=self.params['params_mock_cat.maker_params.seed'])
+
+
         sky_domain = ift.makeDomain(ift.HPSpace(self.params['params_inference.nside']))
 
 
@@ -50,20 +57,9 @@ class CatalogMaker():
         dest_data = self.dest_catalog if self.dest_catalog is not None else \
             data
         
-        z_indices = ~np.isnan(data['z_best'])
 
-
-        e_z = np.array(data['z_best'][z_indices])
-        e_z_orig = e_z
-        Dl_orig=cosmo.luminosity_distance(e_z_orig).value
-
-        e_F = np.array(data['stokesI'][z_indices])
-        e_F_orig_at_z = e_F
-        e_L_orig_at_z=e_F_orig_at_z*4*m.pi*Dl_orig**2*factor
-        
-
-        e_rm = np.array(data['rm'][z_indices])
-
+        Dl_orig_at_z=cosmo.luminosity_distance(self.e_z).value
+        e_L_orig_at_z=self.e_F*4*m.pi*Dl_orig_at_z**2*factor
 
 
         if self.params['params_mock_cat.maker_params.surveys.make_survey1'] == True:
@@ -75,63 +71,51 @@ class CatalogMaker():
 
 
 
-        np.random.seed(seed=self.params['params_mock_cat.maker_params.seed'])
         z_mock_indices=np.unique(np.random.choice(b_sel_indices, size=los))
-        print('Number of LOS with redshift', len(z_mock_indices))
+        lmock=len(z_mock_indices)
+        print('Number of LOS with redshift', lmock)
         print('Total number of LOS in the catalog', dest_data['b'].size)
 
 
 
-        if self.params['params_mock_cat.maker_params.nvss']:
-            print('Using NVSS redshifts and Stokes I...')
+        F_mock=Egf.sampling_from_distribiution(self.params, self.e_z, data, lmock)['F_mock']
+        z_mock=Egf.sampling_from_distribiution(self.params, self.e_z, data, lmock) ['z_mock']
 
-            e_z=np.load(self.params['file_params.auxiliary_path']+'z_nvss.npy')
 
-            nvss_index=np.where(data['catalog']=="2009ApJ...702.1230T")[0]
-            e_F_orig_at_z = np.array(data['stokesI'][nvss_index])
-        
-        z_mock=np.random.choice(e_z,size=z_mock_indices.size) 
+
 
         dest_data['z_best'][:] = np.nan
+        dest_data['stokesI'][:] = np.nan
         dest_data['z_best'][z_mock_indices] = z_mock
+        dest_data['stokesI'][z_mock_indices] = F_mock
 
-        F_all = np.array(data['stokesI'])
-        F_indices = np.where(F_all>0)[0]
-        F_sample= np.array(data['stokesI'][F_indices])
-        e_F_orig = F_sample
-
-
-        F_mock=np.random.choice(e_F_orig_at_z,size=len(dest_data['stokesI'])) 
-
-
-
-
-        dest_data['stokesI'] = F_mock
 
         # new filter
-        z_indices = ~np.isnan(dest_data['z_best'])
+        dest_data_catalogs = Egf.get_data(dest_data)
+        z_indices = dest_data_catalogs['z_indices']
+        e_z = dest_data_catalogs(dest_data)['e_z']
+        e_rm = dest_data_catalogs(dest_data)['e_rm']
+        e_F = dest_data_catalogs(dest_data)['e_F']
+        e_rm_err = dest_data_catalogs(dest_data)['e_rm_err']   
+        lerm = dest_data_catalogs(dest_data)['lerm'] 
 
-        e_z = np.array(dest_data['z_best'][z_indices])
+
+
+        
         Dl=cosmo.luminosity_distance(e_z).value
-        
-        e_F = np.array(dest_data['stokesI'][z_indices])
         e_L = e_F*4*m.pi*Dl**2*factor
+
         
-        #g_rm = np.array(data['rm'][~z_indices])
-        e_rm = np.array(dest_data['rm'][z_indices])
-        lerm = len(e_rm)
+        eg_l = dest_data_catalogs['l'] 
+        eg_b = dest_data_catalogs['b'] 
+
+        theta_eg = dest_data_catalogs['theta_eg'] 
+        phi_eg = dest_data_catalogs['phi_eg'] 
 
 
+        ltheta=dest_data_catalogs['ltheta'] 
+        ltheta=dest_data_catalogs['lthetaeg'] 
 
-
-        eg_l = np.array(dest_data['l'])
-        eg_b = np.array(dest_data['b'])
-
-        theta_eg, phi_eg = gal2gal(eg_l, eg_b) # converting to colatitude and logitude in radians
-
-        ltheta=len(dest_data['theta'])
-        lthetaeg = len(theta_eg)
-        
         eg_projector = Egf.SkyProjector(ift.makeDomain(ift.HPSpace(self.params['params_inference.nside'])), ift.makeDomain(ift.UnstructuredDomain(lthetaeg)), theta=theta_eg, phi=phi_eg)
 
 
@@ -142,10 +126,8 @@ class CatalogMaker():
 
             rm_gal, b, dm =seb23(self.params)
 
-            if self.params['params_mock_cat.maker_params.disk_on']==1:
-                eg_gal_data = eg_projector(rm_gal)
-            else:
-                eg_gal_data = eg_projector(b)
+            eg_gal_data = eg_projector(rm_gal) if self.params['params_mock_cat.maker_params.disk_on']==1 else\
+                eg_projector(b)
             
             plot = ift.Plot()
             plot.add(dm, vmin=0, vmax=500, title='DM [pc cm$^{-3}$]', cmap='magma', cmap_stddev=getattr(ncmap, 'fu')())
@@ -194,17 +176,15 @@ class CatalogMaker():
           
             cat_index_1=np.where(dest_data['catalog']==self.params['params_mock_cat.maker_params.surveys.name1'])[0]
             sigma_1 = data['rm_err'][np.where(data['catalog']==self.params['params_mock_cat.maker_params.surveys.cat1'])[0]]
-            sigma_1_mock=np.random.choice(sigma_1,size=cat_index_1.size) 
             sigma_mock=np.empty(dest_data['catalog'].size)
-            sigma_mock[cat_index_1]=sigma_1_mock
-            print('sigma_mock cat1', sigma_1_mock.mean())
+            sigma_mock[cat_index_1]=Egf.sampling_from_noise_distribiution(sigma_1, len(cat_index_1))
+            print('sigma_mock cat1', sigma_mock[cat_index_1].mean())
 
             if self.params['params_mock_cat.maker_params.surveys.make_survey2'] == True:
                 cat_index_2=np.where(dest_data['catalog']==self.params['params_mock_cat.maker_params.surveys.name2'])[0]
                 sigma_2 = data['rm_err'][np.where(data['catalog']==self.params['params_mock_cat.maker_params.surveys.cat2'])[0]]
-                sigma_2_mock=np.random.choice(sigma_2,size=cat_index_2.size)
-                sigma_mock[cat_index_2]=sigma_2_mock
-                print('sigma_mock cat2', sigma_2_mock.mean())
+                sigma_mock[cat_index_2]=Egf.sampling_from_noise_distribiution(sigma_2, len(cat_index_2))
+                print('sigma_mock cat2', sigma_mock[cat_index_2].mean())
                 
             sigma_mock_field=ift.Field.from_raw(ift.UnstructuredDomain(dest_data['catalog'].size),np.array(sigma_mock))
             N = ift.DiagonalOperator(sigma_mock_field**2, domain=ift.UnstructuredDomain(sigma_mock_field.size), sampling_dtype=np.float64)
@@ -241,7 +221,8 @@ class CatalogMaker():
             #LoTSS cat "LoTSS DR2 (O'Sullivan et al. 2022) "
             cat_index_gal=np.where(data['catalog']==self.params['params_mock_cat.maker_params.cat_gal'])[0][~np.isnan(np.where(data['catalog']==self.params['params_mock_cat.maker_params.cat_gal'])[0])]
             sigma_gal = data['rm_err'][cat_index_gal]
-            sigma_gal_mock=np.random.choice(sigma_gal,size=ltheta-lerm) 
+            #sigma_gal_mock=np.random.choice(sigma_gal,size=ltheta-lerm) 
+            sigma_gal_mock=Egf.sampling_from_noise_distribiution(sigma_gal, ltheta-lerm)
 
             #sigma_gal_mock_field=ift.Field.from_raw(ift.UnstructuredDomain(ltheta-lerm),np.array(sigma_gal_mock))
             #N_gal = ift.DiagonalOperator(sigma_gal_mock_field**2, domain=ift.UnstructuredDomain(ltheta-lerm), sampling_dtype=np.float64)
@@ -251,7 +232,7 @@ class CatalogMaker():
             #creating mock sigma eg
             cat_index_eg=np.where(data['catalog']==self.params['params_mock_cat.maker_params.cat_eg'])[0][~np.isnan(np.where(data['catalog']==self.params['params_mock_cat.maker_params.cat_eg'])[0])]
             sigma_eg = data['rm_err'][cat_index_eg]
-            sigma_eg_mock=np.random.choice(sigma_eg,size=lerm) 
+            sigma_eg_mock=Egf.sampling_from_noise_distribiution(sigma_eg,lerm) 
 
 
             #sigma_eg_mock_field=ift.Field.from_raw(ift.UnstructuredDomain(lerm),np.array(sigma_eg_mock))
@@ -434,19 +415,20 @@ class CatalogMaker():
         dest_data['rm'] = np.array(noised_rm_data.val)
         dest_data['rm_err'] =  sigma_mock
         
-        catalog_name=""
-        if self.params['params_mock_cat.maker_params.surveys.make_survey1']:
-            catalog_name=self.params['file_params.cat_path']+self.params['params_mock_cat.maker_params.surveys.name1']+'_catalog'+'.fits'
-        else:
-            catalog_name=self.params['file_params.cat_path']+'master_catalog_vercustom'+'.fits'
+        #catalog_name=""
+        #if self.params['params_mock_cat.maker_params.surveys.make_survey1']:
+        #    catalog_name=self.params['file_params.cat_path']+self.params['params_mock_cat.maker_params.surveys.name1']+'_catalog'+'.fits'
+        #else:
+        #    catalog_name=self.params['file_params.cat_path']+'master_catalog_vercustom'+'.fits'
         
-        hdu= fits.open(catalog_name)
-        self.catalog_name=catalog_name
+        #hdu= fits.open(catalog_name)
+        #self.catalog_name=catalog_name
 
-        hdu[1].data['rm'][np.where(hdu[1].data['type']!='Pulsar')] = dest_data['rm']
-        hdu[1].data['rm_err'][np.where(hdu[1].data['type']!='Pulsar')] =  dest_data['rm_err']
-        hdu[1].data['z_best'][np.where(hdu[1].data['type']!='Pulsar')] =  dest_data['z_best']
-        hdu[1].data['stokesI'][np.where(hdu[1].data['type']!='Pulsar')] =  dest_data['stokesI']
-        hdu.writeto(self.params['file_params.cat_path']+'master_catalog_vercustom_sim.fits', overwrite=True)
-        hdu.close()
-
+        #hdu[1].data['rm'][np.where(hdu[1].data['type']!='Pulsar')] = dest_data['rm']
+        #hdu[1].data['rm_err'][np.where(hdu[1].data['type']!='Pulsar')] =  dest_data['rm_err']
+        #hdu[1].data['z_best'][np.where(hdu[1].data['type']!='Pulsar')] =  dest_data['z_best']
+        #hdu[1].data['stokesI'][np.where(hdu[1].data['type']!='Pulsar')] =  dest_data['stokesI']
+        #hdu.writeto(self.params['file_params.cat_path']+'master_catalog_vercustom_sim.fits', overwrite=True)
+        #hdu.close()
+        Egf.write_to_file(self.params, dest_data)
+        
