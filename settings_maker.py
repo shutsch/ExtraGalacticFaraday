@@ -22,26 +22,18 @@ class Settings_Maker():
         #data = Egf.get_rm(filter_pulsars=True, version=f'{catalog_version}', default_error_level=0.5, params=params)
         data = Egf.get_rm(filter_pulsars=True, version=params['file_params.version'], default_error_level=0.5, params=params)
 
-        # filter
-        z_indices = Egf.get_data(data)['z_indices']
-        e_z = Egf.get_data(data)['e_z']
-        e_rm = Egf.get_data(data)['e_rm']
-        e_F = Egf.get_data(data)['e_F']
-        e_rm_err = Egf.get_data(data)['e_rm_err']   
-        lerm = Egf.get_data(data)['lerm'] 
-
 
 
         #create mock catalog option
         if(params['params_mock_cat.maker_params.use_mock']):
             if self.params['params_mock_cat.maker_params.surveys.make_survey1']==True:
                 survey_data=SurveyMaker(params).make_survey()
-                c=CatalogMaker(params, base_catalog=data, catalogs=Egf.get_data(data), dest_catalog=survey_data)
+                c=CatalogMaker(params, base_catalog=data, dest_catalog=survey_data)
                 c.make_catalog()
                 logger.info("CREATED NEW MOCK SURVEY CATALOG")        
 
             else:
-                c=CatalogMaker(params, base_catalog=data, catalogs=Egf.get_data(data), dest_catalog=None)
+                c=CatalogMaker(params, base_catalog=data, dest_catalog=None)
                 c.make_catalog()
                 logger.info("CREATED NEW MOCK CATALOG")       
 
@@ -50,7 +42,13 @@ class Settings_Maker():
             data = Egf.get_rm(filter_pulsars=True, version=None, full_catalog_path=f'{c.catalog_name}', default_error_level=0.5, params=params)
     
 
-
+        # filter
+        z_indices = Egf.get_data(data)['z_indices']
+        e_z = Egf.get_data(data)['e_z']
+        e_rm = Egf.get_data(data)['e_rm']
+        e_F = Egf.get_data(data)['e_F']
+        e_rm_err = Egf.get_data(data)['e_rm_err']   
+        lerm = Egf.get_data(data)['lerm'] 
 
         egal_rm = ift.Field(egal_data_domain, e_rm)
         egal_stddev = ift.Field(egal_data_domain, e_rm_err)

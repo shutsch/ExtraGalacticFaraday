@@ -18,7 +18,14 @@ from src.helper_functions.model_helpers import Model_Helper
 from src.helper_functions.samples.get_sample_statistics import sample_statistics
 from src.helper_functions.mock.sampling_from_distribution import sampling_from_distribiution
 from src.helper_functions.mock.sampling_from_distribution import sampling_from_noise_distribiution
-
+from src.helper_functions.mock.rm_gal import rm_gal   
+from src.helper_functions.mock.rm_eg import rm_eg   
+from src.helper_functions.mock.npi import npi   
+from src.helper_functions.mock.plot import plot_rmgal
+from src.helper_functions.mock.plot import plot_rmgalonly
+from src.helper_functions.mock.plot import plot_rmeg
+from src.helper_functions.mock.plot import plot_mock
+from src.helper_functions.mock.plot import plot_mock_vs_observed
 
 import yaml
 with open('config.yaml','r') as config_file:

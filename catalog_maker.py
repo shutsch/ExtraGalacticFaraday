@@ -15,51 +15,58 @@ import math as m
 
 #cosmo and constants
 
-light_speed =  Egf.const['c']
-h =  Egf.const['Jens']['h']
-Wm = Egf.const['Jens']['Wm']
-Wc = Egf.const['Jens']['Wc']
-Wl = Egf.const['Jens']['Wl']
-H0 = 100 * h
+#light_speed =  Egf.const['c']
+#h =  Egf.const['Jens']['h']
+#Wm = Egf.const['Jens']['Wm']
+#Wc = Egf.const['Jens']['Wc']
+#Wl = Egf.const['Jens']['Wl']
+#H0 = 100 * h
     
-cosmo = FlatLambdaCDM(H0=H0, Om0=Wm)  
-L0 = float(Egf.const['L0'])
-D0 = Egf.const['D0']
-factor = float(Egf.const['factor'])
+#cosmo = FlatLambdaCDM(H0=H0, Om0=Wm)  
+#L0 = float(Egf.const['L0'])
+#D0 = Egf.const['D0']
+#factor = float(Egf.const['factor'])
 
 
 
 class CatalogMaker():
 
-    def __init__(self, params, base_catalog, catalogs, dest_catalog=None):
+    def __init__(self, params, base_catalog, dest_catalog=None):
         self.params = params
         self.base_catalog = base_catalog
-        self.z_indices = catalogs['z_indices']
-        self.e_z = catalogs['e_z']
-        self.e_rm = catalogs['e_rm']
-        self.e_F = catalogs['e_F']
-        self.e_rm_err = catalogs['e_rm_err']   
-        self.lerm = catalogs['lerm'] 
         self.dest_catalog = dest_catalog
 
 
     def make_catalog(self):
-
+        #seed
         np.random.seed(seed=self.params['params_mock_cat.maker_params.seed'])
 
-
-        sky_domain = ift.makeDomain(ift.HPSpace(self.params['params_inference.nside']))
-
-
+        #data catalogs
         data = self.base_catalog if self.base_catalog is not None else \
             Egf.get_rm(filter_pulsars=True, version='custom', default_error_level=0.5)
 
         dest_data = self.dest_catalog if self.dest_catalog is not None else \
             data
         
+        #reading from base_catalog
+        catalogs=Egf.get_data(data)
 
-        Dl_orig_at_z=cosmo.luminosity_distance(self.e_z).value
-        e_L_orig_at_z=self.e_F*4*m.pi*Dl_orig_at_z**2*factor
+        #eg data
+        z_indices = catalogs['z_indices']
+        e_z = catalogs['e_z']
+        e_F = catalogs['e_F']
+        lerm = catalogs['lerm']         
+
+
+        #full data
+        rm_err = catalogs['rm_err']   
+
+
+
+        sky_domain = ift.makeDomain(ift.HPSpace(self.params['params_inference.nside']))
+
+
+
 
 
         if self.params['params_mock_cat.maker_params.surveys.make_survey1'] == True:
@@ -70,14 +77,14 @@ class CatalogMaker():
             b_sel_indices=np.where(abs(dest_data['b'])>self.params['params_mock_cat.maker_params.gal_lat_th'])[0] 
 
 
-
+        #creation of indices of mock z
         z_mock_indices=np.unique(np.random.choice(b_sel_indices, size=los))
         lmock=len(z_mock_indices)
         print('Number of LOS with redshift', lmock)
         print('Total number of LOS in the catalog', dest_data['b'].size)
 
 
-
+        #creation of mock F and z
         F_mock=Egf.sampling_from_distribiution(self.params, self.e_z, data, lmock)['F_mock']
         z_mock=Egf.sampling_from_distribiution(self.params, self.e_z, data, lmock) ['z_mock']
 
@@ -91,82 +98,40 @@ class CatalogMaker():
 
 
         # new filter
-        dest_data_catalogs = Egf.get_data(dest_data)
-        z_indices = dest_data_catalogs['z_indices']
-        e_z = dest_data_catalogs(dest_data)['e_z']
-        e_rm = dest_data_catalogs(dest_data)['e_rm']
-        e_F = dest_data_catalogs(dest_data)['e_F']
-        e_rm_err = dest_data_catalogs(dest_data)['e_rm_err']   
-        lerm = dest_data_catalogs(dest_data)['lerm'] 
+        dest_data_catalog = Egf.get_data(dest_data)
+
+        #eg data
+        z_indices = dest_data_catalog['z_indices'] 
+        lerm = dest_data_catalog['lerm'] 
+
+        eg_b = dest_data_catalog['b'] 
+
+        theta_eg = dest_data_catalog['theta_eg'] 
+        phi_eg = dest_data_catalog['phi_eg'] 
 
 
-
-        
-        Dl=cosmo.luminosity_distance(e_z).value
-        e_L = e_F*4*m.pi*Dl**2*factor
-
-        
-        eg_l = dest_data_catalogs['l'] 
-        eg_b = dest_data_catalogs['b'] 
-
-        theta_eg = dest_data_catalogs['theta_eg'] 
-        phi_eg = dest_data_catalogs['phi_eg'] 
-
-
-        ltheta=dest_data_catalogs['ltheta'] 
-        ltheta=dest_data_catalogs['lthetaeg'] 
+        ltheta=dest_data_catalog['ltheta'] 
+        ltheta=dest_data_catalog['lthetaeg'] 
 
         eg_projector = Egf.SkyProjector(ift.makeDomain(ift.HPSpace(self.params['params_inference.nside'])), ift.makeDomain(ift.UnstructuredDomain(lthetaeg)), theta=theta_eg, phi=phi_eg)
 
 
 
+        rm_gal=Egf.rm_gal(self.params, sky_domain)
 
+        ### gal contribution in direction of eg points ####
+        eg_gal_data = eg_projector(rm_gal)
 
-        if(self.params['params_mock_cat.maker_params.maker_type'] == "seb23" or self.params['params_mock_cat.maker_params.maker_type'] == "ymw16" ):
-
-            rm_gal, b, dm =seb23(self.params)
-
-            eg_gal_data = eg_projector(rm_gal) if self.params['params_mock_cat.maker_params.disk_on']==1 else\
-                eg_projector(b)
-            
-            plot = ift.Plot()
-            plot.add(dm, vmin=0, vmax=500, title='DM [pc cm$^{-3}$]', cmap='magma', cmap_stddev=getattr(ncmap, 'fu')())
-            plot.add(b, vmin=-2.50, vmax=2.50, cmap=getattr(ncmap, 'fu')(), cmap_stddev=getattr(ncmap, 'fu')())
-            plot.add(0.81*dm*b, vmin=-250, vmax=250, cmap=getattr(ncmap, 'fm')(), cmap_stddev=getattr(ncmap, 'fu')())
-            plot.output(name='Mock_cat_Seb23_dm_b.png', nx=1, ny=3)
-
-            hp.mollview(dm.val,min=0, max=500, title='DM [pc cm$^{-3}$]', cmap='magma')
-            plt.savefig('DM.png', bbox_inches='tight')
-            hp.mollview(b.val,min=-2.5, max=2.5, title='B [$\\mu$G], $\\gamma$=-3 ', cmap='viridis') # cmap=getattr(ncmap, 'fu')())
-            plt.savefig('B.png', bbox_inches='tight')
-            hp.mollview(0.81*dm.val*b.val,min=-250, max=250, title='$\\phi_{gal}$ [rad m$^{-2}$]', cmap=getattr(ncmap, 'fm')())
-            plt.savefig('RM.png', bbox_inches='tight')
-
-        if(self.params['params_mock_cat.maker_params.maker_type'] == "consistent"): #CONSISTENT catalog
-            galactic_model = U.get_galactic_model(sky_domain, self.params)
-            
-            gal_mock_position = ift.from_random(galactic_model.get_model().domain, 'normal')
-            gal=galactic_model.get_model()(gal_mock_position)
-
-            plot = ift.Plot()
-            plot.add(gal, vmin=-250, vmax=250)
-            plot.output(name='Mock_cat_consistent_RM_gal.png')
-            #plt.savefig('Mock_cat_consistent_RM_gal.png', bbox_inches='tight')
-
-            ### eg contribution ####
-            eg_gal_data = eg_projector(gal)
 
         egal_data_domain = ift.makeDomain(ift.UnstructuredDomain((lerm,)))
 
         # build the full model and connect it to the likelihood
         # set the extra-galactic model hyper-parameters and initialize the model
-        egal_model_params = {'z': e_z, 'F': e_F, 'params': self.params}
+        egal_model_params = {'z': z_mock, 'F': F_mock, 'params': self.params}
         
         emodel = Egf.ExtraGalModel(egal_data_domain, egal_model_params)
 
-        #egal_mock_position = ift.from_random(emodel.get_model().domain, 'normal')
         egal_mock_position = ift.full(emodel.get_model().domain, 0.0)
-        print(f'mock:{egal_mock_position.val}')
 
 
         rm_data=np.array(eg_gal_data.val)
@@ -175,14 +140,14 @@ class CatalogMaker():
         if self.params['params_mock_cat.maker_params.surveys.make_survey1'] == True:
           
             cat_index_1=np.where(dest_data['catalog']==self.params['params_mock_cat.maker_params.surveys.name1'])[0]
-            sigma_1 = data['rm_err'][np.where(data['catalog']==self.params['params_mock_cat.maker_params.surveys.cat1'])[0]]
+            sigma_1 = rm_err[np.where(data['catalog']==self.params['params_mock_cat.maker_params.surveys.cat1'])[0]]
             sigma_mock=np.empty(dest_data['catalog'].size)
             sigma_mock[cat_index_1]=Egf.sampling_from_noise_distribiution(sigma_1, len(cat_index_1))
             print('sigma_mock cat1', sigma_mock[cat_index_1].mean())
 
             if self.params['params_mock_cat.maker_params.surveys.make_survey2'] == True:
                 cat_index_2=np.where(dest_data['catalog']==self.params['params_mock_cat.maker_params.surveys.name2'])[0]
-                sigma_2 = data['rm_err'][np.where(data['catalog']==self.params['params_mock_cat.maker_params.surveys.cat2'])[0]]
+                sigma_2 = rm_err[np.where(data['catalog']==self.params['params_mock_cat.maker_params.surveys.cat2'])[0]]
                 sigma_mock[cat_index_2]=Egf.sampling_from_noise_distribiution(sigma_2, len(cat_index_2))
                 print('sigma_mock cat2', sigma_mock[cat_index_2].mean())
                 
@@ -275,160 +240,26 @@ class CatalogMaker():
 
         
         #modification of RM values to mimic wrong estimates present in the data and difficult to predict
-        delta_rm_list=[]
-        if self.params['params_mock_cat.maker_params.npi.use_npi']==True:
-            b_indices=np.where(np.isnan(dest_data['z_best']))[0]
-            np.random.seed(seed=self.params['params_mock_cat.maker_params.seed'])
-            npi_indices=np.unique(np.random.choice(b_indices, size=self.params['params_mock_cat.maker_params.npi.npi_los']))
-            np.save('mock_npi_indices.npy', npi_indices)
-            print(npi_indices.size)
-            print(ltheta-lerm)
-            for item in b_indices:
-                if item in npi_indices:
-                    mu_nvss=self.params['params_mock_cat.maker_params.npi.mu_nvss']
-                    sigma_nvss=self.params['params_mock_cat.maker_params.npi.sigma_nvss']
-                    delta_rm=np.random.normal(mu_nvss, sigma_nvss)
-                    if random.choice('+-')=='-':
-                        rm_data[item] -= delta_rm
-                        delta_rm_list.append(-delta_rm)
-                    else:
-                        rm_data[item] += delta_rm
-                        delta_rm_list.append(delta_rm)
-            
-            delta_rm_array=np.array(delta_rm_list)
-            plt.scatter(eg_b[npi_indices], delta_rm_array)
-            plt.savefig('Delta_rm.png', bbox_inches='tight')
+        rm_data=Egf.npi(self.params, dest_data, rm_data, eg_b,eg_gal_data, sigma_mock)
 
-        deviation=(rm_data-eg_gal_data.val)/sigma_mock
-        np.save('deviation.npy',deviation)
-        print('Deviation', deviation.size)
-
-
-
-
-        if self.params['params_mock_cat.maker_params.eg_on']==True:
-            np.random.seed(seed=self.params['params_mock_cat.maker_params.seed'])
-            rand_rm=np.random.normal(0.0, 1.0,len(e_rm))
-            #rand_rm=self.rng.normal(0.0, 1.0,len(e_rm))
-            egal_contr = emodel.get_model().sqrt()(egal_mock_position).val*rand_rm
-            rm_data[z_indices]+=egal_contr 
-            print('std',np.std(egal_contr))
-            print('mean',np.mean(egal_contr))
-
-
-            fig, axs = plt.subplots(3, 2, figsize=(10,10))
-
-
-            axs[2,1].set_xlabel('z')
-            axs[2,0].set_xlabel('Stokes I (Jy)')
-            #axs[2,0].set_xlabel('Normalized Luminosity')
-
-            axs[0,0].set_ylabel('Mock $\\phi_{eg}$ (rad/m$^2$)')
-            axs[0,1].set_ylabel('Mock $\\phi_{eg}$ (rad/m$^2$)')
-            axs[0,1].scatter(e_z, egal_contr, s=5, c='green')
-
-            axs[2,1].hist(e_z_orig, bins=100, density=False, color='lightgrey')
-            axs[1,1].hist(e_z, bins=100, density=False, color='green')
-
-            axs[0,0].scatter(e_F, egal_contr, s=5, c='green')
-            #axs[0,0].scatter(e_L/L0, egal_contr, s=5, c='green')
-
-            hist, bins = np.histogram(e_F_orig_at_z, bins=100)
-            logbins = np.logspace(np.log10(bins[0]),np.log10(bins[-1]),len(bins))
-            axs[2,0].hist(e_F_orig_at_z, bins=logbins,  density=False, color='lightgrey')
-
-            hist, bins = np.histogram(e_F, bins=100)
-            logbins = np.logspace(np.log10(bins[0]),np.log10(bins[-1]),len(bins))
-            axs[1,0].hist(e_F, bins=logbins,  density=False, color='green')
-
-
-
-            #hist, bins = np.histogram(e_L_orig_at_z/L0, bins=100)
-            #logbins = np.logspace(np.log10(bins[0]),np.log10(bins[-1]),len(bins))
-            #axs[2,0].hist(e_L_orig_at_z/L0, bins=logbins,  density=False, color='lightgrey')
-
-            #hist, bins = np.histogram(e_L/L0, bins=100)
-            #logbins = np.logspace(np.log10(bins[0]),np.log10(bins[-1]),len(bins))
-            #axs[1,0].hist(e_L/L0, bins=logbins,  density=False, color='green')
-
-
-            axs[2,0].set_xlim(0.0002,22000)
-            axs[1,0].sharex(axs[2,0])
-            axs[0,0].sharex(axs[2,0])
-            axs[0,0].set_xscale('log')
-            axs[1,0].set_xscale('log')
-            axs[2,0].set_xscale('log')
-
-            axs[0,0].set_ylim(-149,149)
-            axs[1,0].set_ylim(0.1,1499)
-            axs[1,1].set_ylim(0.1,2499)
-            #axs[2,0].sharey(axs[1,0])
-
-
-            axs[0,1].set_xlim(-0.05,3.5)
-            axs[1,1].sharex(axs[2,1])
-            axs[0,1].sharex(axs[2,1])
-
-            axs[0,1].set_ylim(-149,149)
-            #axs[1,1].set_ylim(0,1.9)
-            axs[2,0].set_ylim(0.1,119)
-            axs[2,1].set_ylim(0.1,209)
-            #axs[2,1].sharey(axs[1,1])
-
-            axs[2,0].set_ylabel('Observed #')
-            axs[1,0].set_ylabel('Mock #')
-            axs[2,1].set_ylabel('Observed #')
-            axs[1,1].set_ylabel('Mock #')
-
-
-            plt.subplots_adjust(wspace=0.5, hspace=0)
-            plt.savefig('Luminosity_and_z_dependence.png', bbox_inches='tight')
-
+        #adding eg contribution to the mock rm
+        rm_data[z_indices]+=Egf.rm_eg(self.params, emodel, egal_mock_position, e_z, e_F, z_mock, F_mock) if self.params['params_mock_cat.maker_params.eg_on']==True else \
+              0.0
 
         noised_rm_data=ift.makeField(ift.UnstructuredDomain(ltheta), rm_data)
 
-        
-
-
-
-
-        
+                
         #Plot 1
-        plot = ift.Plot()
-        plot.add(eg_projector.adjoint(eg_gal_data), vmin=-2.50, vmax=2.50)
-        plot.add(eg_projector.adjoint(noised_rm_data), vmin=-2.50, vmax=2.50)
-        plot.output(name='Mock_cat_plot_cat.png')
-        #plt.savefig('Mock_cat_plot_cat.png', bbox_inches='tight')
+        Egf.plot_mock(self.params,eg_projector.adjoint(eg_gal_data),eg_projector.adjoint(noised_rm_data),figname='Mock_cat_plot_cat.png')
 
-        #Plot 2
-        fig, axs = plt.subplots(1, 2)
 
-        axs[1].set_xlabel('Observed Extragalactic RM (rad/m$^2$)')
-        axs[1].set_ylabel('Simulated Extragalactic RM (rad/m$^2$)')
-        axs[1].scatter(dest_data['rm'][z_indices],noised_rm_data.val[z_indices])
-        axs[0].set_xlabel('Observed Galactic RM ($rad/m^2$)')
-        axs[0].set_ylabel('Simulated Galactic RM ($rad/m^2$)')
-        axs[0].scatter(dest_data['rm'][~z_indices],noised_rm_data.val[~z_indices])
-        # plt.show()
-        plt.savefig('Mock_cat_obs_vs_sim.png', bbox_inches='tight')
+        #Plot 2, questo plot non mi torna perche z_indices nel catalogo di partenza è diverso da quello del nuovo catalogo
+        Egf.plot_mock_vs_observed(self.params, dest_data['rm'][z_indices],noised_rm_data.val[z_indices], dest_data['rm'][~z_indices],noised_rm_data.val[~z_indices], figname='Mock_cat_obs_vs_sim.png')
+
 
         dest_data['rm'] = np.array(noised_rm_data.val)
         dest_data['rm_err'] =  sigma_mock
         
-        #catalog_name=""
-        #if self.params['params_mock_cat.maker_params.surveys.make_survey1']:
-        #    catalog_name=self.params['file_params.cat_path']+self.params['params_mock_cat.maker_params.surveys.name1']+'_catalog'+'.fits'
-        #else:
-        #    catalog_name=self.params['file_params.cat_path']+'master_catalog_vercustom'+'.fits'
-        
-        #hdu= fits.open(catalog_name)
-        #self.catalog_name=catalog_name
 
-        #hdu[1].data['rm'][np.where(hdu[1].data['type']!='Pulsar')] = dest_data['rm']
-        #hdu[1].data['rm_err'][np.where(hdu[1].data['type']!='Pulsar')] =  dest_data['rm_err']
-        #hdu[1].data['z_best'][np.where(hdu[1].data['type']!='Pulsar')] =  dest_data['z_best']
-        #hdu[1].data['stokesI'][np.where(hdu[1].data['type']!='Pulsar')] =  dest_data['stokesI']
-        #hdu.writeto(self.params['file_params.cat_path']+'master_catalog_vercustom_sim.fits', overwrite=True)
-        #hdu.close()
         Egf.write_to_file(self.params, dest_data)
         
