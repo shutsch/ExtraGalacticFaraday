@@ -66,9 +66,6 @@ class CatalogMaker():
         sky_domain = ift.makeDomain(ift.HPSpace(self.params['params_inference.nside']))
 
 
-
-
-
         if self.params['params_mock_cat.maker_params.surveys.make_survey1'] == True:
             los=int(self.params['params_mock_cat.maker_params.multiple']*self.params['params_mock_cat.maker_params.surveys.los1'])
             b_sel_indices=np.where(abs(dest_data['b'][np.where(dest_data['catalog']==self.params['params_mock_cat.maker_params.surveys.name1'])[0]])>self.params['params_mock_cat.maker_params.gal_lat_th'])[0] 
@@ -111,7 +108,7 @@ class CatalogMaker():
 
 
         ltheta=dest_data_catalog['ltheta'] 
-        ltheta=dest_data_catalog['lthetaeg'] 
+        lthetaeg=dest_data_catalog['lthetaeg'] 
 
         eg_projector = Egf.SkyProjector(ift.makeDomain(ift.HPSpace(self.params['params_inference.nside'])), ift.makeDomain(ift.UnstructuredDomain(lthetaeg)), theta=theta_eg, phi=phi_eg)
 
@@ -163,10 +160,10 @@ class CatalogMaker():
             
             axs[0,1].hist(sigma_2, bins=100, density=True, color='green')
 
-            axs[1,0].hist(sigma_1_mock, bins=100, density=True, color='lightgrey')
+            axs[1,0].hist(sigma_mock[cat_index_1], bins=100, density=True, color='lightgrey')
             axs[1,0].set_xlabel('$\\sigma_{1}$ (rad/m$^2$)')
 
-            axs[1,1].hist(sigma_2_mock, bins=100, density=True, color='lightgrey')
+            axs[1,1].hist(sigma_mock[cat_index_2], bins=100, density=True, color='lightgrey')
             axs[1,1].set_xlabel('$\\sigma_{2}$ (rad/m$^2$)')
 
             axs[1,1].sharex(axs[0,1])
@@ -241,18 +238,14 @@ class CatalogMaker():
         
         #modification of RM values to mimic wrong estimates present in the data and difficult to predict
         rm_data=Egf.npi(self.params, dest_data, rm_data, eg_b,eg_gal_data, sigma_mock)
-
         #adding eg contribution to the mock rm
         rm_data[z_indices]+=Egf.rm_eg(self.params, emodel, egal_mock_position, e_z, e_F, z_mock, F_mock) if self.params['params_mock_cat.maker_params.eg_on']==True else \
               0.0
-
         noised_rm_data=ift.makeField(ift.UnstructuredDomain(ltheta), rm_data)
 
                 
         #Plot 1
         Egf.plot_mock(self.params,eg_projector.adjoint(eg_gal_data),eg_projector.adjoint(noised_rm_data),figname='Mock_cat_plot_cat.png')
-
-
         #Plot 2, questo plot non mi torna perche z_indices nel catalogo di partenza è diverso da quello del nuovo catalogo
         Egf.plot_mock_vs_observed(self.params, dest_data['rm'][z_indices],noised_rm_data.val[z_indices], dest_data['rm'][~z_indices],noised_rm_data.val[~z_indices], figname='Mock_cat_obs_vs_sim.png')
 

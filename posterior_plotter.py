@@ -39,57 +39,60 @@ class Posterior_Plotter():
         ce0 = stats['chi_env_0_samples']
 
         width = 5.0
+        points = 100
 
         fig, axs = plt.subplots(4, 4, figsize=(15, 15)) #, layout="constrained"
 
         plt.subplots_adjust(wspace=0, hspace=0)
 
-        xxx, yyy, zzz = _density_estimation(cr, ci0, mr-width*sr,mr+width*sr, mi0-width*si0,mi0+width*si0, 100)
-        axs[0,0].imshow(np.rot90(zzz), cmap=plt.cm.gist_earth_r, extent=[mr-width*sr,mr+width*sr, mi0-width*si0,mi0+width*si0], aspect="auto")
-        axs[0,0].scatter(cr, ci0, color='k', s=self.params['plot.markersize'])
-        axs[0,0].set_ylabel('$\\chi_{int,0}$', fontsize = self.params['plot.fontsize'])
-        axs[0,0].set_ylim(mi0-width*si0,mi0+width*si0)
-        axs[0,0].set_xlim(mr-width*sr,mr+width*sr)
+        Egf.density_plot(self.params,axs,cr,ci0,mr,mi0,sr,si0, width, points, 0, 0)
+        #xxx, yyy, zzz = _density_estimation(cr, ci0, mr-width*sr,mr+width*sr, mi0-width*si0,mi0+width*si0, points)
+        #axs[0,0].imshow(np.rot90(zzz), cmap=plt.cm.gist_earth_r, extent=[mr-width*sr,mr+width*sr, mi0-width*si0,mi0+width*si0], aspect="auto")
+        #axs[0,0].scatter(cr, ci0, color='k', s=self.params['plot.markersize'])
+        #axs[0,0].set_ylabel('$\\chi_{int,0}$', fontsize = self.params['plot.fontsize'])
+        #axs[0,0].set_ylim(mi0-width*si0,mi0+width*si0)
+        #axs[0,0].set_xlim(mr-width*sr,mr+width*sr)
 
 
+        Egf.density_plot(self.params,axs,cl,ci0,ml,mi0,sl,si0, width, points, 0, 1)
+        #xxx, yyy, zzz = _density_estimation(cl, ci0, ml-width*sl,ml+width*sl, mi0-width*si0,mi0+width*si0, points)
+        #axs[0,1].imshow(np.rot90(zzz), cmap=plt.cm.gist_earth_r, extent=[ml-width*sl,ml+width*sl, mi0-width*si0,mi0+width*si0], aspect="auto")
+        #axs[0,1].scatter(cl, ci0, color='k', s=self.params['plot.markersize'])
+        #axs[0,1].set_ylim(mi0-width*si0,mi0+width*si0)
+        #axs[0,1].set_xlim(ml-width*sl,ml+width*sl)
 
-        xxx, yyy, zzz = _density_estimation(cl, ci0, ml-width*sl,ml+width*sl, mi0-width*si0,mi0+width*si0, 100)
-        axs[0,1].imshow(np.rot90(zzz), cmap=plt.cm.gist_earth_r, extent=[ml-width*sl,ml+width*sl, mi0-width*si0,mi0+width*si0], aspect="auto")
-        axs[0,1].scatter(cl, ci0, color='k', s=self.params['plot.markersize'])
-        axs[0,1].set_ylim(mi0-width*si0,mi0+width*si0)
-        axs[0,1].set_xlim(ml-width*sl,ml+width*sl)
+        Egf.density_plot(self.params,axs,ce0,ci0,me0,mi0,se0,si0, width, points, 0, 2)
+        #xxx, yyy, zzz = _density_estimation(ce0, ci0, me0-width*se0,me0+width*se0, mi0-width*si0,mi0+width*si0, points)
+        #axs[0,2].imshow(np.rot90(zzz), cmap=plt.cm.gist_earth_r, extent=[me0-width*se0,me0+width*se0, mi0-width*si0,mi0+width*si0], aspect="auto")
+        #axs[0,2].scatter(ce0, ci0, color='k', s=self.params['plot.markersize'])
+        #axs[0,2].set_xlabel('$\\chi_{env,0}$', fontsize = self.params['plot.fontsize'])
+        #axs[0,2].set_ylim(mi0-width*si0,mi0+width*si0)
+        #axs[0,2].set_xlim(me0-width*se0,me0+width*se0)
 
-        xxx, yyy, zzz = _density_estimation(ce0, ci0, me0-width*se0,me0+width*se0, mi0-width*si0,mi0+width*si0, 100)
-        axs[0,2].imshow(np.rot90(zzz), cmap=plt.cm.gist_earth_r, extent=[me0-width*se0,me0+width*se0, mi0-width*si0,mi0+width*si0], aspect="auto")
-        axs[0,2].scatter(ce0, ci0, color='k', s=self.params['plot.markersize'])
-        axs[0,2].set_xlabel('$\\chi_{env,0}$', fontsize = self.params['plot.fontsize'])
-        axs[0,2].set_ylim(mi0-width*si0,mi0+width*si0)
-        axs[0,2].set_xlim(me0-width*se0,me0+width*se0)
+        Egf.density_plot(self.params,axs,cr,ce0,mr,me0,sr,se0, width, points, 1, 0)
+        #xxx, yyy, zzz = _density_estimation(cr, ce0, mr-width*sr,mr+width*sr, me0-width*se0,me0+width*se0, points)
+        #axs[1,0].imshow(np.rot90(zzz), cmap=plt.cm.gist_earth_r, extent=[mr-width*sr,mr+width*sr, me0-width*se0,me0+width*se0], aspect="auto")
+        #axs[1,0].scatter(cr, ce0, color='k', s=self.params['plot.markersize'])
+        #axs[1,0].set_ylabel('$\\chi_{env,0}$', fontsize = self.params['plot.fontsize'])
+        #axs[1,0].set_xlim(mr-width*sr,mr+width*sr)
+        #axs[1,0].set_ylim(me0-width*se0,me0+width*se0)
 
+        Egf.density_plot(self.params,axs,cl,ce0,ml,me0,sl,se0, width, points, 1, 1)
+        #xxx, yyy, zzz = _density_estimation(cl, ce0, ml-width*sl,ml+width*sl, me0-width*se0,me0+width*se0, points)
+        #axs[1,1].imshow(np.rot90(zzz), cmap=plt.cm.gist_earth_r, extent=[ml-width*sl,ml+width*sl, me0-width*se0,me0+width*se0], aspect="auto")
+        #axs[1,1].scatter(cl, ce0, color='k', s=self.params['plot.markersize'])
+        #axs[1,1].set_xlabel('$\\chi_{lum}$', fontsize = self.params['plot.fontsize'])
+        #axs[1,1].set_xlim(ml-width*sl,ml+width*sl)
+        #axs[1,1].set_ylim(me0-width*se0,me0+width*se0)
 
-        xxx, yyy, zzz = _density_estimation(cr, ce0, mr-width*sr,mr+width*sr, me0-width*se0,me0+width*se0, 100)
-        axs[1,0].imshow(np.rot90(zzz), cmap=plt.cm.gist_earth_r, extent=[mr-width*sr,mr+width*sr, me0-width*se0,me0+width*se0], aspect="auto")
-        axs[1,0].scatter(cr, ce0, color='k', s=self.params['plot.markersize'])
-        axs[1,0].set_ylabel('$\\chi_{env,0}$', fontsize = self.params['plot.fontsize'])
-        axs[1,0].set_xlim(mr-width*sr,mr+width*sr)
-        axs[1,0].set_ylim(me0-width*se0,me0+width*se0)
-
-
-        xxx, yyy, zzz = _density_estimation(cl, ce0, ml-width*sl,ml+width*sl, me0-width*se0,me0+width*se0, 100)
-        axs[1,1].imshow(np.rot90(zzz), cmap=plt.cm.gist_earth_r, extent=[ml-width*sl,ml+width*sl, me0-width*se0,me0+width*se0], aspect="auto")
-        axs[1,1].scatter(cl, ce0, color='k', s=self.params['plot.markersize'])
-        axs[1,1].set_xlabel('$\\chi_{lum}$', fontsize = self.params['plot.fontsize'])
-        axs[1,1].set_xlim(ml-width*sl,ml+width*sl)
-        axs[1,1].set_ylim(me0-width*se0,me0+width*se0)
-
-
-        xxx, yyy, zzz = _density_estimation(cr, cl, mr-width*sr,mr+width*sr, ml-width*sl,ml+width*sl, 100)
-        axs[2,0].imshow(np.rot90(zzz), cmap=plt.cm.gist_earth_r, extent=[mr-width*sr,mr+width*sr, ml-width*sl,ml+width*sl], aspect="auto")
-        axs[2,0].scatter(cr, cl, color='k', s=self.params['plot.fontsize'])
-        axs[2,0].set_xlabel('$\\chi_{red}$', fontsize = self.params['plot.fontsize'])
-        axs[2,0].set_ylabel('$\\chi_{lum}$', fontsize = self.params['plot.fontsize'])
-        axs[2,0].set_xlim(mr-width*sr,mr+width*sr)
-        axs[2,0].set_ylim(ml-width*sl,ml+width*sl)
+        Egf.density_plot(self.params,axs,cr,cl,mr,ml,sr,sl, width, points, 2, 0)
+        #xxx, yyy, zzz = _density_estimation(cr, cl, mr-width*sr,mr+width*sr, ml-width*sl,ml+width*sl, points)
+        #axs[2,0].imshow(np.rot90(zzz), cmap=plt.cm.gist_earth_r, extent=[mr-width*sr,mr+width*sr, ml-width*sl,ml+width*sl], aspect="auto")
+        #axs[2,0].scatter(cr, cl, color='k', s=self.params['plot.fontsize'])
+        #axs[2,0].set_xlabel('$\\chi_{red}$', fontsize = self.params['plot.fontsize'])
+        #axs[2,0].set_ylabel('$\\chi_{lum}$', fontsize = self.params['plot.fontsize'])
+        #axs[2,0].set_xlim(mr-width*sr,mr+width*sr)
+        #axs[2,0].set_ylim(ml-width*sl,ml+width*sl)
        
 
 
@@ -167,11 +170,6 @@ class Posterior_Plotter():
         y = Gaussian1D(amplitude=self.params['plot.amplitude'], mean=self.params['prior_mean.prior_mean_lum'], stddev= self.params['prior_std.prior_std_lum'])
       
         axs[2,1].plot(x, y(x), 'b-', label='Prior')
-
-
-
-
-
 
 
         axs[1,2].hist(ce0, bins=self.params['plot.bins'], color='lightgray')

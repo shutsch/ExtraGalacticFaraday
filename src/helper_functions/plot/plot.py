@@ -4,6 +4,7 @@ import nifty8 as ift
 from .nifty_cmaps import ncmap
 from astropy.modeling.models import Gaussian1D
 import matplotlib.pyplot as pl
+import matplotlib.pyplot as plt
 from matplotlib import cm
 import matplotlib
 matplotlib.use('Agg') 
@@ -218,6 +219,13 @@ def _density_estimation(m1, m2, xmin, xmax, ymin, ymax, nbins):
     z = np.reshape(kernel(positions).T, x.shape)
     return x, y, z
 
+def density_plot(params,axs,x,y,mx,my,sx,sy, width, points, axsx, axsy):
+    xxx, yyy, zzz = _density_estimation(x, y, mx-width*sx,mx+width*sx, my-width*sy,my+width*sy, points)
+    axs[axsx,axsy].imshow(np.rot90(zzz), cmap=plt.cm.gist_earth_r, extent=[mx-width*sx,mx+width*sx, my-width*sy,my+width*sy], aspect="auto")
+    axs[axsx,axsy].scatter(x, y, color='k', s=params['plot.markersize'])
+    axs[axsx,axsy].set_ylabel('$\\chi_{int,0}$', fontsize = params['plot.fontsize'])
+    axs[axsx,axsy].set_ylim(my-width*sy,my+width*sy)
+    axs[axsx,axsy].set_xlim(mx-width*sx,mx+width*sx)
  
 def eta_plotting(name, plot_obj, path, sigma_rm, gal_pos, mock_npi_indices, deviation, string=None, **kwargs):
     if string is None:
