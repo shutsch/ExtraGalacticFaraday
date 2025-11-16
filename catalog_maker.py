@@ -31,8 +31,9 @@ import math as m
 
 class CatalogMaker():
 
-    def __init__(self, params, base_catalog, dest_catalog=None):
+    def __init__(self, params, base_catalog_data, base_catalog, dest_catalog=None):
         self.params = params
+        self.base_catalog_data = base_catalog_data
         self.base_catalog = base_catalog
         self.dest_catalog = dest_catalog
 
@@ -41,50 +42,21 @@ class CatalogMaker():
         #seed
         np.random.seed(seed=self.params['params_mock_cat.maker_params.seed'])
 
-        #data catalogs
-        data = self.base_catalog if self.base_catalog is not None else \
-            Egf.get_rm(filter_pulsars=True, version='custom', default_error_level=0.5)
 
         dest_data = self.dest_catalog if self.dest_catalog is not None else \
-            data
+            self.base_catalog
         
-        #reading from base_catalog
-        catalogs=Egf.get_data(data)
 
-        #eg data
-        z_indices = catalogs['z_indices']
-        e_z = catalogs['e_z']
-        e_F = catalogs['e_F']
-        lerm = catalogs['lerm']         
-
-
-        #full data
-        rm_err = catalogs['rm_err']   
-
-
-
-        sky_domain = ift.makeDomain(ift.HPSpace(self.params['params_inference.nside']))
-
-
-        if self.params['params_mock_cat.maker_params.surveys.make_survey1'] == True:
-            los=int(self.params['params_mock_cat.maker_params.multiple']*self.params['params_mock_cat.maker_params.surveys.los1'])
-            b_sel_indices=np.where(abs(dest_data['b'][np.where(dest_data['catalog']==self.params['params_mock_cat.maker_params.surveys.name1'])[0]])>self.params['params_mock_cat.maker_params.gal_lat_th'])[0] 
-        else:
-            los=int(self.params['params_mock_cat.maker_params.multiple']*dest_data['b'].size)
-            b_sel_indices=np.where(abs(dest_data['b'])>self.params['params_mock_cat.maker_params.gal_lat_th'])[0] 
-
-
-        #creation of indices of mock z
-        z_mock_indices=np.unique(np.random.choice(b_sel_indices, size=los))
-        lmock=len(z_mock_indices)
-        print('Number of LOS with redshift', lmock)
-        print('Total number of LOS in the catalog', dest_data['b'].size)
+        #eg and full data
+        z_indices, e_z, e_F, lerm, rm_err = self.base_catalog_data
+          
 
 
         #creation of mock F and z
-        F_mock=Egf.sampling_from_distribiution(self.params, self.e_z, data, lmock)['F_mock']
-        z_mock=Egf.sampling_from_distribiution(self.params, self.e_z, data, lmock) ['z_mock']
+        F_mock=Egf.sampling_from_distribiution(self.params, self.e_z, self.base_catalog, lmock)['F_mock']
+        z_mock=Egf.sampling_from_distribiution(self.params, self.e_z, self.base_catalog, lmock) ['z_mock']
 
+        sky_domain = ift.makeDomain(ift.HPSpace(self.params['params_inference.nside']))
 
 
 

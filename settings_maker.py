@@ -28,12 +28,12 @@ class Settings_Maker():
         if(params['params_mock_cat.maker_params.use_mock']):
             if self.params['params_mock_cat.maker_params.surveys.make_survey1']==True:
                 survey_data=SurveyMaker(params).make_survey()
-                c=CatalogMaker(params, base_catalog=data, dest_catalog=survey_data)
+                c=CatalogMaker(params, base_catalog=Egf.base_catalog_extractor(data), base_catalog=data, dest_catalog=survey_data)
                 c.make_catalog()
                 logger.info("CREATED NEW MOCK SURVEY CATALOG")        
 
             else:
-                c=CatalogMaker(params, base_catalog=data, dest_catalog=None)
+                c=CatalogMaker(params, base_catalog=Egf.base_catalog_extractor(data), base_cataog=data, dest_catalog=None)
                 c.make_catalog()
                 logger.info("CREATED NEW MOCK CATALOG")       
 

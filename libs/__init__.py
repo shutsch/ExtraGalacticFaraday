@@ -16,6 +16,8 @@ from src.helper_functions.plot.nifty_cmaps import ncmap
 from src.helper_functions.plot.plot import power_plotting, scatter_plotting, sky_map_plotting, energy_plotting
 from src.helper_functions.model_helpers import Model_Helper
 from src.helper_functions.samples.get_sample_statistics import sample_statistics
+from src.helper_functions.mock.base_catalog_extractor import base_catalog_extractor
+from src.helper_functions.mock.mock_quantitites_creator import mock_quantities_creator
 from src.helper_functions.mock.sampling_from_distribution import sampling_from_distribiution
 from src.helper_functions.mock.sampling_from_distribution import sampling_from_noise_distribiution
 from src.helper_functions.mock.rm_gal import rm_gal   
