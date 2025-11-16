@@ -27,6 +27,10 @@ from src.helper_functions.mock.plot import plot_rmeg
 from src.helper_functions.mock.plot import plot_mock
 from src.helper_functions.mock.plot import plot_mock_vs_observed
 from src.helper_functions.plot.plot import density_plot
+from src.helper_functions.plot.plot import histo_plot
+from src.helper_functions.plot.plot import gauss_plot
+from src.helper_functions.plot.plot import sigma_plot
+
 
 import yaml
 with open('config.yaml','r') as config_file:

@@ -219,14 +219,36 @@ def _density_estimation(m1, m2, xmin, xmax, ymin, ymax, nbins):
     z = np.reshape(kernel(positions).T, x.shape)
     return x, y, z
 
-def density_plot(params,axs,x,y,mx,my,sx,sy, width, points, axsx, axsy):
+def density_plot(params,axs,x,y,mx,my,sx,sy, width, points, axsx, axsy, xlabel=None,ylabel=None):
     xxx, yyy, zzz = _density_estimation(x, y, mx-width*sx,mx+width*sx, my-width*sy,my+width*sy, points)
     axs[axsx,axsy].imshow(np.rot90(zzz), cmap=plt.cm.gist_earth_r, extent=[mx-width*sx,mx+width*sx, my-width*sy,my+width*sy], aspect="auto")
     axs[axsx,axsy].scatter(x, y, color='k', s=params['plot.markersize'])
-    axs[axsx,axsy].set_ylabel('$\\chi_{int,0}$', fontsize = params['plot.fontsize'])
     axs[axsx,axsy].set_ylim(my-width*sy,my+width*sy)
     axs[axsx,axsy].set_xlim(mx-width*sx,mx+width*sx)
+    axs[axsx,axsy].set_xlabel(f'{xlabel}', fontsize = params['plot.fontsize']) if xlabel is not None else '' 
+    axs[axsx,axsy].set_ylabel(f'{ylabel}', fontsize = params['plot.fontsize']) if ylabel is not None else '' 
+
  
+def histo_plot(params, axs, x, mx, sx, width, axsx, axsy, xlabel=None):
+    axs[axsx,axsy].hist(x, bins=params['plot.bins'], color='lightgray')
+    axs[axsy,axsy].tick_params('y', labelleft=False)
+    axs[axsx,axsy].set_xlim(mx-width*sx,mx+width*sx)
+    axs[axsx,axsy].set_xlabel(f'{xlabel}', fontsize = params['plot.fontsize']) if xlabel is not None else '' 
+
+
+def gauss_plot(params, axs, mx, sx, width, axsx, axsy, points, label=None):
+    x = np.linspace(mx-width*sx,mx+width*sx, points)
+    y = Gaussian1D(amplitude=params['plot.amplitude'], mean=params['prior_mean.prior_mean_int'], stddev= params['prior_std.prior_std_int'])
+    axs[axsx,axsy].plot(x, y(x), 'b-', label=f'{label}') if label is not None else axs[axsx,axsy].plot(x, y(x), 'b-') 
+
+def sigma_plot(params, axs, mx, sx, width, color, label, axsx, axsy):
+    axs[axsx, axsy].axvline(x = mx+width[0]*sx, color = color[0], linestyle='--', label=f'{label[0]}')
+    axs[axsx, axsy].axvline(x = mx-width[0]*sx, color = color[0], linestyle='--')
+    axs[axsx, axsy].axvline(x = mx+width[1]*sx, color = color[1], linestyle='--', label=f'{label[1]}')
+    axs[axsx, axsy].axvline(x = mx-width[1]*sx, color = color[1], linestyle='--')
+    axs[axsx, axsy].axvline(x = mx+width[2]*sx, color = color[2], linestyle='--', label=f'{label[2]}')
+    axs[axsx, axsy].axvline(x = mx-width[2]*sx, color = color[2], linestyle='--')
+
 def eta_plotting(name, plot_obj, path, sigma_rm, gal_pos, mock_npi_indices, deviation, string=None, **kwargs):
     if string is None:
         string = ''

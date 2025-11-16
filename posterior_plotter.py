@@ -45,54 +45,12 @@ class Posterior_Plotter():
 
         plt.subplots_adjust(wspace=0, hspace=0)
 
-        Egf.density_plot(self.params,axs,cr,ci0,mr,mi0,sr,si0, width, points, 0, 0)
-        #xxx, yyy, zzz = _density_estimation(cr, ci0, mr-width*sr,mr+width*sr, mi0-width*si0,mi0+width*si0, points)
-        #axs[0,0].imshow(np.rot90(zzz), cmap=plt.cm.gist_earth_r, extent=[mr-width*sr,mr+width*sr, mi0-width*si0,mi0+width*si0], aspect="auto")
-        #axs[0,0].scatter(cr, ci0, color='k', s=self.params['plot.markersize'])
-        #axs[0,0].set_ylabel('$\\chi_{int,0}$', fontsize = self.params['plot.fontsize'])
-        #axs[0,0].set_ylim(mi0-width*si0,mi0+width*si0)
-        #axs[0,0].set_xlim(mr-width*sr,mr+width*sr)
-
-
+        Egf.density_plot(self.params,axs,cr,ci0,mr,mi0,sr,si0, width, points, 0, 0, xlabel=None, ylabel='$\\chi_{int,0}$')
         Egf.density_plot(self.params,axs,cl,ci0,ml,mi0,sl,si0, width, points, 0, 1)
-        #xxx, yyy, zzz = _density_estimation(cl, ci0, ml-width*sl,ml+width*sl, mi0-width*si0,mi0+width*si0, points)
-        #axs[0,1].imshow(np.rot90(zzz), cmap=plt.cm.gist_earth_r, extent=[ml-width*sl,ml+width*sl, mi0-width*si0,mi0+width*si0], aspect="auto")
-        #axs[0,1].scatter(cl, ci0, color='k', s=self.params['plot.markersize'])
-        #axs[0,1].set_ylim(mi0-width*si0,mi0+width*si0)
-        #axs[0,1].set_xlim(ml-width*sl,ml+width*sl)
-
-        Egf.density_plot(self.params,axs,ce0,ci0,me0,mi0,se0,si0, width, points, 0, 2)
-        #xxx, yyy, zzz = _density_estimation(ce0, ci0, me0-width*se0,me0+width*se0, mi0-width*si0,mi0+width*si0, points)
-        #axs[0,2].imshow(np.rot90(zzz), cmap=plt.cm.gist_earth_r, extent=[me0-width*se0,me0+width*se0, mi0-width*si0,mi0+width*si0], aspect="auto")
-        #axs[0,2].scatter(ce0, ci0, color='k', s=self.params['plot.markersize'])
-        #axs[0,2].set_xlabel('$\\chi_{env,0}$', fontsize = self.params['plot.fontsize'])
-        #axs[0,2].set_ylim(mi0-width*si0,mi0+width*si0)
-        #axs[0,2].set_xlim(me0-width*se0,me0+width*se0)
-
-        Egf.density_plot(self.params,axs,cr,ce0,mr,me0,sr,se0, width, points, 1, 0)
-        #xxx, yyy, zzz = _density_estimation(cr, ce0, mr-width*sr,mr+width*sr, me0-width*se0,me0+width*se0, points)
-        #axs[1,0].imshow(np.rot90(zzz), cmap=plt.cm.gist_earth_r, extent=[mr-width*sr,mr+width*sr, me0-width*se0,me0+width*se0], aspect="auto")
-        #axs[1,0].scatter(cr, ce0, color='k', s=self.params['plot.markersize'])
-        #axs[1,0].set_ylabel('$\\chi_{env,0}$', fontsize = self.params['plot.fontsize'])
-        #axs[1,0].set_xlim(mr-width*sr,mr+width*sr)
-        #axs[1,0].set_ylim(me0-width*se0,me0+width*se0)
-
-        Egf.density_plot(self.params,axs,cl,ce0,ml,me0,sl,se0, width, points, 1, 1)
-        #xxx, yyy, zzz = _density_estimation(cl, ce0, ml-width*sl,ml+width*sl, me0-width*se0,me0+width*se0, points)
-        #axs[1,1].imshow(np.rot90(zzz), cmap=plt.cm.gist_earth_r, extent=[ml-width*sl,ml+width*sl, me0-width*se0,me0+width*se0], aspect="auto")
-        #axs[1,1].scatter(cl, ce0, color='k', s=self.params['plot.markersize'])
-        #axs[1,1].set_xlabel('$\\chi_{lum}$', fontsize = self.params['plot.fontsize'])
-        #axs[1,1].set_xlim(ml-width*sl,ml+width*sl)
-        #axs[1,1].set_ylim(me0-width*se0,me0+width*se0)
-
-        Egf.density_plot(self.params,axs,cr,cl,mr,ml,sr,sl, width, points, 2, 0)
-        #xxx, yyy, zzz = _density_estimation(cr, cl, mr-width*sr,mr+width*sr, ml-width*sl,ml+width*sl, points)
-        #axs[2,0].imshow(np.rot90(zzz), cmap=plt.cm.gist_earth_r, extent=[mr-width*sr,mr+width*sr, ml-width*sl,ml+width*sl], aspect="auto")
-        #axs[2,0].scatter(cr, cl, color='k', s=self.params['plot.fontsize'])
-        #axs[2,0].set_xlabel('$\\chi_{red}$', fontsize = self.params['plot.fontsize'])
-        #axs[2,0].set_ylabel('$\\chi_{lum}$', fontsize = self.params['plot.fontsize'])
-        #axs[2,0].set_xlim(mr-width*sr,mr+width*sr)
-        #axs[2,0].set_ylim(ml-width*sl,ml+width*sl)
+        Egf.density_plot(self.params,axs,ce0,ci0,me0,mi0,se0,si0, width, points, 0, 2, xlabel='$\\chi_{env,0}$')
+        Egf.density_plot(self.params,axs,cr,ce0,mr,me0,sr,se0, width, points, 1, 0, xlabel=None, ylabel='$\\chi_{env,0}$')
+        Egf.density_plot(self.params,axs,cl,ce0,ml,me0,sl,se0, width, points, 1, 1, xlabel='$\\chi_{lum}$')
+        Egf.density_plot(self.params,axs,cr,cl,mr,ml,sr,sl, width, points, 2, 0, xlabel='$\\chi_{red}$', ylabel='$\\chi_{lum}$')
        
 
 
@@ -122,103 +80,29 @@ class Posterior_Plotter():
         axs[1,1].sharey(axs[1,0])
 
 
-        axs[3,0].hist(cr, bins=self.params['plot.bins'], color='lightgray')
-        axs[3,0].set_xlabel('$\\chi_{red}$', fontsize = self.params['plot.fontsize'])
-        axs[3,0].tick_params('y', labelleft=False)
-        axs[3,0].set_xlim(mr-width*sr,mr+width*sr)
-
-        axs[3,0].axvline(x = mr+sr, color = 'green', linestyle='--', label='1-$\\sigma$')
-        axs[3,0].axvline(x = mr-sr, color = 'green', linestyle='--')
-
-        axs[3,0].axvline(x = mr+2*sr, color = 'orange', linestyle='--', label='2-$\\sigma$')
-        axs[3,0].axvline(x = mr-2*sr, color = 'orange', linestyle='--')
-
-        axs[3,0].axvline(x = mr+3*sr, color = 'red', linestyle='--', label='3-$\\sigma$')
-        axs[3,0].axvline(x = mr-3*sr, color = 'red', linestyle='--')
-
+        Egf.histo_plot(self.params, axs,cr, mr, sr, width, 3, 0, xlabel='$\\chi_{red}$')
+        Egf.sigma_plot(self.params, axs, mr, sr, np.array([1,2,3]), ['green', 'orange', 'red'], ['1-$\\sigma$', '2-$\\sigma$','3-$\\sigma$'], 3, 0)
         axs[3,0].axvline(x = self.params['mean.mean_red'], color = 'k', linestyle = '-', label='Mock') 
-       
+        #amplitude parameter might need to be adjusted       
+        Egf.gauss_plot(self.params, axs, mr, sr, width, 3, 0, 1000, label='Prior')
 
-        x = np.linspace(mr-width*sr,mr+width*sr, 1000)
-        #amplitude might need to be adjusted
-        y = Gaussian1D(amplitude=self.params['plot.amplitude'], mean=self.params['prior_mean.prior_mean_red'], stddev= self.params['prior_std.prior_std_red'])
-      
-        axs[3,0].plot(x, y(x), 'b-', label='Prior')
-
-
-
-
-        axs[2,1].hist(cl, bins=self.params['plot.bins'], color='lightgray')
-        axs[2,1].set_xlabel('$\\chi_{lum}$', fontsize = self.params['plot.fontsize'])
-        axs[2,1].tick_params('y', labelleft=False)
-        axs[2,1].set_xlim(ml-width*sl,ml+width*sl)
-
-        axs[2,1].axvline(x = ml+sl, color = 'green', linestyle='--', label='1-$\\sigma$')
-        axs[2,1].axvline(x = ml-sl, color = 'green', linestyle='--')
-
-        axs[2,1].axvline(x = ml+2*sl, color = 'orange', linestyle='--', label='2-$\\sigma$')
-        axs[2,1].axvline(x = ml-2*sl, color = 'orange', linestyle='--')
-
-        axs[2,1].axvline(x = ml+3*sl, color = 'red', linestyle='--', label='3-$\\sigma$')
-        axs[2,1].axvline(x = ml-3*sl, color = 'red', linestyle='--')
-
+        Egf.histo_plot(self.params, axs,cl, ml, sl, width, 2, 1, xlabel='$\\chi_{lum}$')
+        Egf.sigma_plot(self.params, axs, ml, sl, np.array([1,2,3]), ['green', 'orange', 'red'], ['1-$\\sigma$', '2-$\\sigma$','3-$\\sigma$'], 2, 1)
         axs[2,1].axvline(x = self.params['mean.mean_lum'], color = 'k', linestyle = '-', label='Mock') 
-       
+        Egf.gauss_plot(self.params, axs, ml, sl, width, 2, 1, 1000, label='Prior')
 
-        x = np.linspace(ml-width*sl,ml+width*sl, 1000)
-        #amplitude might need to be adjusted
-        y = Gaussian1D(amplitude=self.params['plot.amplitude'], mean=self.params['prior_mean.prior_mean_lum'], stddev= self.params['prior_std.prior_std_lum'])
-      
-        axs[2,1].plot(x, y(x), 'b-', label='Prior')
-
-
-        axs[1,2].hist(ce0, bins=self.params['plot.bins'], color='lightgray')
-        axs[1,2].set_xlabel('$\\chi_{env, 0}$', fontsize = self.params['plot.fontsize'])
-        axs[1,2].tick_params('y', labelleft=False)
-        axs[1,2].set_xlim(me0-width*se0,me0+width*se0)
-
-        axs[1,2].axvline(x = me0+se0, color = 'green', linestyle='--', label='1-$\\sigma$')
-        axs[1,2].axvline(x = me0-se0, color = 'green', linestyle='--')
-
-        axs[1,2].axvline(x = me0+2*se0, color = 'orange', linestyle='--', label='2-$\\sigma$')
-        axs[1,2].axvline(x = me0-2*se0, color = 'orange', linestyle='--')
-
-        axs[1,2].axvline(x = me0+3*se0, color = 'red', linestyle='--', label='3-$\\sigma$')
-        axs[1,2].axvline(x = me0-3*se0, color = 'red', linestyle='--')
-
+        Egf.histo_plot(self.params, axs,ce0, me0, se0, width, 1, 2, xlabel='$\\chi_{env, 0}$')
+        Egf.sigma_plot(self.params, axs, me0, se0, np.array([1,2,3]), ['green', 'orange', 'red'], ['1-$\\sigma$', '2-$\\sigma$','3-$\\sigma$'], 1, 2)
         axs[1,2].axvline(x = self.params['mean.mean_env'], color = 'k', linestyle = '-', label='Mock') 
-       
-
-        x = np.linspace(me0-width*se0,me0+width*se0, 1000)
-        #amplitude might need to be adjusted
-        y = Gaussian1D(amplitude=self.params['plot.amplitude'], mean=self.params['prior_mean.prior_mean_env'], stddev= self.params['prior_std.prior_std_env'])
-      
-        axs[1,2].plot(x, y(x), 'b-', label='Prior')
+        Egf.gauss_plot(self.params, axs, me0, se0, width, 1, 2, 1000, label='Prior')
 
 
 
-        axs[0,3].hist(ci0, bins=self.params['plot.bins'], color='lightgray')
-        axs[0,3].set_xlabel('$\\chi_{int, 0}$', fontsize = self.params['plot.fontsize'])
-        axs[0,3].tick_params('y', labelleft=False)
-        axs[0,3].set_xlim(mi0-width*si0,mi0+width*si0)
-
-        axs[0,3].axvline(x = mi0+si0, color = 'green', linestyle='--', label='1-$\\sigma$')
-        axs[0,3].axvline(x = mi0-si0, color = 'green', linestyle='--')
-
-        axs[0,3].axvline(x = mi0+2*si0, color = 'orange', linestyle='--', label='2-$\\sigma$')
-        axs[0,3].axvline(x = mi0-2*si0, color = 'orange', linestyle='--')
-
-        axs[0,3].axvline(x = mi0+3*si0, color = 'red', linestyle='--', label='3-$\\sigma$')
-        axs[0,3].axvline(x = mi0-3*si0, color = 'red', linestyle='--')
-
+        Egf.histo_plot(self.params, axs,ci0, mi0, si0, width, 0, 3, xlabel='$\\chi_{int, 0}$')
+        Egf.sigma_plot(self.params, axs, mi0, si0, np.array([1,2,3]), ['green', 'orange', 'red'], ['1-$\\sigma$', '2-$\\sigma$','3-$\\sigma$'], 0, 3)
         axs[0,3].axvline(x = self.params['mean.mean_int'], color = 'k', linestyle = '-', label='Mock') 
-       
+        Egf.gauss_plot(self.params, axs, mi0, si0, width, 0, 3, 1000, label='Prior')
 
-        x = np.linspace(mi0-width*si0,mi0+width*si0, 1000)
-        #amplitude might need to be adjusted
-        y = Gaussian1D(amplitude=self.params['plot.amplitude'], mean=self.params['prior_mean.prior_mean_int'], stddev= self.params['prior_std.prior_std_int'])
-      
-        axs[0,3].plot(x, y(x), 'b-', label='Prior')
 
         axs[1,0].tick_params(labelbottom=True, direction='in')
         axs[0,1].tick_params(labelbottom=True, direction='in')
