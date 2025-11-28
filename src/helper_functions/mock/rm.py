@@ -50,9 +50,9 @@ def rm(params, data, dest_data, rm_err, e_z, e_F, z_mock, F_mock, figname1, fign
         rm_data=np.array(eg_gal_data.val)
 
         # QUI UNA FUNZIONE PER IL NOISE
-        NOISE=Egf.rm_noise(params, data, dest_data, rm_err, ltheta, lerm, z_indices, 'Noise.png')
-        noise=NOISE['Noise']
-        sigma_mock =NOISE['Sigma noise mock']
+        rm_noise=Egf.rm_noise(params, data, dest_data, rm_err, ltheta, lerm, z_indices, 'Noise.png')
+        noise=rm_noise['Noise']
+        sigma_mock =rm_noise['Sigma noise mock']
         rm_data+=noise
 
 

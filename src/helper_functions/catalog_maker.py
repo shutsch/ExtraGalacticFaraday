@@ -6,9 +6,8 @@ matplotlib.use('TkAgg')
 
 class CatalogMaker():
 
-    def __init__(self, params, base_catalog_data, base_catalog, dest_catalog=None):
+    def __init__(self, params, base_catalog, dest_catalog=None):
         self.params = params
-        self.base_catalog_data = base_catalog_data
         self.base_catalog = base_catalog
         self.dest_catalog = dest_catalog
 
@@ -23,11 +22,12 @@ class CatalogMaker():
         
 
         #eg and full data
-        z_indices = self.base_catalog_data['z indices']
-        e_z = self.base_catalog_data['e_z']
-        e_F = self.base_catalog_data ['e_F']
-        rm_err = self.base_catalog_data['rm_err']
-          
+        z_indices = Egf.get_data(self.base_catalog)['z indices']
+        e_z = Egf.get_data(self.base_catalog)['e_z']
+        e_F = Egf.get_data(self.base_catalog) ['e_F']
+        rm_err = Egf.get_data(self.base_catalog) ['rm_err']
+        
+            
         #creation of mock F and z
         eF_samples=Egf.sampling_from_distribiution(self.params, e_z, e_F, self.base_catalog, dest_data)
         F_mock=eF_samples['F_mock']

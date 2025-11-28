@@ -167,7 +167,6 @@ class Minimizer():
             inspect_callback=plot_cb,
             output_directory=params['file_params.results_path'],
             resume=params['params_inference.resume']
-            #dry_run=False
             )
         self.samples = sample_list
         self.mean = mean

@@ -11,6 +11,8 @@ from src.helper_functions.catalog_maker import *
 from src.helper_functions.survey_maker import *
 from src.helper_functions.parameters_maker import Parameters_maker
 
+from src.helper_functions.likelihood import get_implicit_likelihood, get_explicit_likelihood
+from src.helper_functions.settings import gal_settings, egal_settings
 from src.helper_functions.logger import logger
 from src.helper_functions.data.define_catalog import define_catalog
 from src.helper_functions.data.get_rm import get_rm
