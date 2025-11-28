@@ -22,7 +22,7 @@ params_mock_cat:
         
 
     npi:
-      use_npi: True
+      use_npi: False
       npi_los: 5000
       #using Y. K. Ma et al. (2019)
       mu_nvss: 605.0

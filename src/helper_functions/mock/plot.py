@@ -75,7 +75,7 @@ def plot_rmeg(params, e_z, e_F, egal_contr, e_z_orig, e_F_orig_at_z, figname):
 
 
     plt.subplots_adjust(wspace=0.5, hspace=0)
-    plt.savefig(name=f'{params["file_params.plot_path"]}{figname}', bbox_inches='tight')
+    plt.savefig(fname=f'{params["file_params.plot_path"]}{figname}', bbox_inches='tight')
 
 
 def plot_mock(params, eg_data, noised_data, figname):
@@ -96,4 +96,4 @@ def plot_mock_vs_observed(params, dest_rm_eg, noised_rm_eg, dest_rm_gal, noised_
         axs[0].set_xlabel('Observed Galactic RM ($rad/m^2$)')
         axs[0].set_ylabel('Simulated Galactic RM ($rad/m^2$)')
         axs[0].scatter(dest_rm_gal,noised_rm_gal)
-        plt.savefig(name=f'{params["file_params.plot_path"]}{figname}', bbox_inches='tight')
+        plt.savefig(fname=f'{params["file_params.plot_path"]}{figname}', bbox_inches='tight')

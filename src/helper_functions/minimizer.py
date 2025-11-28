@@ -198,4 +198,6 @@ class Minimizer():
             resume=params['params_inference.resume']
             #dry_run=False
             )
+        self.samples = sample_list
+        self.mean = mean
 

@@ -16,7 +16,7 @@ def base_catalog_extractor(base_catalog):
     catalogs=Egf.get_data(data)
 
     #eg data
-    z_indices = catalogs['z_indices']
+    z_indices = catalogs['z indices']
     e_z = catalogs['e_z']
     e_F = catalogs['e_F']
 
@@ -24,6 +24,6 @@ def base_catalog_extractor(base_catalog):
     #full data
     rm_err = catalogs['rm_err']   
 
-    return {'z_indices': z_indices, 'e_z': e_z, 'e_F': e_F, 'rm_err': rm_err}
+    return  {'z indices': z_indices, 'e_z': e_z,'e_F': e_F, 'rm_err': rm_err}
 
     

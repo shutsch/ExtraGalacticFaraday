@@ -44,8 +44,8 @@ def seb23(params):
 
     # Get data
     b_data = b.val
-    print('mean=', np.mean(b_data))
-    print('var=',np.var(b_data))
+    print('B mean=', np.mean(b_data))
+    print('B var=',np.var(b_data))
 
    
     return rm_gal, b, dm_new_field

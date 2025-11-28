@@ -21,7 +21,9 @@ def write_to_file(params, dest_data):
         hdu[1].data['stokesI'][np.where(hdu[1].data['type']!='Pulsar')] =  dest_data['stokesI']
         hdu.writeto(params['file_params.cat_path']+'master_catalog_vercustom_sim.fits', overwrite=True)
         hdu.close()
-        return "Mock catalog written to file successfully."
+        print("Mock catalog written to file successfully.")
+        return catalog_name
+    
     except Exception as e:
         return "Error in writing mock catalog to file: ", e
 

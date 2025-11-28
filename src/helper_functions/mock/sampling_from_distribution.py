@@ -2,7 +2,7 @@ import numpy as np
 
 
 
-def sampling_from_distribiution(params, e_z, data, dest_data):
+def sampling_from_distribiution(params, e_z, e_F, data, dest_data):
 
     if params['params_mock_cat.maker_params.surveys.make_survey1'] == True:
         los=int(params['params_mock_cat.maker_params.multiple']*params['params_mock_cat.maker_params.surveys.los1'])
@@ -27,9 +27,9 @@ def sampling_from_distribiution(params, e_z, data, dest_data):
         e_F = np.array(data['stokesI'][nvss_index])
     
 
-    return {'F_mock': np.random.choice(e_F[np.where(e_F>0)],size=lmock) ,
+    return {'F_mock': np.random.choice(e_F[np.where(e_F>0)],size=lmock), 
             'z_mock': np.random.choice(e_z,size=lmock),
-             'z_mock_indices': z_mock_indices }
+              'z_mock_indices':  z_mock_indices }
 
 
 

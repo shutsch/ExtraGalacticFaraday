@@ -12,7 +12,7 @@ def rm_gal(params, sky_domain):
 
         rm, B, dm =seb23(params)
 
-        Egf.plot_rmgal(dm, B, rm, figname='Mock_cat_Seb23_dm_b_rm.png') 
+        Egf.plot_rmgal(params, dm, B, rm, figname='Mock_cat_Seb23_dm_b_rm.png') 
         rm_gal= rm if params['params_mock_cat.maker_params.disk_on']==1 else\
             B
 

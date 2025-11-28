@@ -1,9 +1,8 @@
 import nifty8 as ift
-from catalog_maker import CatalogMaker
+#from catalog_maker import CatalogMaker
+#from survey_maker import SurveyMaker
 import libs as Egf
 import numpy as np
-from src.helper_functions.logger import logger
-from survey_maker import SurveyMaker
 import utilities as U
 import matplotlib
 matplotlib.use('Agg')
@@ -17,42 +16,42 @@ class Settings_Maker():
         params= self.params
 
         sky_domain = ift.makeDomain(ift.HPSpace(params['params_inference.nside']))
-        #catalog_version = params['file_params.version']
 
-        #data = Egf.get_rm(filter_pulsars=True, version=f'{catalog_version}', default_error_level=0.5, params=params)
-        data = Egf.get_rm(filter_pulsars=True, version=params['file_params.version'], default_error_level=0.5, params=params)
-
-
-
-        #create mock catalog option
-        if(params['params_mock_cat.maker_params.use_mock']):
-            if self.params['params_mock_cat.maker_params.surveys.make_survey1']==True:
-                survey_data=SurveyMaker(params).make_survey()
-                c=CatalogMaker(params, base_catalog=Egf.base_catalog_extractor(data), base_catalog=data, dest_catalog=survey_data)
-                c.make_catalog()
-                logger.info("CREATED NEW MOCK SURVEY CATALOG")        
-
-            else:
-                c=CatalogMaker(params, base_catalog=Egf.base_catalog_extractor(data), base_cataog=data, dest_catalog=None)
-                c.make_catalog()
-                logger.info("CREATED NEW MOCK CATALOG")       
-
-            #CatalogMaker(params, base_catalog=data).make_catalog()
-            #non si può fare così
-            data = Egf.get_rm(filter_pulsars=True, version=None, full_catalog_path=f'{c.catalog_name}', default_error_level=0.5, params=params)
+        data = Egf.define_catalog(params)['Data for inference']
     
 
         # filter
-        z_indices = Egf.get_data(data)['z_indices']
-        e_z = Egf.get_data(data)['e_z']
-        e_rm = Egf.get_data(data)['e_rm']
-        e_F = Egf.get_data(data)['e_F']
-        e_rm_err = Egf.get_data(data)['e_rm_err']   
-        lerm = Egf.get_data(data)['lerm'] 
+        data_catalog=Egf.get_data(data)
+        z_indices=data_catalog['z indices']
+        e_rm=data_catalog['e_rm']
+        e_rm_err=data_catalog['e_rm_err']
+        e_z=data_catalog['e_z']
+        e_F=data_catalog['e_F']
+        lerm=data_catalog['lerm']
+        g_rm=data_catalog['g_rm']
+        g_rm_err=data_catalog['g_rm_err']
+        lgrm=data_catalog['lgrm']
+
+
+
+
+
+
+
+
+
+
+
+        #eg and gal domain definition
+        egal_data_domain = ift.makeDomain(ift.UnstructuredDomain((lerm,))) #è definito sia qui che in catalog maker, va tenuto in entrambi?
 
         egal_rm = ift.Field(egal_data_domain, e_rm)
         egal_stddev = ift.Field(egal_data_domain, e_rm_err)
 
+        gal_data_domain = ift.makeDomain(ift.UnstructuredDomain((lgrm,)))
+
+        gal_rm = ift.Field(gal_data_domain, g_rm)
+        gal_stddev = ift.Field(gal_data_domain, g_rm_err)
 
 
 
@@ -62,7 +61,6 @@ class Settings_Maker():
    
         # build the full model and connect it to the likelihood
         # set the extra-galactic model hyper-parameters and initialize the model
-        egal_data_domain = ift.makeDomain(ift.UnstructuredDomain((lerm,))) #è definito sia qui che in catalog maker, va tenuto in entrambi?
         egal_model_params = {'z': e_z, 'F': e_F, 'params': params}
         emodel = Egf.ExtraGalModel(egal_data_domain, egal_model_params, use_prior_params=True)
 
@@ -101,18 +99,6 @@ class Settings_Maker():
                                                                 inverse_covariance_key='icov',
                                                                 sampling_dtype=np.dtype(np.float64)) @ n_res
         
-
-        g_rm = Egf.get_data(data)['g_rm']
-        g_F = Egf.get_data(data)['g_F']
-        g_rm_err = Egf.get_data(data)['g_rm_err']   
-        
-        lgrm=Egf.get_data(data)['lgrm']
-
-
-        gal_data_domain = ift.makeDomain(ift.UnstructuredDomain((lgrm,)))
-
-        gal_rm = ift.Field(gal_data_domain, g_rm)
-        gal_stddev = ift.Field(gal_data_domain, g_rm_err)
 
         implicit_response = Egf.SkyProjector(theta=data['theta'][~z_indices],
                                             phi=data['phi'][~z_indices],
@@ -162,6 +148,9 @@ class Settings_Maker():
         sky_models = {'faraday_sky': galactic_model.get_model(), 'profile': components['log_profile'].exp(),
                     'sign': components['sign']}
         power_models = {'log_profile': components['log_profile_amplitude'], 'sign': components['sign_amplitude']}
+
+        eg_model= {'chi_int_0': ecomponents['chi_int_0'], 'chi_env_0': ecomponents['chi_env_0'],
+                    'chi_lum': ecomponents['chi_lum'], 'chi_red': ecomponents['chi_red']    }
     
         #the value that we plot are indeed the values in the position field 
         #scatter_pairs = {'intrinsic': (ecomponents['chi_lum'], ecomponents['chi_int_0']),'environmental': (ecomponents['chi_red'], ecomponents['chi_env_0'])}
@@ -181,6 +170,7 @@ class Settings_Maker():
             'likelihoods': likelihoods,
             'sky_maps': sky_models,
             'power_spectra': power_models,
+            'eg_model': eg_model,
             'scatter_pairs': None,
             'plotting_kwargs': plotting_kwargs,
             'sigma_rm': data['rm_err'],

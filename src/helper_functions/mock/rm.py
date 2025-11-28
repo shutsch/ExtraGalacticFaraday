@@ -4,7 +4,7 @@ import numpy as np
 
 
 
-def rm(params, data, dest_data, rm_err, z_indices, e_z, e_F, z_mock, F_mock, figname1, figname2):
+def rm(params, data, dest_data, rm_err, e_z, e_F, z_mock, F_mock, figname1, figname2):
 
 
         sky_domain = ift.makeDomain(ift.HPSpace(params['params_inference.nside']))
@@ -14,10 +14,10 @@ def rm(params, data, dest_data, rm_err, z_indices, e_z, e_F, z_mock, F_mock, fig
         dest_data_catalog = Egf.get_data(dest_data)
 
         #eg data
-        z_indices = dest_data_catalog['z_indices'] 
+        z_indices = dest_data_catalog['z indices'] 
         lerm = dest_data_catalog['lerm'] 
 
-        eg_b = dest_data_catalog['b'] 
+        eg_b = dest_data_catalog['eg_b'] 
 
         theta_eg = dest_data_catalog['theta_eg'] 
         phi_eg = dest_data_catalog['phi_eg'] 
@@ -50,7 +50,9 @@ def rm(params, data, dest_data, rm_err, z_indices, e_z, e_F, z_mock, F_mock, fig
         rm_data=np.array(eg_gal_data.val)
 
         # QUI UNA FUNZIONE PER IL NOISE
-        noise, sigma_mock =Egf.rm_noise(params, data, dest_data, rm_err, ltheta, lerm, z_indices, 'Noise.png') 
+        NOISE=Egf.rm_noise(params, data, dest_data, rm_err, ltheta, lerm, z_indices, 'Noise.png')
+        noise=NOISE['Noise']
+        sigma_mock =NOISE['Sigma noise mock']
         rm_data+=noise
 
 
@@ -67,4 +69,4 @@ def rm(params, data, dest_data, rm_err, z_indices, e_z, e_F, z_mock, F_mock, fig
         Egf.plot_mock_vs_observed(params, dest_data['rm'][z_indices],noised_rm_data.val[z_indices], dest_data['rm'][~z_indices],noised_rm_data.val[~z_indices], figname2)
 
 
-        return {'Noised_data': noised_rm_data, 'Sigma_noise_mock': sigma_mock}
+        return {'Noised data': noised_rm_data, 'Sigma noise mock': sigma_mock}
