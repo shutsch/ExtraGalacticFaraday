@@ -65,26 +65,24 @@ class Minimizer():
             Posterior_Plotter(plot_params).plot(figname=f'EG_posterior_{i}.png')
 
         def get_minimizer(i):
-            if i<params['params_inference.n_single_fit']: 
-                deltaE_threshold = params['controllers.minimizer.deltaE_threshold']
+            deltaE_threshold = params['controllers.minimizer.deltaE_threshold']
 
-                new_dict = {
-                    'n': params['controllers.minimizer.n'],
-                        'type': 'AbsDeltaEnergy',
-                        'change_params': {'n_final': params['controllers.minimizer.n_final'],
-                                        'increase_step': params['controllers.minimizer.increase_step'],
-                                        'increase_rate': params['controllers.minimizer.increase_rate']
-                                        },
-                        'controller_params': {'deltaE': params['controllers.minimizer.deltaE_start'] 
-                                            if i <= deltaE_threshold 
-                                            else params['controllers.minimizer.deltaE_end'],
-                                            'convergence_level': params['controllers.minimizer.convergence_level']}
-                        }
+            new_dict = {
+                'n': params['controllers.minimizer.n'],
+                    'type': 'AbsDeltaEnergy',
+                    'change_params': {'n_final': params['controllers.minimizer.n_final'],
+                                    'increase_step': params['controllers.minimizer.increase_step'],
+                                    'increase_rate': params['controllers.minimizer.increase_rate']
+                                    },
+                    'controller_params': {'deltaE': params['controllers.minimizer.deltaE_start'] 
+                                        if i <= deltaE_threshold 
+                                        else params['controllers.minimizer.deltaE_end'],
+                                        'convergence_level': params['controllers.minimizer.convergence_level']}
+                    }
 
-                new_controller = get_controller(new_dict, i, False, 'Minimizer')
-                return ift.NewtonCG(new_controller)  
-            else:
-                return ift.NewtonCG(controllers['Minimizer_eg'])
+            new_controller = get_controller(new_dict, i, False, 'Minimizer')
+            return ift.NewtonCG(new_controller)  
+
 
         
         minimizer_params = self.minimizer_params
@@ -123,26 +121,6 @@ class Minimizer():
                 'controller_params': {'deltaE': params['controllers.minimizer.deltaE_start'],
                                     'convergence_level': params['controllers.minimizer.convergence_level']} #maybe at 2
                 },
-            'Sampler_eg':
-                {'n': params['controllers.sampler_eg.n'],
-                'type': 'AbsDeltaEnergy',
-                'change_params': {'n_final': params['controllers.sampler_eg.n_final'],
-                                'increase_step': params['controllers.sampler_eg.increase_step'],
-                                'increase_rate': params['controllers.sampler_eg.increase_rate']
-                                },
-                'controller_params': {'deltaE': params['controllers.sampler_eg.deltaE'],
-                                    'convergence_level': params['controllers.sampler_eg.convergence_level']}
-                },
-            'Minimizer_eg':
-                {'n': params['controllers.minimizer_eg.n'],
-                'type': 'AbsDeltaEnergy',
-                'change_params': {'n_final': params['controllers.minimizer_eg.n_final'],
-                                'increase_step': params['controllers.minimizer_eg.increase_step'],
-                                'increase_rate': params['controllers.minimizer_eg.increase_rate']
-                                },
-                'controller_params': {'deltaE': params['controllers.minimizer_eg.deltaE'],
-                                    'convergence_level': params['controllers.minimizer_eg.convergence_level']} #maybe at 2
-                },
             'Minimizer_Samples':
                 {'n': params['controllers.minimizer_samples.n'],
                 'type': 'AbsDeltaEnergy',
@@ -172,20 +150,13 @@ class Minimizer():
             else params['params_inference.n_samples_posterior']
 
 
-        constants = lambda i: [] if i< params['params_inference.n_single_fit'] \
-            else ( ['log_profile_flexibility', 'log_profile_fluctuations', 'log_profile_loglogavgslope', 'log_profile_spectrum', 'log_profile_xi', 'log_profile_zeromode', 'sign_flexibility', 'sign_fluctuations', 'sign_loglogavgslope', 'sign_spectrum', 'sign_xi', 'sign_zeromode'])
-
-        point_estimates = lambda i: [] if i< params['params_inference.n_single_fit'] \
-            else (['log_profile_flexibility', 'log_profile_fluctuations', 'log_profile_loglogavgslope', 'log_profile_spectrum', 'log_profile_xi', 'log_profile_zeromode', 'sign_flexibility', 'sign_fluctuations', 'sign_loglogavgslope', 'sign_spectrum', 'sign_xi', 'sign_zeromode'])
-        
-        get_sampler = lambda i : controllers['Sampler'] if i< params['params_inference.n_single_fit'] else controllers['Sampler_eg']
+         
+        get_sampler = lambda i : controllers['Sampler'] 
     
         op_output = {}
         sample_list, mean = ift.optimize_kl(
             likelihood_energy=likelihood,
             total_iterations=n_global,
-            constants=constants,
-            point_estimates=point_estimates,
             n_samples = n_samples,
             kl_minimizer=get_minimizer,
             sampling_iteration_controller=get_sampler,
