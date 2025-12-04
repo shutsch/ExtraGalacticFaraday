@@ -222,13 +222,22 @@ def _density_estimation(m1, m2, xmin, xmax, ymin, ymax, nbins):
 def density_plot(params,axs,x,y,mx,my,sx,sy, width, points, axsx, axsy, xlabel=None,ylabel=None):
     xxx, yyy, zzz = _density_estimation(x, y, mx-width*sx,mx+width*sx, my-width*sy,my+width*sy, points)
     axs[axsx,axsy].imshow(np.rot90(zzz), cmap=plt.cm.gist_earth_r, extent=[mx-width*sx,mx+width*sx, my-width*sy,my+width*sy], aspect="auto")
-    axs[axsx,axsy].scatter(x, y, color='k', s=params['plot.markersize'])
     axs[axsx,axsy].set_ylim(my-width*sy,my+width*sy)
     axs[axsx,axsy].set_xlim(mx-width*sx,mx+width*sx)
     axs[axsx,axsy].set_xlabel(f'{xlabel}', fontsize = params['plot.fontsize']) if xlabel is not None else '' 
     axs[axsx,axsy].set_ylabel(f'{ylabel}', fontsize = params['plot.fontsize']) if ylabel is not None else '' 
 
- 
+
+    z=np.ravel(np.array(zzz))
+    order=np.argsort(z)
+    zsorted=z[order]
+    Z=np.cumsum(zsorted)
+    Z /=Z[-1]
+    levels=np.searchsorted(Z,1-np.array([0.997,0.95,0.68]),side='left')
+    new_levels=zsorted[levels]
+    axs[axsx,axsy].contour(xxx,yyy,zzz,levels=new_levels,colors=np.array(['brown','brown', 'brown']), linestyles='-', alpha=0.5)
+    axs[axsx,axsy].scatter(x, y, color='k', s=params['plot.markersize'])
+
 def histo_plot(params, axs, x, mx, sx, width, axsx, axsy, xlabel=None):
     axs[axsx,axsy].hist(x, bins=params['plot.bins'], color='lightgray')
     axs[axsy,axsy].tick_params('y', labelleft=False)
@@ -242,12 +251,12 @@ def gauss_plot(params, axs, mx, sx, width, axsx, axsy, points, label=None):
     axs[axsx,axsy].plot(x, y(x), 'b-', label=f'{label}') if label is not None else axs[axsx,axsy].plot(x, y(x), 'b-') 
 
 def sigma_plot(params, axs, mx, sx, width, color, label, axsx, axsy):
-    axs[axsx, axsy].axvline(x = mx+width[0]*sx, color = color[0], linestyle='--', label=f'{label[0]}')
-    axs[axsx, axsy].axvline(x = mx-width[0]*sx, color = color[0], linestyle='--')
-    axs[axsx, axsy].axvline(x = mx+width[1]*sx, color = color[1], linestyle='--', label=f'{label[1]}')
-    axs[axsx, axsy].axvline(x = mx-width[1]*sx, color = color[1], linestyle='--')
-    axs[axsx, axsy].axvline(x = mx+width[2]*sx, color = color[2], linestyle='--', label=f'{label[2]}')
-    axs[axsx, axsy].axvline(x = mx-width[2]*sx, color = color[2], linestyle='--')
+    axs[axsx, axsy].axvline(x = mx+width[0]*sx, color = color[0], linestyle='--', alpha=0.5, label=f'{label[0]}')
+    axs[axsx, axsy].axvline(x = mx-width[0]*sx, color = color[0], linestyle='--', alpha=0.5)
+    axs[axsx, axsy].axvline(x = mx+width[1]*sx, color = color[1], linestyle='--', alpha=0.5, label=f'{label[1]}')
+    axs[axsx, axsy].axvline(x = mx-width[1]*sx, color = color[1], linestyle='--', alpha=0.5)
+    axs[axsx, axsy].axvline(x = mx+width[2]*sx, color = color[2], linestyle='--', alpha=0.5, label=f'{label[2]}')
+    axs[axsx, axsy].axvline(x = mx-width[2]*sx, color = color[2], linestyle='--', alpha=0.5)
 
 def noise_plot(params, sigma1, sigma2, sigma1_mock, sigma2_mock, figname):
     fig, axs = plt.subplots(2, 2)

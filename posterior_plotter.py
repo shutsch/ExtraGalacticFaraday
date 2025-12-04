@@ -1,8 +1,5 @@
-import nifty8 as ift
 import numpy as np
 import libs as Egf
-from src.helper_functions.plot.plot import _density_estimation
-from astropy.modeling.models import Gaussian1D
 import matplotlib.pyplot as plt
 import matplotlib
 matplotlib.use('TkAgg')

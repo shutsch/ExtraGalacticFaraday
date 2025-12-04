@@ -10,7 +10,6 @@ def base_catalog_extractor(params, base_catalog):
     #data catalogs
     data = base_catalog if base_catalog is not None else \
         Egf.get_rm(version=params['file_params.version'], filter_pulsars=True, default_error_level=0.5, params=params, full_catalog_path=None)
-        #Egf.get_rm(filter_pulsars=True, version='custom', default_error_level=0.5)
 
     return {'base catalog': data}
 

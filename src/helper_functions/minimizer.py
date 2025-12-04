@@ -3,7 +3,7 @@ from .logger import logger, Format
 from posterior_plotter import Posterior_Plotter
 from .minimization_helpers import get_controller, get_n_samples
 from .plot.plot import sky_map_plotting, power_plotting, energy_plotting, scatter_plotting_posterior, eta_plotting
-#import libs as Egf
+
 
 class Minimizer():
     def __init__(self, minimizer_params, ecomponents, params):
