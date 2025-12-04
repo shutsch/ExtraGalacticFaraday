@@ -22,6 +22,6 @@ def rm_gal(params, sky_domain):
         gal_mock_position = ift.from_random(galactic_model.get_model().domain, 'normal')
         gal=galactic_model.get_model()(gal_mock_position)
         rm_gal=gal
-        Egf.plot_rmgalonly(params, gal, figname='Mock_cat_consistent_RM_gal.png') 
+        Egf.plot_rmgalonly(params, gal, figname='Mock_RM_gal_consistent.png') 
 
     return rm_gal
