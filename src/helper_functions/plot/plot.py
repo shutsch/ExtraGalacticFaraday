@@ -3,6 +3,8 @@ import numpy as np
 import nifty8 as ift
 from .nifty_cmaps import ncmap
 from astropy.modeling.models import Gaussian1D
+import healpy as hp
+from healpy.newvisufunc import projview
 import matplotlib.pyplot as pl
 import matplotlib.pyplot as plt
 from matplotlib import cm
@@ -167,8 +169,45 @@ def power_plotting(model, samples, name, path, from_power_model, string=None, **
                 color=color)
         plo.output(name=amp_path + name + '_' + string + ".png")
 
-
 def sky_map_plotting(model, plot_obj, name, path, string=None, **kwargs):
+    if string is None:
+        string = ''
+    sky_path = path + 'sky/' + name + '/'
+    if not os.path.exists(sky_path):
+        os.makedirs(sky_path)
+
+    if isinstance(plot_obj, list):
+        sc = ift.StatCalculator()
+        for sample in plot_obj:
+            sc.add(model.force(sample))
+        m = sc.mean
+        print(m.val)
+    else:
+        m = model.force(plot_obj)
+    if 'cmap' in kwargs:
+        try:
+            kwargs['cmap'] = getattr(ncmap, kwargs['cmap'])()
+            kwargs['vmin']= kwargs['vmin_mean']
+            kwargs['vmax']= kwargs['vmax_mean']
+        except AttributeError:
+            kwargs['cmap'] = getattr(cm, kwargs['cmap'])
+    projview(m.val, sub=121, coord=["G"], flip="astro", projection_type="mollweide", cmap=kwargs['cmap'], min=kwargs['vmin'], max=kwargs['cmap'], title='Mean (rad/m$^2$)')
+ 
+    if 'cmap_stddev' in kwargs:
+        if 'cmap_stddev' in kwargs:
+            try:
+                kwargs['cmap'] = getattr(ncmap, kwargs['cmap_stddev'])()
+                kwargs['vmin']= kwargs['vmin_std']
+                kwargs['vmax']= kwargs['vmax_std']
+            except AttributeError:
+                kwargs['cmap'] = getattr(cm, kwargs['cmap_stddev'])
+    projview(ift.sqrt(sc.var).val, sub=122, coord=["G"], flip="astro", projection_type="mollweide", cmap=kwargs['cmap'], min=kwargs['vmin'], max=kwargs['cmap'], title='Uncertainty (rad/m$^2$)')
+
+    pl.savefig(sky_path + name + '_' + string + ".png", bbox_inches='tight')
+    pl.close()
+
+
+def sky_map_plotting_seb(model, plot_obj, name, path, string=None, **kwargs):
     if string is None:
         string = ''
     sky_path = path + 'sky/' + name + '/'
@@ -248,7 +287,7 @@ def histo_plot(params, axs, x, mx, sx, width, axsx, axsy, xlabel=None):
 def gauss_plot(params, axs, mx, sx, width, axsx, axsy, points, label=None):
     x = np.linspace(mx-width*sx,mx+width*sx, points)
     y = Gaussian1D(amplitude=params['plot.amplitude'], mean=params['prior_mean.prior_mean_int'], stddev= params['prior_std.prior_std_int'])
-    axs[axsx,axsy].plot(x, y(x), 'b-', label=f'{label}') if label is not None else axs[axsx,axsy].plot(x, y(x), 'b-') 
+    axs[axsx,axsy].plot(x, y(x), 'b-', label=f'{label}') if label is not None else axs[axsx,axsy].plot(x, y(x), 'b-', alpha=0.5) 
 
 def sigma_plot(params, axs, mx, sx, width, color, label, axsx, axsy):
     axs[axsx, axsy].axvline(x = mx+width[0]*sx, color = color[0], linestyle='--', alpha=0.5, label=f'{label[0]}')
