@@ -175,7 +175,7 @@ prior_mean:
 plot:
   amplitude: 100
   bins: 10
-  fontsize: 20
+  fontsize: 21
   markersize: 5
   legend_fontsize: 15
   map_nside: 64

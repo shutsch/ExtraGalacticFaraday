@@ -3,7 +3,6 @@ import numpy as np
 import nifty8 as ift
 from .nifty_cmaps import ncmap
 from astropy.modeling.models import Gaussian1D
-import healpy as hp
 from healpy.newvisufunc import projview
 import matplotlib.pyplot as pl
 import matplotlib.pyplot as plt
@@ -191,7 +190,7 @@ def sky_map_plotting(model, plot_obj, name, path, string=None, **kwargs):
             kwargs['vmax']= kwargs['vmax_mean']
         except AttributeError:
             kwargs['cmap'] = getattr(cm, kwargs['cmap'])
-    projview(m.val, sub=121, coord=["G"], flip="astro", projection_type="mollweide", cmap=kwargs['cmap'], min=kwargs['vmin'], max=kwargs['cmap'], title='Mean (rad/m$^2$)')
+    projview(m.val, sub=121, coord=["G"], flip="astro", projection_type="mollweide", cmap=kwargs['cmap'], min=kwargs['vmin'], max=kwargs['cmap'], title='Mean (rad m$^{-2}$)', fontsize={'title':10, 'cbar_tick_label':10})
  
     if 'cmap_stddev' in kwargs:
         if 'cmap_stddev' in kwargs:
@@ -201,7 +200,7 @@ def sky_map_plotting(model, plot_obj, name, path, string=None, **kwargs):
                 kwargs['vmax']= kwargs['vmax_std']
             except AttributeError:
                 kwargs['cmap'] = getattr(cm, kwargs['cmap_stddev'])
-    projview(ift.sqrt(sc.var).val, sub=122, coord=["G"], flip="astro", projection_type="mollweide", cmap=kwargs['cmap'], min=kwargs['vmin'], max=kwargs['cmap'], title='Uncertainty (rad/m$^2$)')
+    projview(ift.sqrt(sc.var).val, sub=122, coord=["G"], flip="astro", projection_type="mollweide", cmap=kwargs['cmap'], min=kwargs['vmin'], max=kwargs['cmap'], title='Uncertainty (rad m$^{-2}$)', fontsize={'title':10, 'cbar_tick_label':10})
 
     pl.savefig(sky_path + name + '_' + string + ".png", bbox_inches='tight')
     pl.close()
