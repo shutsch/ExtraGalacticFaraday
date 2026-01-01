@@ -104,4 +104,4 @@ class Settings_Maker():
             'eta': implicit_noise.get_components()['eta'] if implicit_noise_model != None else None
         }
 
-        return {'minimizer_params': minimizer_params, 'ecomponents': ecomponents}
+        return {'minimizer_params': minimizer_params, 'ecomponents': ecomponents, 'emodel': emodel}

@@ -30,7 +30,7 @@ params_mock_cat:
     
     surveys:
       #Survey1 should be used for eg and Survey2, if needed, for Galactic only. Otherwise Survey1 can be used for both
-      make_survey1: True
+      make_survey1: False
       delta_low1: -90.0 #deg
       delta_high1: 0.0 #deg
       los1: 180000
@@ -39,7 +39,7 @@ params_mock_cat:
       name1: 'SKA-MID'
       cat1: "2025A&A...694A.125L"  #"2023MNRAS.519.5723O"  #"2023MNRAS.519.5723O"  #"2025A&A...694A.125L"  #
      
-      make_survey2: True
+      make_survey2: False
       delta_low2: -40.0 #deg
       delta_high2: 90.0 #deg
       los2: 37453

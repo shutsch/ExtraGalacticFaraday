@@ -61,8 +61,11 @@ class ExtraGalModel(Model):
         ##csi_rm = ift.FieldAdapter(sigmaRm.domain, 'csi_rm')
         ##egal_rm = sigmaRm*csi_rm
     
+        #self._model = sigmaRm2
         self._model = sigmaRm2
+
         self._components.update({'chi_lum': chi_lum, 'chi_red': chi_red, 'chi_int_0': chi_int_0, 'chi_env_0': chi_env_0, })
+
 
         
 
