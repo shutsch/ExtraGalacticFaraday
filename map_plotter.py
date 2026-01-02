@@ -54,12 +54,12 @@ class Map_Plotter():
 
         
         
-        mean,var=samples.sample_stat()
-        sl = samples.at(mean)
-        egal_var=np.array([emodel.get_model().force(s).val for s in sl.iterator()])
+        #mean,var=samples.sample_stat()
+        #sl = samples.at(mean)
+        egal_var=np.array([emodel.get_model().force(s).val for s in samples.iterator()])
 
         np.random.seed(seed=self.params['params_mock_cat.maker_params.seed'])
-        rand_rm=np.random.normal(0.0, 1.0,len(e_z))
+        rand_rm=np.random.normal(0.0, 1.0, egal_var.shape[1])
         egal_contr = np.sqrt(egal_var)*rand_rm
         print('eg_std', np.std(egal_contr))
 
