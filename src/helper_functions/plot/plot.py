@@ -8,8 +8,19 @@ import matplotlib.pyplot as pl
 import matplotlib.pyplot as plt
 from matplotlib import cm
 import matplotlib
+from matplotlib.offsetbox import AnchoredText
 matplotlib.use('Agg') 
 
+def draw_text(ax, mean, std):
+    """
+    Draw two text-boxes, anchored by different corners to the upper-left
+    corner of the figure.
+    """
+    at = AnchoredText('Median= '+str(round(mean,2))+' Std='+str(round(std,2)),
+                    loc='upper left', prop=dict(size=12), frameon=True,
+                    )
+    at.patch.set_boxstyle("round,pad=0.,rounding_size=0.2")
+    ax.add_artist(at)
 
 
 def energy_plotting(array_dict, path):

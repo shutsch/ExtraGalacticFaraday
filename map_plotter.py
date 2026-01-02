@@ -3,26 +3,10 @@ import nifty8 as ift
 import libs as Egf 
 import matplotlib.pyplot as plt
 import matplotlib
-import math as m
-import healpy as hp
-from matplotlib import cm
-from astropy.cosmology import FlatLambdaCDM
-from src.helper_functions.misc import gal2gal
+
 matplotlib.use('TkAgg')
 
-#cosmo and constants
 
-light_speed =  Egf.const['c']
-h =  Egf.const['Jens']['h']
-Wm = Egf.const['Jens']['Wm']
-Wc = Egf.const['Jens']['Wc']
-Wl = Egf.const['Jens']['Wl']
-H0 = 100 * h
-    
-cosmo = FlatLambdaCDM(H0=H0, Om0=Wm)  
-L0 = float(Egf.const['L0'])
-D0 = Egf.const['D0']
-factor = float(Egf.const['factor'])
 
 
 
@@ -56,16 +40,25 @@ class Map_Plotter():
         
         #mean,var=samples.sample_stat()
         #sl = samples.at(mean)
+        
         egal_var=np.array([emodel.get_model().force(s).val for s in samples.iterator()])
 
-        np.random.seed(seed=self.params['params_mock_cat.maker_params.seed'])
         rand_rm=np.random.normal(0.0, 1.0, egal_var.shape[1])
         egal_contr = np.sqrt(egal_var)*rand_rm
-        print('eg_std', np.std(egal_contr))
-
-        plt.hist(egal_contr.flatten(), bins=1000, color='skyblue', edgecolor='black')
+        eg_std=np.std(egal_contr.flatten())
+        eg_mean=np.mean(egal_contr.flatten())
+        print(egal_contr.shape)
+        print('eg_std', eg_std)
+        print('eg_mean', eg_mean)
+       
+        fig, ax = plt.subplots()
+        ax.hist(egal_contr.flatten(), bins=1000, color='skyblue', edgecolor='black', range=(-200.0,200.0), density=True)
+        Egf.draw_text(ax,eg_mean,eg_std)
+        ax.set_title('Total')
         plt.xlabel('$\\phi_{eg}$ [rad m$^{-2}$]')
         plt.ylabel('Occurrency')
         plt.savefig(f'{self.params["file_params.plot_path"]}{figname_distribution}', bbox_inches='tight')
         plt.clf()
+
+        
 

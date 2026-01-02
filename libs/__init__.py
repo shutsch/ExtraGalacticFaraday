@@ -42,6 +42,7 @@ from src.helper_functions.plot.plot import histo_plot
 from src.helper_functions.plot.plot import gauss_plot
 from src.helper_functions.plot.plot import sigma_plot
 from src.helper_functions.plot.plot import noise_plot
+from src.helper_functions.plot.plot import draw_text    
 
 import yaml
 with open('config.yaml','r') as config_file:
