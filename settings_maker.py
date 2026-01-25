@@ -16,7 +16,7 @@ class Settings_Maker():
         sky_domain = ift.makeDomain(ift.HPSpace(params['params_inference.nside']))
 
         data = Egf.define_catalog(params)['Data for inference']
-    
+        print("Catalog used for inference:", Egf.define_catalog(params)['Catalog path'])    
 
         # filter
         data_catalog=Egf.get_data(data)

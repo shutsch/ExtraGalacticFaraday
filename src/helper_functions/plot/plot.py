@@ -308,25 +308,18 @@ def sigma_plot(params, axs, mx, sx, width, color, label, axsx, axsy):
     axs[axsx, axsy].axvline(x = mx+width[2]*sx, color = color[2], linestyle='--', alpha=0.5, label=f'{label[2]}')
     axs[axsx, axsy].axvline(x = mx-width[2]*sx, color = color[2], linestyle='--', alpha=0.5)
 
-def noise_plot(params, sigma1, sigma2, sigma1_mock, sigma2_mock, figname):
-    fig, axs = plt.subplots(2, 2)
+def noise_plot(params, sigma, sigma_mock, figname):
+    fig, axs = plt.subplots(1, 2)
 
-    axs[0,0].hist(sigma1, bins=100, density=True, color='green')
+    axs[0].hist(sigma, bins=100, density=True, color='green')
     
-    axs[0,1].hist(sigma2, bins=100, density=True, color='green')
 
-    axs[1,0].hist(sigma1_mock, bins=100, density=True, color='lightgrey')
-    axs[1,0].set_xlabel('$\\sigma_{1}$ (rad/m$^2$)')
+    axs[1].hist(sigma_mock, bins=100, density=True, color='lightgrey')
+    axs[1].set_xlabel('$\\sigma_{mock}$ (rad/m$^2$)')
 
-    axs[1,1].hist(sigma2_mock, bins=100, density=True, color='lightgrey')
-    axs[1,1].set_xlabel('$\\sigma_{2}$ (rad/m$^2$)')
+    axs[1].sharex(axs[0])
 
-    axs[1,1].sharex(axs[0,1])
-    axs[1,0].sharex(axs[0,0])
-
-    axs[0,0].set_xticks([])
-    axs[0,1].set_xticks([])
-
+    axs[0].set_xticks([])
 
 
     plt.subplots_adjust(wspace=0.5, hspace=0)

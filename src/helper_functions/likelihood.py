@@ -10,7 +10,7 @@ def get_implicit_likelihood(params,sky_domain, gal_data_domain, data, z_indices,
 
 
     #to use when inference on the noise factors is necessary
-    if params['params_mock_cat.maker_params.npi.use_npi']==True:
+    if params['params_inference.eta']==True:
     # Possible all sky variation of alpha, requires pygedm package 
         alpha = 2.5
         log_ymw = np.log(Egf.load_ymw_sky('ymw16', 'mc', params))

@@ -71,13 +71,9 @@ class Posterior_Plotter():
         axs[0,2].axvline(x = self.params['mean.mean_env'], color = 'k', linestyle='-')
 
         axs[1,0].tick_params(labelbottom=True, direction='in')
-        axs[0,1].tick_params(labelbottom=True, direction='in')
-        axs[0,1].tick_params(labelleft=False, direction='in')
+        axs[0,1].tick_params(labelbottom=True, labelleft=False, direction='in')
         axs[0,2].tick_params(labelleft=False, direction='in')
-        axs[1,1].tick_params(labelleft=False, direction='in')
-        axs[1,1].tick_params(labelright=False, direction='in')
-        axs[1,1].tick_params(labeltop=False, direction='in')
-        axs[1,1].tick_params(labelbottom=False, direction='in')
+        axs[1,1].tick_params(labelbottom=False, labeltop=False, labelleft=False, labelright=False, direction='in')
         axs[0,0].tick_params(labelbottom=True, direction='in')
         axs[2,0].tick_params(labelbottom=True, labelleft=True, direction='in')
 

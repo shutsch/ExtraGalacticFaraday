@@ -4,7 +4,7 @@ import libs as Egf
 
 def define_catalog(params):
 
-    #data = Egf.get_rm(filter_pulsars=True, version=params['file_params.version'], default_error_level=0.5, params=params)
+    ##data = Egf.get_rm(filter_pulsars=True, version=params['file_params.version'], default_error_level=0.5, params=params)
     data= Egf.base_catalog_extractor(params,base_catalog=None)['base catalog'] 
 
     #create mock catalog option
@@ -22,6 +22,6 @@ def define_catalog(params):
    
         data = Egf.get_rm(version=None, filter_pulsars=True, default_error_level=0.5,  params=params, full_catalog_path=f'{catalog_name}')
 
-    return {'Data for inference': data}
+    return {'Data for inference': data, 'Catalog path': catalog_name}
 
 

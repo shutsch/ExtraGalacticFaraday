@@ -6,28 +6,30 @@ import numpy as np
 
 def rm_noise(params, data, dest_data, rm_err, ltheta, lerm, z_indices, figname):
 
+
         if params['params_mock_cat.maker_params.surveys.make_survey1'] == True:
           
             cat_index_1=np.where(dest_data['catalog']==params['params_mock_cat.maker_params.surveys.name1'])[0]
             sigma_1 = rm_err[np.where(data['catalog']==params['params_mock_cat.maker_params.surveys.cat1'])[0]]
             sigma_mock=np.empty(dest_data['catalog'].size)
             sigma_mock[cat_index_1]=Egf.sampling_from_noise_distribiution(sigma_1, len(cat_index_1))['sigma']
+            print('sigma_mock cat1', sigma_mock[cat_index_1].mean())
+            Egf.noise_plot(params, sigma_1, sigma_mock[cat_index_1], f'cat1_{figname}')
 
             if params['params_mock_cat.maker_params.surveys.make_survey2'] == True:
                 cat_index_2=np.where(dest_data['catalog']==params['params_mock_cat.maker_params.surveys.name2'])[0]
                 sigma_2 = rm_err[np.where(data['catalog']==params['params_mock_cat.maker_params.surveys.cat2'])[0]]
                 sigma_mock[cat_index_2]=Egf.sampling_from_noise_distribiution(sigma_2, len(cat_index_2))['sigma']
-                
+                print('sigma_mock cat2', sigma_mock[cat_index_2].mean())
+                Egf.noise_plot(params, sigma_2, sigma_mock[cat_index_2], f'cat2_{figname}')
+
             sigma_mock_field=ift.Field.from_raw(ift.UnstructuredDomain(dest_data['catalog'].size),np.array(sigma_mock))
             N = ift.DiagonalOperator(sigma_mock_field**2, domain=ift.UnstructuredDomain(sigma_mock_field.size), sampling_dtype=np.float64)
 
-            print('sigma_mock cat1', sigma_mock[cat_index_1].mean())
-            print('sigma_mock cat2', sigma_mock[cat_index_2].mean())
+
 
             #rm_data+= N.draw_sample().val
             noise=N.draw_sample().val
-
-            Egf.noise_plot(params, sigma_1, sigma_2, sigma_mock[cat_index_1], sigma_mock[cat_index_2], figname)
 
 
             
@@ -59,7 +61,8 @@ def rm_noise(params, data, dest_data, rm_err, ltheta, lerm, z_indices, figname):
             print('sigma_mock gal', sigma_gal_mock.mean())
 
 
-            Egf.noise_plot(params, sigma_eg, sigma_gal, sigma_eg_mock, sigma_gal_mock, figname)
+            Egf.noise_plot(params, sigma_eg, sigma_eg_mock, f'EG_{figname}')
 
+            Egf.noise_plot(params, sigma_gal, sigma_gal_mock, f'Gal_{figname}')
 
         return {'Noise': noise, 'Sigma noise mock': sigma_mock}

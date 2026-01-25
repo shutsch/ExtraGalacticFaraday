@@ -1,19 +1,19 @@
 import libs as Egf
 
 def get_galactic_model(sky_domain, params):
-    log_amplitude_params = {'fluctuations': {'asperity': params['params_mock_cat.log_amplitude.fluctuations.asperity'], 
-                                            'flexibility': params['params_mock_cat.log_amplitude.fluctuations.flexibility'],  
-                                            'fluctuations': params['params_mock_cat.log_amplitude.fluctuations.fluctuations'], 
-                                            'loglogavgslope': params['params_mock_cat.log_amplitude.fluctuations.loglogavgslope'], },
-                            'offset': {'offset_mean': params['params_mock_cat.log_amplitude.offset.offset_mean'], 
-                                      'offset_std': params['params_mock_cat.log_amplitude.offset.offset_std']},}
+    log_amplitude_params = {'fluctuations': {'asperity': params['galactic_parameters.log_amplitude.fluctuations.asperity'], 
+                                            'flexibility': params['galactic_parameters.log_amplitude.fluctuations.flexibility'],  
+                                            'fluctuations': params['galactic_parameters.log_amplitude.fluctuations.fluctuations'], 
+                                            'loglogavgslope': params['galactic_parameters.log_amplitude.fluctuations.loglogavgslope'], },
+                            'offset': {'offset_mean': params['galactic_parameters.log_amplitude.offset.offset_mean'], 
+                                      'offset_std': params['galactic_parameters.log_amplitude.offset.offset_std']},}
 
-    sign_params = {'fluctuations': {'asperity': params['params_mock_cat.sign.fluctuations.asperity'], 
-                                            'flexibility': params['params_mock_cat.sign.fluctuations.flexibility'],  
-                                            'fluctuations': params['params_mock_cat.sign.fluctuations.fluctuations'], 
-                                            'loglogavgslope': params['params_mock_cat.sign.fluctuations.loglogavgslope'], },
-                            'offset': {'offset_mean': params['params_mock_cat.sign.offset.offset_mean'], 
-                                      'offset_std': params['params_mock_cat.sign.offset.offset_std']},}
+    sign_params = {'fluctuations': {'asperity': params['galactic_parameters.sign.fluctuations.asperity'], 
+                                            'flexibility': params['galactic_parameters.sign.fluctuations.flexibility'],  
+                                            'fluctuations': params['galactic_parameters.sign.fluctuations.fluctuations'], 
+                                            'loglogavgslope': params['galactic_parameters.sign.fluctuations.loglogavgslope'], },
+                            'offset': {'offset_mean': params['galactic_parameters.sign.offset.offset_mean'], 
+                                      'offset_std': params['galactic_parameters.sign.offset.offset_std']},}
 
     return Egf.Faraday2020Sky(sky_domain, **{'log_amplitude_parameters': log_amplitude_params,
                                                        'sign_parameters': sign_params})
