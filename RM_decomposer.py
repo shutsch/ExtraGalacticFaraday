@@ -1,3 +1,4 @@
+import os
 import nifty8 as ift
 import libs as Egf
 import numpy as np
@@ -16,10 +17,12 @@ def run_inference(params, settings_params):
 if __name__ == '__main__':
     params = Egf.Parameters_maker().yaml_values
 
+    os.system("rm -rf "+params['file_params.results_path'])
+    os.system("mkdir "+params['file_params.results_path'])
     # print a RuntimeWarning  in case of underflows
     np.seterr(all='raise')
     # set seed
-    seed = params['params_mock_cat.maker_params.seed']
+    seed = params['params_inference.seed']
     ift.random.push_sseq_from_seed(seed)
     settings_params = Settings_Maker(params).run_settings()
     run_inference(params, settings_params)

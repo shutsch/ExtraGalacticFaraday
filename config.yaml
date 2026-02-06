@@ -16,10 +16,9 @@ params_inference:
   seed: 2000
   nside: 256
   nglobal: 100
-  n_single_fit: 200
   n_samples_posterior: 100
   resume: False
-  non_linear: True
+  non_linear: False
   eta: False
 
 sample_params:
@@ -85,14 +84,12 @@ prior_parameters:
       prior_std_lum: 0.5
       prior_std_red: 0.5
       prior_std_env: 1.5
-      prior_std_one: 2.0
 
     prior_mean:
       prior_mean_int: 0.0
       prior_mean_lum: 0.0
       prior_mean_red: 0.0
       prior_mean_env: 0.0
-      prior_mean_one: 0.0 
 
 params_mock_cat:
 
@@ -148,14 +145,12 @@ params_mock_cat:
       std_lum: 0.5
       std_red: 0.5
       std_env: 0.5
-      std_one: 0.5
 
     mean:
       mean_int: 2.0
       mean_lum: -0.5
       mean_red: -0.5
       mean_env: 3.0
-      mean_one: 4.0
 
 plot:
   amplitude: 100

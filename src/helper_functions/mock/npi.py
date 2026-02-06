@@ -5,7 +5,7 @@ import random
 import matplotlib.pyplot as plt
 
 def npi(params, dest_data, rm_data, eg_b,eg_gal_data, sigma_mock):
-    np.random.seed(seed=params['params_mock_cat.maker_params.seed'])
+    np.random.seed(seed=params['params_inference.seed'])
 
     
     delta_rm_list=[]
