@@ -9,7 +9,7 @@ def pow_spec(k):
 
 def seb23(params):
     # set seed
-    seed = params['params_mock_cat.maker_params.seed']
+    seed = params['params_inference.seed']
     ift.random.push_sseq_from_seed(seed)    
 
     N=Egf.config['params_inference']['nside']  #number of pixels

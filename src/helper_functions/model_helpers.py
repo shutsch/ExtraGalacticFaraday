@@ -9,14 +9,14 @@ class Model_Helper():
         self.use_prior_params = use_prior_params   
 
     def build_model(self):
-        mean_int = self.params['prior_parameters.prior_mean.prior_mean_int'] if self.use_prior_params else self.params['mock_cat_initial_position.mean.mean_int']
-        std_int = self.params['prior_parameters.prior_std.prior_std_int'] if self.use_prior_params else self.params['mock_cat_initial_position.std.std_int']
-        mean_env = self.params['prior_parameters.prior_mean.prior_mean_env'] if self.use_prior_params else self.params['mock_cat_initial_position.mean.mean_env']
-        std_env = self.params['prior_parameters.prior_std.prior_std_env'] if self.use_prior_params else self.params['mock_cat_initial_position.std.std_env']
-        mean_lum = self.params['prior_parameters.prior_mean.prior_mean_lum'] if self.use_prior_params else self.params['mock_cat_initial_position.mean.mean_lum']
-        std_lum = self.params['prior_parameters.prior_std.prior_std_lum'] if self.use_prior_params else self.params['mock_cat_initial_position.std.std_lum']
-        mean_red = self.params['prior_parameters.prior_mean.prior_mean_red'] if self.use_prior_params else self.params['mock_cat_initial_position.mean.mean_red']
-        std_red = self.params['prior_parameters.prior_std.prior_std_red'] if self.use_prior_params else self.params['mock_cat_initial_position.std.std_red']
+        mean_int = self.params['prior_parameters.extragalactic.prior_mean.prior_mean_int'] if self.use_prior_params else self.params['params_mock_cat.mock_cat_initial_position.mean.mean_int']
+        std_int = self.params['prior_parameters.extragalactic.prior_std.prior_std_int'] if self.use_prior_params else self.params['params_mock_cat.mock_cat_initial_position.std.std_int']
+        mean_env = self.params['prior_parameters.extragalactic.prior_mean.prior_mean_env'] if self.use_prior_params else self.params['params_mock_cat.mock_cat_initial_position.mean.mean_env']
+        std_env = self.params['prior_parameters.extragalactic.prior_std.prior_std_env'] if self.use_prior_params else self.params['params_mock_cat.mock_cat_initial_position.std.std_env']
+        mean_lum = self.params['prior_parameters.extragalactic.prior_mean.prior_mean_lum'] if self.use_prior_params else self.params['params_mock_cat.mock_cat_initial_position.mean.mean_lum']
+        std_lum = self.params['prior_parameters.extragalactic.prior_std.prior_std_lum'] if self.use_prior_params else self.params['params_mock_cat.mock_cat_initial_position.std.std_lum']
+        mean_red = self.params['prior_parameters.extragalactic.prior_mean.prior_mean_red'] if self.use_prior_params else self.params['params_mock_cat.mock_cat_initial_position.mean.mean_red']
+        std_red = self.params['prior_parameters.extragalactic.prior_std.prior_std_red'] if self.use_prior_params else self.params['params_mock_cat.mock_cat_initial_position.std.std_red']
 
         multiply_sigma_lum = ift.makeOp(ift.full(ift.DomainTuple.scalar_domain(), std_lum), sampling_dtype=float)
         multiply_sigma_int = ift.makeOp(ift.full(ift.DomainTuple.scalar_domain(), std_int), sampling_dtype=float)

@@ -297,7 +297,7 @@ def histo_plot(params, axs, x, mx, sx, width, axsx, axsy, xlabel=None):
 
 def gauss_plot(params, axs, mx, sx, width, axsx, axsy, points, label=None):
     x = np.linspace(mx-width*sx,mx+width*sx, points)
-    y = Gaussian1D(amplitude=params['plot.amplitude'], mean=params['prior_mean.prior_mean_int'], stddev= params['prior_std.prior_std_int'])
+    y = Gaussian1D(amplitude=params['plot.amplitude'], mean=params['prior_parameters.extragalactic.prior_mean.prior_mean_int'], stddev= params['prior_parameters.extragalactic.prior_std.prior_std_int'])
     axs[axsx,axsy].plot(x, y(x), 'b-', label=f'{label}') if label is not None else axs[axsx,axsy].plot(x, y(x), 'b-', alpha=0.5) 
 
 def sigma_plot(params, axs, mx, sx, width, color, label, axsx, axsy):

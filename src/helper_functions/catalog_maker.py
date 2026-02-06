@@ -14,7 +14,7 @@ class CatalogMaker():
 
     def make_catalog(self):
         #seed
-        np.random.seed(seed=self.params['params_mock_cat.maker_params.seed'])
+        np.random.seed(seed=self.params['params_inference.seed'])
 
 
         dest_data = self.dest_catalog if self.dest_catalog is not None else \

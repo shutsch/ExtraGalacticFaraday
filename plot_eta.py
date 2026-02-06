@@ -12,4 +12,4 @@ plot_params = {
                 'params': params,
             }
             
-Eta_Plotter(plot_params).plot('noise_excitations',params['params_inference.plot_path'], string=params['run.name'])
+Eta_Plotter(plot_params).plot('noise_excitations',params['params_inference.plot_path'], string=params['params_inference.name'])
