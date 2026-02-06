@@ -1,3 +1,6 @@
+run:
+  name: "demo"
+  
 file_params:
   plot_path: "./runs/demo/results/"
   results_path: "./runs/demo/results/"
