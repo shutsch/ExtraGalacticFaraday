@@ -14,8 +14,8 @@ class Settings_Maker():
     def run_settings(self):
         params= self.params
 
-        os.system("rm -rf "+params['file_params.results_path'])
-        os.system("mkdir "+params['file_params.results_path'])
+        #os.system("rm -rf "+params['file_params.results_path'])
+        os.mkdir(params['file_params.results_path'])
         sky_domain = ift.makeDomain(ift.HPSpace(params['params_inference.nside']))
 
         data = Egf.define_catalog(params)['Data for inference']

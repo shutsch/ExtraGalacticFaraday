@@ -11,7 +11,7 @@ def plot_rmgal(params, dm, B, rm_gal, figname):
     plot.add(dm, vmin=0, vmax=500, title='DM [pc cm$^{-3}$]', cmap='magma', cmap_stddev=getattr(ncmap, 'fu')())
     plot.add(B, vmin=-2.50, vmax=2.50,  title='B [$\\mu$G], $\\gamma$=-3 ', cmap=getattr(ncmap, 'fu')(), cmap_stddev=getattr(ncmap, 'fu')())
     plot.add(rm_gal, vmin=-250, vmax=250, title='$\\phi_{gal}$ [rad m$^{-2}$]', cmap=getattr(ncmap, 'fm')(), cmap_stddev=getattr(ncmap, 'fu')())
-    plot.output (name=f'{params["file_params.plot_path"]}{figname}', nx=1, ny=3) 
+    plot.output(name=f'{params["file_params.plot_path"]}{figname}', nx=1, ny=3) 
 
 
 
