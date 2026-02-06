@@ -1,4 +1,5 @@
 import os
+from pathlib import Path
 import shutil
 import nifty8 as ift
 import libs as Egf
@@ -15,7 +16,9 @@ class Settings_Maker():
     def run_settings(self):
         params= self.params
 
-        shutil.rmtree(params['file_params.results_path'])
+        dirpath = Path(params['file_params.results_path'])
+        if dirpath.exists() and dirpath.is_dir():
+            shutil.rmtree(params['file_params.results_path'])
         os.makedirs(params['file_params.results_path'])
         sky_domain = ift.makeDomain(ift.HPSpace(params['params_inference.nside']))
 
