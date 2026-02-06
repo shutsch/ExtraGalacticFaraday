@@ -81,9 +81,9 @@ prior_parameters:
   extragalactic:
     prior_std:
       prior_std_int: 1.0
-      prior_std_lum: 0.5
-      prior_std_red: 0.5
-      prior_std_env: 1.5
+      prior_std_lum: 1.0
+      prior_std_red: 1.0
+      prior_std_env: 1.0
 
     prior_mean:
       prior_mean_int: 0.0
@@ -94,20 +94,21 @@ prior_parameters:
 params_mock_cat:
 
   power_spec:
-    P0: 3.1
+    P0: 5.5
     k0: 5.0
-    gamma: -4.0
+    gamma: -8.0
 
   maker_params:
     use_mock: True
     disk_on: 1
-    maker_type: "seb23" #"seb23" #"consistent" #"ymw16"
+    maker_type: "ymw16" #"seb23" #"consistent" #"ymw16"
     eg_on: True
-    cat_gal:  "2009ApJ...702.1230T" #"2025A&A...694A.125L" #"2023MNRAS.519.5723O" #"2009ApJ...702.1230T"
+    cat_gal:  "2023MNRAS.519.5723O" #"2025A&A...694A.125L" #"2023MNRAS.519.5723O" #"2009ApJ...702.1230T"
     cat_eg: "2023MNRAS.519.5723O" #"2025A&A...694A.125L" #"2023MNRAS.519.5723O" #"LoTSS DR2 (O'Sullivan et al. 2022)"
     gal_lat_th: 45.0 #45.0
     multiple: 0.25
     nvss: False
+    base_catalog: "LoTSS_redshift_observed_catalog_1.2.0.fits"
         
 
     npi:
@@ -120,7 +121,7 @@ params_mock_cat:
     surveys:
       
       #Survey1 should be used for eg and Survey2, if needed, for Galactic only. Otherwise Survey1 can be used for both
-      make_survey1: True
+      make_survey1: False
       delta_low1: -90.0 #deg
       delta_high1: 0.0 #deg
       los1: 180000
@@ -155,7 +156,7 @@ params_mock_cat:
 plot:
   amplitude: 100
   bins: 10
-  fontsize: 21
+  fontsize: 20
   markersize: 5
   legend_fontsize: 15
   map_nside: 64

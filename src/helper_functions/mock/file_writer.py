@@ -10,7 +10,7 @@ def write_to_file(params, dest_data):
     if params['params_mock_cat.maker_params.surveys.make_survey1']:
         catalog_name=params['file_params.cat_path']+params['params_mock_cat.maker_params.surveys.name1']+'_catalog'+'.fits'
     else:
-        catalog_name=params['file_params.cat_path']+'master_catalog_vercustom'+'.fits'
+        catalog_name=params['file_params.cat_path']+params['params_mock_cat.maker_params.base_catalog']
     
     try:
         hdu= fits.open(catalog_name)

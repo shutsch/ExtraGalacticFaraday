@@ -22,8 +22,11 @@ class Settings_Maker():
         os.makedirs(params['file_params.results_path'])
         sky_domain = ift.makeDomain(ift.HPSpace(params['params_inference.nside']))
 
-        data = Egf.define_catalog(params)['Data for inference']
-        print("Catalog used for inference:", Egf.define_catalog(params)['Catalog path'])    
+        base_catalog_for_mock= params['params_mock_cat.maker_params.base_catalog'] if params['params_mock_cat.maker_params.use_mock'] else None
+        
+        catalog_definition = Egf.define_catalog(params,base_catalog=base_catalog_for_mock)
+        data= catalog_definition['Data for inference']
+        print("Catalog used for inference:", catalog_definition['Catalog path'])    
 
         # filter
         data_catalog=Egf.get_data(data)
@@ -106,7 +109,7 @@ class Settings_Maker():
             'plotting_kwargs': plotting_kwargs,
             'sigma_rm': data['rm_err'],
             'gal_pos': ~z_indices,
-            'mock_npi_indices': np.load('mock_npi_indices.npy'),
+            #'mock_npi_indices': np.load('mock_npi_indices.npy'),
             'deviation': np.load('deviation.npy'),
             'eta': implicit_noise.get_components()['eta'] if implicit_noise_model != None else None
         }
