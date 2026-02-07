@@ -5,7 +5,6 @@ from .nifty_cmaps import ncmap
 from astropy.modeling.models import Gaussian1D
 from healpy.newvisufunc import projview
 #import healpy as hp
-import matplotlib.pyplot as pl
 import matplotlib.pyplot as plt
 from matplotlib import cm
 import matplotlib
@@ -29,17 +28,17 @@ def energy_plotting(array_dict, path):
     if not os.path.exists(path):
         os.makedirs(path)
     for key, e in array_dict.items():
-        pl.figure()
-        pl.plot(np.arange(len(e)), e, label=key + '_log_energy_iteration_' + str(len(e) - 1))
-        pl.legend()
-        pl.yscale('log')
-        pl.savefig(path + key + '_log_energy.png')
-        pl.close()
-    pl.figure()
-    pl.yscale('log')
-    pl.legend()
-    pl.savefig(path + 'all_log_energy.png')
-    pl.close()
+        plt.figure()
+        plt.plot(np.arange(len(e)), e, label=key + '_log_energy_iteration_' + str(len(e) - 1))
+        plt.legend()
+        plt.yscale('log')
+        plt.savefig(path + key + '_log_energy.png')
+        plt.close()
+    plt.figure()
+    plt.yscale('log')
+    plt.legend()
+    plt.savefig(path + 'all_log_energy.png')
+    plt.close()
 
 
 def scatter_plotting(model_1, model_2, name, path, plot_obj=None, string=None, **kwargs):
@@ -121,28 +120,28 @@ def scatter_plotting_posterior(model_1, model_2, name, path, plot_obj=None, stri
 
 
 
-    pl.figure()
+    plt.figure()
     xxx, yyy, zzz = _density_estimation(val_1, val_2, xmin, xmax, ymin, ymax, 100)
     xx = np.linspace(xmin, xmax, 10)
     yy = np.linspace(ymin, ymax, 10)
 
-    pl.contour(xxx, yyy, np.log10(zzz + 1), cmap=cm.cool, linewidths=0.9,
+    plt.contour(xxx, yyy, np.log10(zzz + 1), cmap=cm.cool, linewidths=0.9,
                #levels=np.linspace(0.01, 1, 10)
                )
-    c1 = pl.contourf(xxx, yyy, np.log10(zzz + 1), cmap=cm.cool,
+    c1 = plt.contourf(xxx, yyy, np.log10(zzz + 1), cmap=cm.cool,
         # levels=np.linspace(0.01, 1, 10)
                      )
-    col = pl.colorbar(c1)
+    col = plt.colorbar(c1)
     col.set_label(kwargs.get('c_label', None))
-    pl.scatter(val_1, val_2, marker=',', s=0.5, color='black')
-    pl.plot(xx, yy, '--', c='red', linewidth=0.5)
-    pl.xlabel(kwargs.get('x_label', None))
-    pl.ylabel(kwargs.get('y_label', None))
-    pl.xlim([xmin, xmax, ])
-    pl.ylim([ymin, ymax, ])
+    plt.scatter(val_1, val_2, marker=',', s=0.5, color='black')
+    plt.plot(xx, yy, '--', c='red', linewidth=0.5)
+    plt.xlabel(kwargs.get('x_label', None))
+    plt.ylabel(kwargs.get('y_label', None))
+    plt.xlim([xmin, xmax, ])
+    plt.ylim([ymin, ymax, ])
     p=open('output_plt.txt', 'w')
-    pl.savefig(scatter_path + name + '_' + string + '.png', format='png', dpi=800)
-    pl.close()
+    plt.savefig(scatter_path + name + '_' + string + '.png', format='png', dpi=800)
+    plt.close()
     
     p.write('val_1'+str(val_1)+'val_2'+str(val_2))
     p.close()
@@ -198,8 +197,8 @@ def sky_map_plotting(model, plot_obj, name, path, string=None, **kwargs):
     if 'cmap' in kwargs:
         try:
             kwargs['cmap'] = getattr(ncmap, kwargs['cmap'])()
-            kwargs['vmin']= kwargs['vmin_mean']
-            kwargs['vmax']= kwargs['vmax_mean']
+            kwargs['vmin']= float(kwargs['vmin_mean'])
+            kwargs['vmax']= float(kwargs['vmax_mean'])
         except AttributeError:
             kwargs['cmap'] = getattr(cm, kwargs['cmap'])
     projview(m.val, sub=121, coord=["G"], flip="astro", projection_type="mollweide", cmap=getattr(ncmap, 'fu')(), min=kwargs['vmin'], max=kwargs['cmap'], title='Mean (rad m$^{-2}$)', fontsize={'title':10, 'cbar_tick_label':10})
@@ -209,8 +208,8 @@ def sky_map_plotting(model, plot_obj, name, path, string=None, **kwargs):
         if 'cmap_stddev' in kwargs:
             try:
                 kwargs['cmap'] = getattr(ncmap, kwargs['cmap_stddev'])()
-                kwargs['vmin']= kwargs['vmin_std']
-                kwargs['vmax']= kwargs['vmax_std']
+                kwargs['vmin']= float(kwargs['vmin_std'])
+                kwargs['vmax']= float(kwargs['vmax_std'])
             except AttributeError:
                 kwargs['cmap'] = getattr(cm, kwargs['cmap_stddev'])
     projview(ift.sqrt(sc.var).val, sub=122, coord=["G"], flip="astro", projection_type="mollweide", cmap=getattr(ncmap, 'fu')(), min=kwargs['vmin'], max=kwargs['vmax'], title='Uncertainty (rad m$^{-2}$)', fontsize={'title':10, 'cbar_tick_label':10})
@@ -218,8 +217,8 @@ def sky_map_plotting(model, plot_obj, name, path, string=None, **kwargs):
     #hp.mollview(ift.sqrt(sc.var).val, sub=122, coord=["G"], flip="astro", cmap=kwargs['cmap'], min=kwargs['vmin'], max=kwargs['vmax'], title='Uncertainty (rad m$^{-2}$)', fontsize={'title':10, 'cbar_tick_label':10})
     np.save(sky_path + name + '_' + string + "_mean.npy", m.val)
     np.save(sky_path + name + '_' + string + "_std.npy", ift.sqrt(sc.var).val)
-    pl.savefig(sky_path + name + '_' + string + ".png", bbox_inches='tight')
-    pl.close()
+    plt.savefig(sky_path + name + '_' + string + ".png", bbox_inches='tight')
+    plt.close()
 
 
 def sky_map_plotting_seb(model, plot_obj, name, path, string=None, **kwargs):
@@ -357,15 +356,15 @@ def eta_plotting(name, plot_obj, path, sigma_rm, gal_pos, mock_npi_indices, devi
     sigma_rm_corr2=gal_pos*sigma_rm2
 
 
-    pl.clf()
-    fig, ax = pl.subplots()
+    plt.clf()
+    fig, ax = plt.subplots()
     print(gal_pos.size)
     print(deviation.size)
     ratio=deviation[np.where(gal_pos > 5.0)[0]]/np.sqrt(sigma_rm_corr2[np.where(gal_pos > 5.0)[0]])
     np.save(eta_path + name +'_deviation_' + string + ".npy", ratio)
     ax.hist(ratio, bins=100,  density=False, color='green')
-    pl.tight_layout()
-    pl.savefig(eta_path + name +'_deviation_' + string + ".png", dpi=300)
+    plt.tight_layout()
+    plt.savefig(eta_path + name +'_deviation_' + string + ".png", dpi=300)
 
 
     with open(eta_path + name +'_summary_' + string + ".txt", 'w') as f:
@@ -375,31 +374,31 @@ def eta_plotting(name, plot_obj, path, sigma_rm, gal_pos, mock_npi_indices, devi
 
 
    
-    pl.clf()
-    fig, ax = pl.subplots()
+    plt.clf()
+    fig, ax = plt.subplots()
     ax.set_xlabel('$\\sigma^2_{RM}$')
     ax.set_ylabel('$\\sigma^2_{RM, corr}$')
 
 
     #xxx, yyy, zzz = _density_estimation(sigma_rm2, sigma_rm_corr2, sigma_rm2.min(), sigma_rm2.max(), sigma_rm_corr2.min(), sigma_rm_corr2.max(), 100)
-    #ax.imshow(np.rot90(zzz), cmap=pl.cm.inferno, extent=[sigma_rm2.min(), sigma_rm2.max(), sigma_rm_corr2.min(), sigma_rm_corr2.max()], aspect="auto")
+    #ax.imshow(np.rot90(zzz), cmap=plt.cm.inferno, extent=[sigma_rm2.min(), sigma_rm2.max(), sigma_rm_corr2.min(), sigma_rm_corr2.max()], aspect="auto")
     ax.scatter(sigma_rm2, sigma_rm_corr2)
     ax.plot(sigma_rm2, sigma_rm2, color='lightsteelblue')
     #ax.set_xlim(sigma_rm2.min(), sigma_rm2.max())
     #ax.set_ylim(sigma_rm_corr2.min(), sigma_rm_corr2.max())
     ax.set_xscale("log")
     ax.set_yscale("log")
-    pl.savefig(eta_path + name +'_sigma_' + string + ".png")
+    plt.savefig(eta_path + name +'_sigma_' + string + ".png")
 
 
-    pl.clf()
-    fig=pl.figure(figsize=(40,1))
+    plt.clf()
+    fig=plt.figure(figsize=(40,1))
     print('gal_pos min', gal_pos.min())
     print('gal_pos max', gal_pos.max())
 
-    pl.vlines(mock_npi_indices, ymin=0, ymax=gal_pos.max(), lw=0.005, color='k')
-    pl.bar(np.arange(0,gal_pos.size,1), gal_pos)
+    plt.vlines(mock_npi_indices, ymin=0, ymax=gal_pos.max(), lw=0.005, color='k')
+    plt.bar(np.arange(0,gal_pos.size,1), gal_pos)
     print('mock size', mock_npi_indices.size)
-    pl.tight_layout()
-    pl.savefig(eta_path + name +'_indices_' + string + ".png", dpi=300)
+    plt.tight_layout()
+    plt.savefig(eta_path + name +'_indices_' + string + ".png", dpi=300)
 
