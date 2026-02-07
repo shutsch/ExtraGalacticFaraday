@@ -3,8 +3,8 @@ import numpy as np
 import nifty8 as ift
 from .nifty_cmaps import ncmap
 from astropy.modeling.models import Gaussian1D
-#from healpy.newvisufunc import projview
-import healpy as hp
+from healpy.newvisufunc import projview
+#import healpy as hp
 import matplotlib.pyplot as pl
 import matplotlib.pyplot as plt
 from matplotlib import cm
@@ -202,8 +202,8 @@ def sky_map_plotting(model, plot_obj, name, path, string=None, **kwargs):
             kwargs['vmax']= kwargs['vmax_mean']
         except AttributeError:
             kwargs['cmap'] = getattr(cm, kwargs['cmap'])
-    #projview(m.val, sub=121, coord=["G"], flip="astro", projection_type="mollweide", cmap=kwargs['cmap'], min=kwargs['vmin'], max=kwargs['cmap'], title='Mean (rad m$^{-2}$)', fontsize={'title':10, 'cbar_tick_label':10})
-    hp.mollview(m.val, sub=121, coord=["G"], flip="astro", cmap=kwargs['cmap'], min=kwargs['vmin'], max=kwargs['vmax'], title='Mean (rad m$^{-2}$)', fontsize={'title':10, 'cbar_tick_label':10})
+    projview(m.val, sub=121, coord=["G"], flip="astro", projection_type="mollweide", cmap=getattr(ncmap, 'fu')(), min=kwargs['vmin'], max=kwargs['cmap'], title='Mean (rad m$^{-2}$)', fontsize={'title':10, 'cbar_tick_label':10})
+    #hp.mollview(m.val, sub=121, coord=["G"], flip="astro", cmap=kwargs['cmap'], min=kwargs['vmin'], max=kwargs['vmax'], title='Mean (rad m$^{-2}$)', fontsize={'title':10, 'cbar_tick_label':10})
  
     if 'cmap_stddev' in kwargs:
         if 'cmap_stddev' in kwargs:
@@ -213,8 +213,9 @@ def sky_map_plotting(model, plot_obj, name, path, string=None, **kwargs):
                 kwargs['vmax']= kwargs['vmax_std']
             except AttributeError:
                 kwargs['cmap'] = getattr(cm, kwargs['cmap_stddev'])
-    #projview(ift.sqrt(sc.var).val, sub=122, coord=["G"], flip="astro", projection_type="mollweide", cmap=kwargs['cmap'], min=kwargs['vmin'], max=kwargs['cmap'], title='Uncertainty (rad m$^{-2}$)', fontsize={'title':10, 'cbar_tick_label':10})
-    hp.mollview(ift.sqrt(sc.var).val, sub=122, coord=["G"], flip="astro", cmap=kwargs['cmap'], min=kwargs['vmin'], max=kwargs['vmax'], title='Uncertainty (rad m$^{-2}$)', fontsize={'title':10, 'cbar_tick_label':10})
+    projview(ift.sqrt(sc.var).val, sub=122, coord=["G"], flip="astro", projection_type="mollweide", cmap=getattr(ncmap, 'fu')(), min=kwargs['vmin'], max=kwargs['vmax'], title='Uncertainty (rad m$^{-2}$)', fontsize={'title':10, 'cbar_tick_label':10})
+
+    #hp.mollview(ift.sqrt(sc.var).val, sub=122, coord=["G"], flip="astro", cmap=kwargs['cmap'], min=kwargs['vmin'], max=kwargs['vmax'], title='Uncertainty (rad m$^{-2}$)', fontsize={'title':10, 'cbar_tick_label':10})
     np.save(sky_path + name + '_' + string + "_mean.npy", m.val)
     np.save(sky_path + name + '_' + string + "_std.npy", ift.sqrt(sc.var).val)
     pl.savefig(sky_path + name + '_' + string + ".png", bbox_inches='tight')
