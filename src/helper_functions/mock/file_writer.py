@@ -19,7 +19,7 @@ def write_to_file(params, dest_data):
         hdu[1].data['rm_err'][np.where(hdu[1].data['type']!='Pulsar')] =  dest_data['rm_err']
         hdu[1].data['z_best'][np.where(hdu[1].data['type']!='Pulsar')] =  dest_data['z_best']
         hdu[1].data['stokesI'][np.where(hdu[1].data['type']!='Pulsar')] =  dest_data['stokesI']
-        new_catalog_name= params['file_params.cat_path']+params['params_mock_cat.maker_params.base_catalog']+'_mock.fits'
+        new_catalog_name= params['file_params.cat_path']+params['params_mock_cat.maker_params.base_catalog']+'_sim.fits'
         hdu.writeto(new_catalog_name, overwrite=True)
         hdu.close()
         print("Mock catalog written to file successfully.")
