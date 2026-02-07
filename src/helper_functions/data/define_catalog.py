@@ -6,7 +6,7 @@ def define_catalog(params, base_catalog=None):
 
     print("Used base catalog:", base_catalog)
     ##data = Egf.get_rm(filter_pulsars=True, version=params['file_params.version'], default_error_level=0.5, params=params)
-    data= Egf.base_catalog_extractor(params,base_catalog)['base catalog'] 
+    data= Egf.base_catalog_extractor(params,base_catalog+'.fits')['base catalog'] 
 
     #create mock catalog option
     if(params['params_mock_cat.maker_params.use_mock']):

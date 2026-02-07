@@ -108,7 +108,7 @@ params_mock_cat:
     gal_lat_th: 45.0 #45.0
     multiple: 0.25
     nvss: False
-    base_catalog: "LoTSS_redshift_observed_catalog_1.2.0.fits"
+    base_catalog: "LoTSS_redshift_observed_catalog_1.2.0"
         
 
     npi:
