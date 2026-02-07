@@ -201,7 +201,7 @@ def sky_map_plotting(model, plot_obj, name, path, string=None, **kwargs):
             kwargs['vmax']= float(kwargs['vmax_mean'])
         except AttributeError:
             kwargs['cmap'] = getattr(cm, kwargs['cmap'])
-    projview(m.val, sub=121, coord=["G"], flip="astro", projection_type="mollweide", cmap=getattr(ncmap, 'fu')(), min=kwargs['vmin'], max=kwargs['vmax'], title='Mean (rad m$^{-2}$)', fontsize={'title':10, 'cbar_tick_label':10})
+    projview(m.val, sub=121, coord=["G"], flip="astro", projection_type="mollweide", cmap=getattr(ncmap, 'fm')(), min=kwargs['vmin'], max=kwargs['vmax'], title='Mean (rad m$^{-2}$)', fontsize={'title':10, 'cbar_tick_label':10})
     #hp.mollview(m.val, sub=121, coord=["G"], flip="astro", cmap=kwargs['cmap'], min=kwargs['vmin'], max=kwargs['vmax'], title='Mean (rad m$^{-2}$)', fontsize={'title':10, 'cbar_tick_label':10})
  
     if 'cmap_stddev' in kwargs:
@@ -221,7 +221,7 @@ def sky_map_plotting(model, plot_obj, name, path, string=None, **kwargs):
     plt.close()
 
 
-def sky_map_plotting_seb(model, plot_obj, name, path, string=None, **kwargs):
+def sky_component_plotting(model, plot_obj, name, path, string=None, **kwargs):
     if string is None:
         string = ''
     sky_path = path + 'sky/' + name + '/'

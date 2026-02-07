@@ -2,7 +2,7 @@ import nifty8 as ift
 from .logger import logger, Format
 from posterior_plotter import Posterior_Plotter
 from .minimization_helpers import get_controller, get_n_samples
-from .plot.plot import sky_map_plotting, power_plotting, energy_plotting, scatter_plotting_posterior, eta_plotting
+from .plot.plot import sky_map_plotting,sky_component_plotting, power_plotting, energy_plotting, scatter_plotting_posterior, eta_plotting
 
 
 class Minimizer():
@@ -42,8 +42,12 @@ class Minimizer():
 
             if minimizer_params['sky_maps'] is not None:
                 for sky_name, sky in minimizer_params['sky_maps'].items():
-                    sky_map_plotting(sky, [s for s in latest_sample_list.iterator()], sky_name, minimizer_params['plot_path'], string=ident,
+                    if sky_name == 'faraday_sky':
+                        sky_map_plotting(sky, [s for s in latest_sample_list.iterator()], sky_name, minimizer_params['plot_path'], string=ident,
                                         **minimizer_params['plotting_kwargs'].get(sky_name, {}))
+                    if sky_name=='profile' or sky_name=='sign':
+                        sky_component_plotting(sky, [s for s in latest_sample_list.iterator()], sky_name, minimizer_params['plot_path'], string=ident,
+                                        **minimizer_params['plotting_kwargs'].get(sky_name, {}))                        
                     if sky_name not in minimizer_params['power_spectra']:
                         power_plotting(sky, [s for s in latest_sample_list.iterator()], sky_name, minimizer_params['plot_path'], string=ident,
                                         from_power_model=False, **minimizer_params['plotting_kwargs'].get(sky_name, {}))
@@ -62,7 +66,7 @@ class Minimizer():
                 'params': params,
             }
             
-            Posterior_Plotter(plot_params).plot(figname=f'EG_posterior_{i}.png')
+            Posterior_Plotter(latest_sample_list,plot_params).plot(figname=f'EG_posterior_{i}.png')
 
         def get_minimizer(i):
             deltaE_threshold = params['controllers.minimizer.deltaE_threshold']
