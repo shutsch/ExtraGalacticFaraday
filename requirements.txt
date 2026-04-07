@@ -1,5 +1,5 @@
 nifty7~=7.2
-numpy~=1.21.2
+numpy~=1.22
 healpy~=1.14.0
 astropy~=5.3.3
 scipy~=1.6.1
